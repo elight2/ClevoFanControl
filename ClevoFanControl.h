@@ -52,6 +52,9 @@ private:
     int temperature=0;
     int rpm=0;
 
+    int getCpuTemperature();
+    int getGpuTemperature();
+
 signals:
     void updateValue(int index, int speed, int rpm, int temperature);
 };

@@ -135,7 +135,7 @@ int getGpuFanRpm() {
 	return data==0 ? 0 : (2156220 / data);
 }
 
-int getCpuTemperature()
+int FanController::getCpuTemperature()
 {
     //qDebug()<<"get cpu temp";
     int temperature=0;
@@ -147,9 +147,11 @@ int getCpuTemperature()
     return temperature;
 }
 
-int getGpuTemperature()
+int FanController::getGpuTemperature()
 {
     //qDebug()<<"get gpu temp";
+    if(!config["monitorGpu"].toBool())//temporary solution
+        return 0;
     QProcess nvsmi;
     nvsmi.start("nvidia-smi",{"-q","-d=TEMPERATURE"});
     nvsmi.waitForFinished();
@@ -293,7 +295,8 @@ void ClevoFanControl::loadConfigJson()
             {"speedLimit",QJsonArray({false,80,80})},
             {"staticSpeed",QJsonArray({false,80,80})},
             {"useClevoAuto",false},
-            {"maxSpeed",false}
+            {"maxSpeed",false},
+            {"monitorGpu",false}
         };
         configFile.open(QIODevice::ReadWrite);
         configFile.write(QJsonDocument(configData).toJson());
@@ -536,6 +539,7 @@ void CFCconfig::setOptionsFromJson() {
     ui.lineEdit_7->setText(QString::number((int) configData["timeIntervals"].toArray()[1].toInt()));
     ui.checkBox_3->setChecked(configData["useClevoAuto"].toBool());
     ui.checkBox_4->setChecked(configData["maxSpeed"].toBool());
+    ui.checkBox_5->setChecked(configData["monitorGpu"].toBool());
 }
 
 void CFCconfig::getOptionsToJson() {
@@ -570,7 +574,8 @@ void CFCconfig::getOptionsToJson() {
             {"speedLimit",QJsonArray({ui.checkBox_2->isChecked(),ui.lineEdit_36->text().toInt(),ui.lineEdit_38->text().toInt()})},
             {"staticSpeed",QJsonArray({ui.checkBox->isChecked(),ui.lineEdit_35->text().toInt(),ui.lineEdit_37->text().toInt()})},
             {"useClevoAuto",ui.checkBox_3->isChecked()},
-            {"maxSpeed",ui.checkBox_4->isChecked()}
+            {"maxSpeed",ui.checkBox_4->isChecked()},
+            {"monitorGpu",ui.checkBox_5->isChecked()}
     };
     configData=newData;
 }

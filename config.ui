@@ -238,17 +238,24 @@
           <item row="3" column="4">
            <widget class="QLineEdit" name="lineEdit_7"/>
           </item>
-          <item row="4" column="0" colspan="3">
+          <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="checkBox_3">
             <property name="text">
              <string>Use Clevo Auto</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="3" colspan="4">
+          <item row="4" column="2" colspan="2">
            <widget class="QCheckBox" name="checkBox_4">
             <property name="text">
              <string>Max Speed</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="4" colspan="3">
+           <widget class="QCheckBox" name="checkBox_5">
+            <property name="text">
+             <string>Monitor GPU</string>
             </property>
            </widget>
           </item>
