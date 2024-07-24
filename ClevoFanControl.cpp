@@ -431,7 +431,6 @@ void FanController::run()
                         targetSpeed=speedList[0];
                     else
                     {
-                        qDebug()<<"not min";
                         for(int i=0;i<10;i++)
                         {
                             if(i==9)
