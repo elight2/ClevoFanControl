@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/ClevoFanControl">
+        <file>ClevoFanControl.ico</file>
+    </qresource>
+</RCC>
