@@ -2,14 +2,19 @@
 --------------
 **使用本软件有风险，使用前请注意！建议先阅读功能介绍！作者对可能造成的损坏概不负责！**
 
-此软件用来自动控制蓝天模具笔记本的风扇
+此软件用来自动控制蓝天模具笔记本的风扇，大家可以做参考使用
+
+### 原理及说明
+* [关于Windows环境的问题](https://tieba.baidu.com/p/9101786783)
+* [Linux环境及原理解释](https://tieba.baidu.com/p/9101786783)
+* 仓库里的`ec-reference.zip`里面有我备份的参考资料
 
 ### 风扇控制接口
 * Windows：[WinRing0](https://github.com/GermanAizek/WinRing0) [预编译文件](https://github.com/QCute/WinRing0)
 * Linux：inb()和outb()
 
 ### 温度获取接口
-* Windows：CPU使用MSR寄存器，显卡使用`nvidia-smi`
+* Windows：CPU使用MSR寄存器中的`IA32_PACKAGE_THERM_STATUS_MSR`，显卡使用`nvidia-smi`
 * Linux：CPU使用`/sys/class/thermal/thermal_zone`，显卡使用`nvidia-smi`
 
 ### 功能介绍
@@ -33,4 +38,6 @@
 * Max Speed：全速模式（强冷）
 * Apply按钮：应用设置并保存配置文件
 * OK按钮：应用设置并保存配置文件，然后关闭界面
-* 
+
+### 编译
+* 工具：cmake，ninja，gcc，qt5
