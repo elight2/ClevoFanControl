@@ -90,8 +90,11 @@ unsigned char readEc_1(unsigned char addr)
 	ioOutByte(EC_SC_REG,EC_READ_CMD);
 	waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
 	ioOutByte(EC_DATA_REG,addr);
+    #ifdef _WIN32
     Sleep(1);
-	//waitEc(EC_SC_REG,EC_SC_OBF_INDEX,1);//???
+    #elif __linux__
+	waitEc(EC_SC_REG,EC_SC_OBF_INDEX,1);
+    #endif
 	unsigned char value=0;
 	value=ioInByte(EC_DATA_REG);
     //qDebug()<<"read ec finish";
@@ -139,10 +142,20 @@ int FanController::getCpuTemperature()
 {
     //qDebug()<<"get cpu temp";
     int temperature=0;
+#ifdef _WIN32
     DWORD eax=0;
 	DWORD edx=0;
     Rdmsr(IA32_PACKAGE_THERM_STATUS_MSR,&eax,&edx);
     temperature=100-((eax & 0x007F0000) >> 16);
+#elif __linux__
+    QProcess bash;
+    bash.start("bash",{"-c","paste <(cat /sys/class/thermal/thermal_zone*/type) <(cat /sys/class/thermal/thermal_zone*/temp) |grep x86_pkg_temp"});
+    bash.waitForFinished();
+    QString output=bash.readAllStandardOutput();
+    QString tempStr=output.mid(13, output.size() - 13);
+    temperature=tempStr.toInt();
+    temperature/=1000;
+#endif
     //qDebug()<<"get cpu temp finish: "<<temperature;
     return temperature;
 }
@@ -261,15 +274,17 @@ ClevoFanControl::~ClevoFanControl()
     return;
 }
 
-BOOL ClevoFanControl::InitOpenLibSys_m()
+#ifdef _WIN32
+bool ClevoFanControl::InitOpenLibSys_m()
 {
     return InitOpenLibSys(&WinRing0m);
 }
 
-BOOL ClevoFanControl::DeinitOpenLibSys_m()
+bool ClevoFanControl::DeinitOpenLibSys_m()
 {
     return DeinitOpenLibSys(&WinRing0m);
 }
+#endif
 
 void ClevoFanControl::loadConfigJson()
 {
@@ -448,6 +463,8 @@ void FanController::run()
                     targetSpeed=max(targetSpeed,minSafeSpeed);
                     targetSpeed=min(targetSpeed,100);
                 }
+                if(config["speedLimit"].toArray()[0].toBool())
+                    targetSpeed=min(targetSpeed,config["speedLimit"].toArray()[index].toInt());
                 //qDebug()<<"adjust fan: "<<index<<" normal"<<targetSpeed;
             }
             if(targetSpeed==-2)
@@ -467,6 +484,8 @@ void FanController::run()
             else if(index==2)
                 rpm=getGpuFanRpm();
             emit updateValue(index,isAuto ? -2 : curSpeed,rpm,temperature);
+            if(rpm==0)
+                curSpeed=0;//toggle speed adjust
             lastControlTime=currentTime;
         }
         QThread::msleep(100);

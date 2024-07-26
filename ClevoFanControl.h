@@ -3,6 +3,7 @@
 #include <Windows.h>
 #elif __linux__
 #include <sys/io.h>
+#include <unistd.h>
 #endif
 #include <atomic>
 #include <mutex>
@@ -93,7 +94,9 @@ public:
     ~ClevoFanControl();
 
 private:
+    #ifdef _WIN32
     HMODULE WinRing0m;
+    #endif
     QDir CFCpath = QDir::current();
 
     QSystemTrayIcon *TrayIcon = NULL;
@@ -107,8 +110,10 @@ private:
     FanController *fan1=nullptr;
     FanController *fan2=nullptr;
 
-    BOOL InitOpenLibSys_m();
-    BOOL DeinitOpenLibSys_m();
+#ifdef _WIN32
+    bool InitOpenLibSys_m();
+    bool DeinitOpenLibSys_m();
+#endif
 
     void loadConfigJson();
     void updateMonitorValueSlot(int index, int speed, int rpm, int temperature);
