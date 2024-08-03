@@ -210,17 +210,14 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent)
     actions[1] = new QAction("Config...", this);
     actions[2] = new QAction("Max Speed", this);
     actions[2]->setCheckable(1);
-    actions[2]->setChecked(configData["maxSpeed"].toBool());
     actions[3] = new QAction("Speed Limit", this);
     actions[3]->setCheckable(1);
-    actions[3]->setChecked(configData["speedLimit"].toArray()[0].toBool());
     actions[4] = new QAction("Static Speed", this);
     actions[4]->setCheckable(1);
-    actions[4]->setChecked(configData["staticSpeed"].toArray()[0].toBool());
     actions[5] = new QAction("Clevo Auto", this);
     actions[5]->setCheckable(1);
-    actions[5]->setChecked(configData["useClevoAuto"].toBool());
     actions[6] = new QAction("Exit", this);
+    updateContextMenu();
     for (int i = 0; i < 7; i++)
         menus[0]->addAction(actions[i]);
     for(int i=2;i<6;i++)
@@ -355,6 +352,7 @@ void ClevoFanControl::updateConfigDataSlot()
     qDebug()<<"updateConfigData";
     fan1->setConfig(configData);
     fan2->setConfig(configData);
+    updateContextMenu();
 }
 
 void ClevoFanControl::updateDataFromContext()
@@ -370,6 +368,14 @@ void ClevoFanControl::updateDataFromContext()
     configData["useClevoAuto"]=actions[5]->isChecked();
     updateConfigDataSlot();
     configWindow->setOptionsFromJson();
+}
+
+void ClevoFanControl::updateContextMenu()
+{
+    actions[2]->setChecked(configData["maxSpeed"].toBool());
+    actions[3]->setChecked(configData["speedLimit"].toArray()[0].toBool());
+    actions[4]->setChecked(configData["staticSpeed"].toArray()[0].toBool());
+    actions[5]->setChecked(configData["useClevoAuto"].toBool());
 }
 
 FanController::FanController(int fanIndex, QObject *parent) : QThread(parent)

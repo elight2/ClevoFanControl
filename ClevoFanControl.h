@@ -119,4 +119,5 @@ private:
     void updateMonitorValueSlot(int index, int speed, int rpm, int temperature);
     void updateConfigDataSlot();
     void updateDataFromContext();
+    void updateContextMenu();
 };

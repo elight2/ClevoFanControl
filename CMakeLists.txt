@@ -9,14 +9,21 @@ set(CMAKE_AUTOUIC on)
 set(CMAKE_AUTORCC on)
 set(CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 include_directories("/home/main/User/Program/Qt/5.15.2/gcc_64/include")
 set(CMAKE_PREFIX_PATH "/home/main/User/Program/Qt/5.15.2/gcc_64/lib/cmake")
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 include_directories("D:\\Applications\\Qt\\5.15.2\\mingw81_64\\include")
 set(CMAKE_PREFIX_PATH "D:\\Applications\\Qt\\5.15.2\\mingw81_64\\lib\\cmake")
-set(CMAKE_CXX_FLAGS "-mwindows")
+if(CMAKE_BUILD_TYPE MATCHES "Release")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
+endif()
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+if(CMAKE_BUILD_TYPE MATCHES "Release")
+add_definitions(-DQT_NO_DEBUG_OUTPUT)
+endif()
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
 
