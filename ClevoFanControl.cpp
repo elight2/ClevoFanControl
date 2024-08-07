@@ -504,7 +504,7 @@ void FanController::run()
 CFCmonitor::CFCmonitor(QWidget *parent) : QWidget(parent)
 {
     this->setAttribute(Qt::WA_QuitOnClose, 0);
-    this->setFixedSize(375,500);
+    this->setFixedSize(200,300);
     ui.setupUi(this);
 }
 

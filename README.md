@@ -40,4 +40,7 @@
 * OK按钮：应用设置并保存配置文件，然后关闭界面
 
 ### 编译
-* 工具：cmake，ninja，gcc，qt5
+* 工具：cmake，ninja，gcc，qt6
+1. 下载源码，cd到源码目录
+2. 配置：`cmake -B build -S . -G Ninja`，手动修改`CMakeLists.txt`里的路径（include，cmake和Windows上的qt自带gcc路径）和编译类型
+3. cd到`build`，编译：`cmake --build .`
