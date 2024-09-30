@@ -1,3 +1,4 @@
+#include <qaction.h>
 #ifdef _WIN32
 #include <tchar.h>
 #include <Windows.h>
@@ -8,6 +9,7 @@
 #include <atomic>
 #include <mutex>
 #include <cmath>
+#include <string>
 #include <QtCore/qthread.h>
 #include <QtWidgets/qwidget.h>
 #include <QtGui/qicon.h>
@@ -17,33 +19,68 @@
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtablewidget.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qactiongroup.h>
 #include <QtCore/qdatetime.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qprocess.h>
-#include <QtCore/qjsonobject.h>
-#include <QtCore/qjsonarray.h>
-#include <QtCore/qjsonvalue.h>
-#include <QtCore/qjsondocument.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qprocess.h>
+#include <QtCore/qstring.h>
 #include <QtWidgets/qapplication.h>
 #include "build/ui_config.h"
 #include "build/ui_monitor.h"
+#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
+using namespace std;
+
+struct fanProfile {
+    QString name;
+    int inUse[2];//c,g
+    int MTconfig[2][4];
+    int TStempList[2][10];
+    int TSspeedList[2][10];
+};
+
+class ConfigManager {
+public:
+    int profileCount;
+    fanProfile* fanProfiles=nullptr;
+    int profileInUse;
+    bool useStaticSpeed;
+    int staticSpeed[2];
+    bool useSpeedLimit;
+    int speedLimit[2];
+    int timeIntervals[2];
+    bool useClevoAuto;
+    bool maxSpeed;
+    bool monitorGpu;
+
+    ConfigManager();
+    ~ConfigManager();
+    void readFromJson();
+    void saveToJson();
+    void createConfigJson();
+
+    private:
+    QFile configFile;
+};
 
 class FanController : public QThread {
 Q_OBJECT
 
 public:
-    FanController(int fanIndex, QObject *parent = nullptr);
+    FanController(int fanIndex, atomic_bool *requireRunFlag, atomic_bool *isRunningFlag, ConfigManager *cfg, QObject *parent = nullptr);
     ~FanController();
-    void setConfig(QJsonObject data);
 
 protected:
     void run();
 
 private:
-    QJsonObject config;
+    ConfigManager *config;
+    atomic_bool *runFlag;
+    atomic_bool *runningFlag;
     int index;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
@@ -57,7 +94,7 @@ private:
     int getGpuTemperature();
 
 signals:
-    void updateValue(int index, int speed, int rpm, int temperature);
+    void updateMonitor(int index, int speed, int rpm, int temperature);
 };
 
 class CFCmonitor : public QWidget {
@@ -65,6 +102,7 @@ Q_OBJECT
 
 public:
     CFCmonitor(QWidget *parent);
+    void updateValue(int index, int speed, int rpm, int temperature);
 
     Ui::CFCmonitorWindow ui;
 };
@@ -73,20 +111,24 @@ class CFCconfig : public QWidget {
 Q_OBJECT
 
 public:
-    CFCconfig(QWidget *parent);
-    void OK();
-    void setOptionsFromJson();
-    void getOptionsToJson();
+    CFCconfig(QWidget *parent, ConfigManager *cfg);
+    void ok();
+    int getCurProfileIndex();
+    void syncOptions();
     void apply();
+    void setCurProfileOptions();
+    void setOptions();
 
     Ui::CFCconfigWindow ui;
 
+private:
+    ConfigManager *config;
+
 signals:
-    void updateConfigData();
+    void configUpdatedInConfigWindow();
 };
 
-class ClevoFanControl : public QWidget
-{
+class ClevoFanControl : public QWidget {
 Q_OBJECT
 
 public:
@@ -98,26 +140,29 @@ private:
     HMODULE WinRing0m;
     #endif
     QDir CFCpath = QDir::current();
+    ConfigManager *cfgMgr=nullptr;
 
     QSystemTrayIcon *TrayIcon = NULL;
-    QMenu *menus[1] = {NULL};
-    QAction *actions[7] = {NULL};
-    //QActionGroup *groups[4] = {NULL};
+    QMenu *menus[2];
+    QAction *actions[8];
+    QAction *profileActions;
+    QActionGroup *profilesGroup;
 
     CFCmonitor *monitor=nullptr;
     CFCconfig *configWindow=nullptr;
 
     FanController *fan1=nullptr;
     FanController *fan2=nullptr;
+    atomic_bool stillRun;
+    atomic_bool controllerRunning[2];
 
 #ifdef _WIN32
     bool InitOpenLibSys_m();
     bool DeinitOpenLibSys_m();
 #endif
 
-    void loadConfigJson();
-    void updateMonitorValueSlot(int index, int speed, int rpm, int temperature);
-    void updateConfigDataSlot();
-    void updateDataFromContext();
-    void updateContextMenu();
+    void updateMonitorSlot(int index, int speed, int rpm, int temperature);
+    void cfgTrayToRam();
+    void cfgRamToTray();
+    void trayUpdated();
 };

@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>421</width>
     <height>600</height>
    </rect>
   </property>
@@ -25,15 +25,22 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
-    <layout class="QGridLayout" name="gridLayout" rowstretch="10,0,0" columnstretch="1,1,0">
-     <item row="2" column="0">
+    <layout class="QGridLayout" name="gridLayout" rowstretch="10,0,0,0" columnstretch="1,1,0">
+     <item row="3" column="0">
       <widget class="QPushButton" name="pushButton">
        <property name="text">
         <string>OK</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
+     <item row="3" column="1" colspan="2">
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
       <widget class="QGroupBox" name="groupBox_2">
        <property name="title">
         <string>CPU Fan</string>
@@ -121,7 +128,7 @@
             <item row="3" column="0">
              <widget class="QLabel" name="label_7">
               <property name="text">
-               <string>Min Speed</string>
+               <string>Speed Step</string>
               </property>
              </widget>
             </item>
@@ -131,7 +138,7 @@
             <item row="2" column="0">
              <widget class="QLabel" name="label_6">
               <property name="text">
-               <string>Speed Step</string>
+               <string>Min Speed</string>
               </property>
              </widget>
             </item>
@@ -142,7 +149,110 @@
        </layout>
       </widget>
      </item>
-     <item row="1" column="0" colspan="3">
+     <item row="1" column="1" colspan="2">
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>GPU Fan</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_18">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_13">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="radioButton_11">
+            <property name="text">
+             <string>Temp-Speed</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTableWidget" name="tableWidget_6">
+            <attribute name="horizontalHeaderVisible">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="horizontalHeaderCascadingSectionResizes">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Temp</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Speed</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="radioButton_12">
+            <property name="text">
+             <string>Max Temp</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <layout class="QGridLayout" name="gridLayout_17">
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="lineEdit_29"/>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="lineEdit_0"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_29">
+              <property name="text">
+               <string>Slow Down Temp</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_32">
+              <property name="text">
+               <string>Speed Step</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_31">
+              <property name="text">
+               <string>Min Speed</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_28">
+              <property name="text">
+               <string>Speed Up Temp</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="lineEdit_26"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="lineEdit_27"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="3">
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
         <string>Others</string>
@@ -264,115 +374,8 @@
        </layout>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QGroupBox" name="groupBox_3">
-       <property name="title">
-        <string>GPU Fan</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_18">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_13">
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="radioButton_11">
-            <property name="text">
-             <string>Temp-Speed</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QTableWidget" name="tableWidget_6">
-            <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
-            </attribute>
-            <attribute name="horizontalHeaderCascadingSectionResizes">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="horizontalHeaderMinimumSectionSize">
-             <number>100</number>
-            </attribute>
-            <attribute name="horizontalHeaderDefaultSectionSize">
-             <number>100</number>
-            </attribute>
-            <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
-            <column>
-             <property name="text">
-              <string>Temp</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Speed</string>
-             </property>
-            </column>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QRadioButton" name="radioButton_12">
-            <property name="text">
-             <string>Max Temp</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <layout class="QGridLayout" name="gridLayout_17">
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEdit_29"/>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="lineEdit_0"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_29">
-              <property name="text">
-               <string>Slow Down Temp</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_32">
-              <property name="text">
-               <string>Min Speed</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_31">
-              <property name="text">
-               <string>Speed Step</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_28">
-              <property name="text">
-               <string>Speed Up Temp</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_26"/>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEdit_27"/>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <widget class="QPushButton" name="pushButton_2">
-       <property name="text">
-        <string>Apply</string>
-       </property>
-      </widget>
+     <item row="0" column="0" colspan="2">
+      <widget class="QComboBox" name="comboBox"/>
      </item>
     </layout>
    </item>

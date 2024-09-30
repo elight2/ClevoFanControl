@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(ClevoFanControl VERSION 2.0.4 LANGUAGES CXX)
+project(ClevoFanControl VERSION 2.1.0 LANGUAGES CXX)
 
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -10,6 +10,8 @@ set(CMAKE_AUTORCC ON)
 set(CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+
+include_directories("include")
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 include_directories("/home/main/Applications/Qt/6.7.2/gcc_64/include")

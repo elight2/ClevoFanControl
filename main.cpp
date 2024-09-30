@@ -1,4 +1,3 @@
-#include <iostream>
 #include <QtWidgets/qapplication.h>
 #include <QtGui/qfont.h>
 #include <QtWidgets/qstylefactory.h>
