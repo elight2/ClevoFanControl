@@ -9,11 +9,11 @@
 * [Linux环境及原理解释](https://tieba.baidu.com/p/9101786783)
 * 仓库里的`ec-reference.zip`里面有我备份的参考资料
 
-### 风扇控制接口
+#### 风扇控制接口
 * Windows：[WinRing0](https://github.com/GermanAizek/WinRing0) [预编译文件](https://github.com/QCute/WinRing0)
 * Linux：inb()和outb()
 
-### 温度获取接口
+#### 温度获取接口
 * Windows：CPU使用MSR寄存器中的`IA32_PACKAGE_THERM_STATUS_MSR`，显卡使用`nvidia-smi`
 * Linux：CPU使用`/sys/class/thermal/thermal_zone`，显卡使用`nvidia-smi`
 *n卡驱动版本似乎必须是500以上才能正确读取温度*
@@ -43,9 +43,14 @@
 * Max Speed：全速模式（强冷）
 * Apply按钮：应用设置并保存配置文件
 * OK按钮：应用设置并保存配置文件，然后关闭界面
----------
-* 关于多配置功能：这个功能只能用于选择或编辑已有配置，我没有做添加/删除/重命名功能，如有需要请手动修改`config.json`
+
+#### 特殊说明(重要)
+* 关于多配置功能：这个功能只能用于选择或编辑已有配置，目前没有添加/删除/重命名配置的功能，如有需要请手动修改`config.json`
 * 关于自定义命令: 此功能目前只能执行已经在`config.json`中保存的命令，要添加/删除/重命名命令，需要手动编辑文件，预置的两个命令用于在使用`acpi-cpufreq`驱动的Linux系统下设置CPU频率调度方案
+----------
+**Linux用户须知**
+1. 直接使用root身份启动程序可能出现程序正常运行但是托盘图标看不到的情况，请使用`cfc-launcher.sh`启动，本质是`unset XDG_CURRENT_DESKTOP`
+2. 软件需要qt的lib才能运行，需要安装libqt6相关文件
 
 ### 编译
 * 工具：cmake，ninja，gcc，qt6
