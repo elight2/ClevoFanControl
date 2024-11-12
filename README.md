@@ -51,6 +51,7 @@
 **Linux用户须知**
 1. 直接使用root身份启动程序可能出现程序正常运行但是托盘图标看不到的情况，请使用`cfc-launcher.sh`启动，本质是`unset XDG_CURRENT_DESKTOP`
 2. 软件需要qt的lib才能运行，需要安装libqt6相关文件
+3. 自启动方案：编写一个`.desktop`文件，执行文件填一个sh脚本，脚本里面使用sudo启动本软件的主程序，把.desktop添加到xdg自启动，然后在`sudoers`里设置本程序无密码
 
 ### 编译
 * 工具：cmake，ninja，gcc，qt6
