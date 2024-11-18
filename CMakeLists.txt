@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(ClevoFanControl VERSION 2.2.0 LANGUAGES CXX)
+project(ClevoFanControl VERSION 2.3.0 LANGUAGES CXX)
 
 set(CMAKE_BUILD_TYPE "Debug")
 
