@@ -22,8 +22,10 @@ class FanController : public QThread {
 Q_OBJECT
 
 public:
-    FanController(std::atomic_bool *shouldRunFlag, std::atomic_bool*isRunningFlag, ConfigManager *configMgr, QObject *parent);
+    FanController(ConfigManager *configMgr, QObject *parent);
     ~FanController();
+
+    void setShouldStop();
 
 protected:
     virtual int getTemp()=0;
@@ -37,7 +39,7 @@ protected:
     void doEc(unsigned char cmd, unsigned char addr, unsigned char value);
 
     ConfigManager *config;
-    int index;
+    int index=-1;
     static std::mutex EClock;
     std::atomic_bool havePrivilege;
 #ifdef _WIN32
@@ -53,13 +55,13 @@ private:
     bool DeinitOpenLibSys_m();
 #endif
 
-    std::atomic_bool *shouldRun;
-    std::atomic_bool *isRunning;
+    std::atomic_bool shouldRun=1;
+    std::atomic_bool isRunning=0;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
     int curSpeed=30;
     const int minSafeSpeed=10;
-    bool isAuto=0;
+    bool curAuto=false;
     int temperature=0;
     int rpm=0;
 
@@ -71,7 +73,7 @@ class CpuFanController : public FanController {
 Q_OBJECT
 
 public:
-    CpuFanController(std::atomic_bool *shouldRunFlag, std::atomic_bool*isRunningFlag, ConfigManager *configMgr, QObject *parent);
+    CpuFanController(ConfigManager *configMgr, QObject *parent);
 
 protected:
     int getTemp();
@@ -82,7 +84,7 @@ class GpuFanController : public FanController {
 Q_OBJECT
 
 public:
-    GpuFanController(std::atomic_bool *shouldRunFlag, std::atomic_bool*isRunningFlag, ConfigManager *configMgr, QObject *parent);
+    GpuFanController(ConfigManager *configMgr, QObject *parent);
 
 protected:
     int getTemp();

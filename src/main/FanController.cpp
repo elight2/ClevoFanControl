@@ -1,5 +1,12 @@
 #include "FanController.h"
+#include "src/main/ConfigManager.h"
 #include <mutex>
+#include <qcontainerfwd.h>
+#include <qdebug.h>
+#include <qimage.h>
+#include <qlogging.h>
+#include <qobject.h>
+#include <qthread.h>
 #include <unistd.h>
 
 #define IA32_PACKAGE_THERM_STATUS_MSR 0x1B1
@@ -36,21 +43,21 @@ bool FanController::DeinitOpenLibSys_m() {
 #endif
 
 void FanController::ioOutByte(unsigned short port, unsigned char value) {
-	#ifdef _WIN32
+#ifdef _WIN32
     WriteIoPortByte(port, value);
-    #elif __linux__
+#elif __linux__
     outb(value, port);
-    #endif
+#endif
 	return;
 }
 
 unsigned char FanController::ioInByte(unsigned short port) {
 	unsigned char ret=0;
-	#ifdef _WIN32
+#ifdef _WIN32
 	ret = ReadIoPortByte(port);
-	#elif __linux__
+#elif __linux__
 	ret = inb(port);
-	#endif
+#endif
 	return ret;
 }
 
@@ -59,9 +66,9 @@ void FanController::waitEc(unsigned short port, unsigned char index, unsigned ch
 	do
 	{
 		data=ioInByte(port);
-		#ifdef __linux__
+#ifdef __linux__
 		usleep(1000);
-		#endif
+#endif
 	}while(((data>>index)&((unsigned char)1))!=value);
 	return;
 }
@@ -89,11 +96,11 @@ unsigned char FanController::readEc_1(unsigned char addr) {
     ioOutByte(EC_SC_REG,EC_READ_CMD);
     waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
     ioOutByte(EC_DATA_REG,addr);
-    #ifdef _WIN32
+#ifdef _WIN32
     Sleep(1);
-    #elif __linux__
+#elif __linux__
     waitEc(EC_SC_REG,EC_SC_OBF_INDEX,1);
-    #endif
+#endif
     unsigned char value=0;
     value=ioInByte(EC_DATA_REG);
     //qDebug()<<"read ec finish";
@@ -137,10 +144,8 @@ void FanController::setFanSpeed(int percentage) {
         doEc(EC_SET_FAN_SPEED_CMD, EC_SET_FAN_AUTO_ADDR, index);
 }
 
-FanController::FanController(std::atomic_bool *shouldRunFlag, std::atomic_bool*isRunningFlag, ConfigManager *configMgr, QObject *parent) : QThread(parent) {
+FanController::FanController(ConfigManager *configMgr, QObject *parent) : QThread(parent) {
     qDebug()<<"FanController general construct";
-    shouldRun=shouldRunFlag;
-    isRunning=isRunningFlag;
     config=configMgr;
 
     //check privilege
@@ -153,48 +158,53 @@ FanController::FanController(std::atomic_bool *shouldRunFlag, std::atomic_bool*i
         qWarning()<<"The app may be running without necessary permissions!";
     
     //init io
+    if(!ioInitialized) {
+        qDebug()<<"not init, init: "<<index;
 #ifdef _WIN32
-    bool WinRing0result=InitOpenLibSys_m();
-    qDebug()<<"InitOpenLibSys result: "<<WinRing0result;
+        bool WinRing0result=InitOpenLibSys_m();
+        qDebug()<<"InitOpenLibSys result: "<<WinRing0result;
 #elif __linux__
-    ioperm(0x62, 1, 1);
-    ioperm(0x66, 1, 1);
+        ioperm(0x62, 1, 1);
+        ioperm(0x66, 1, 1);
 #endif
-    ioInitialized=true;
+        ioInitialized=true;
+    }
 }
 
 FanController::~FanController() {
     qDebug()<<"FanController general deconstruct";
+    if(ioInitialized) {
+        qDebug()<<"not deinit, deinit: "<<index;
 #ifdef _WIN32
-    bool WinRing0result=DeinitOpenLibSys_m();
-    qDebug()<<"DeinitOpenLibSys result: "<<WinRing0result;
+        bool WinRing0result=DeinitOpenLibSys_m();
+        qDebug()<<"DeinitOpenLibSys result: "<<WinRing0result;
 #endif
+        ioInitialized=false;
+    }
+}
+
+void FanController::setShouldStop() {
+    shouldRun=0;
+    while(isRunning)
+        QThread::msleep(100);
 }
 
 void FanController::run() {
     qDebug()<<"FanController run fan: "<<index;
-    *isRunning=1;
-    while(*shouldRun)
+    isRunning=1;
+    while(shouldRun)
     {
         currentTime=QDateTime::currentMSecsSinceEpoch();
         if(currentTime>lastControlTime+config->timeIntervals[index-1])
         {
             //qDebug()<<"controling speed fan: "<<index;
             int targetSpeed=-1;
+
             if(config->useClevoAuto) {
-                if(!isAuto) {
-                    isAuto=1;
-                    targetSpeed=-2;
-                    qDebug()<<"adjust fan: "<<index<<" auto";
-                }
-                else {
-                    targetSpeed=-3;
-                    qDebug()<<"adjust fan: "<<index<<" already auto";
-                }
+                targetSpeed=-2;
+                qDebug()<<"adjust fan: "<<index<<" auto";
             }
             else if(config->maxSpeed) {
-                if(isAuto)
-                    isAuto=0;
                 targetSpeed=100;
                 //qDebug()<<"adjust fan: "<<index<<" max";
             }
@@ -237,12 +247,16 @@ void FanController::run() {
                     targetSpeed=std::min(targetSpeed,config->speedLimit[index-1]);
                 //qDebug()<<"adjust fan: "<<index<<" normal"<<targetSpeed;
             }
-            if(targetSpeed==-2) //auto
-                setFanSpeed(-1);
-            else if(targetSpeed!=-3)
-            {
-                if(curSpeed!=targetSpeed)
-                {
+
+            if(targetSpeed==-2) { //auto
+                if(!curAuto) {
+                    setFanSpeed(-1);
+                    curAuto=true;
+                }
+            }
+            else {
+                curAuto=false;
+                if(curSpeed!=targetSpeed) {
                     qDebug()<<"apply speed: "<<index<<" "<<targetSpeed;
                     setFanSpeed(targetSpeed);
                     qDebug()<<"apply speed finish: "<<index<<" "<<targetSpeed;
@@ -254,7 +268,7 @@ void FanController::run() {
             else if(index==2) //gpu
                 rpm=getRpm();
 
-            emit updateMonitor(index,isAuto ? -2 : curSpeed,rpm,temperature);
+            emit updateMonitor(index,targetSpeed, rpm, temperature);
 
             if(rpm==0)
                 curSpeed=0;//toggle speed adjust
@@ -263,11 +277,11 @@ void FanController::run() {
         QThread::msleep(100);
     }
     setFanSpeed(index); //finalize auto
-   *isRunning=false;
+    isRunning=false;
     qDebug()<<"FanController run finish "<<index;
 }
 
-CpuFanController::CpuFanController(std::atomic_bool *shouldRunFlag, std::atomic_bool*isRunningFlag, ConfigManager *configMgr, QObject *parent) : FanController(shouldRunFlag, isRunningFlag, configMgr, parent) {
+CpuFanController::CpuFanController(ConfigManager *configMgr, QObject *parent) : FanController(configMgr, parent) {
     index=1;
 }
 
@@ -301,23 +315,46 @@ int CpuFanController::getRpm() {
 	return data==0 ? 0 : (2156220 / data);
 }
 
-GpuFanController::GpuFanController(std::atomic_bool *shouldRunFlag, std::atomic_bool*isRunningFlag, ConfigManager *configMgr, QObject *parent) : FanController(shouldRunFlag, isRunningFlag, configMgr, parent) {
+GpuFanController::GpuFanController(ConfigManager *configMgr, QObject *parent) : FanController(configMgr, parent) {
     index=2;
 }
 
 int GpuFanController::getTemp() {
     //qDebug()<<"get gpu temp";
-    if(!config->monitorGpu)//temporary solution
-        return 0;
-    QProcess nvsmi;
-    nvsmi.start("nvidia-smi",{"-q","-d=TEMPERATURE"});
-    nvsmi.waitForFinished();
-    QString output=nvsmi.readAllStandardOutput();
     int temperature=0;
-    int index=output.indexOf(static_cast<QString>("GPU Current Temp"));
-    int index2=output.indexOf(static_cast<QString>(":"),index);
-    int index3=output.indexOf(static_cast<QString>(" "),index2+2);
-    temperature=output.mid(index2+2,index3-index2-2).toInt();
+    bool check=false;
+    if(config->monitorGpu)
+        check=true;
+    else {
+#ifdef  __linux__
+        if(config->gpuAutoDetectEnabled) {
+            QProcess lsof;
+            lsof.start("lsof",{config->gpuDevDir});
+            lsof.waitForFinished();
+            QString output=lsof.readAllStandardOutput();
+            QStringList list=output.split('\n');
+            for(int i=1;i<list.size();i++) {
+                int index=list[i].indexOf(' ');
+                QString proc=list[i].mid(0,index);
+                if(proc != "" && proc != "Xorg" && proc != "nvidia-sm") {
+                    check=true;
+                    break;
+                }
+            }
+        }
+#endif
+    }
+
+    if(check) {
+        QProcess nvsmi;
+        nvsmi.start("nvidia-smi",{"-q","-d=TEMPERATURE"});
+        nvsmi.waitForFinished();
+        QString output=nvsmi.readAllStandardOutput();
+        int index=output.indexOf(static_cast<QString>("GPU Current Temp"));
+        int index2=output.indexOf(static_cast<QString>(":"),index);
+        int index3=output.indexOf(static_cast<QString>(" "),index2+2);
+        temperature=output.mid(index2+2,index3-index2-2).toInt();
+    }
     //qDebug()<<"get gpu temp finish: "<<temperature;
     return temperature;
 }

@@ -38,6 +38,8 @@ public:
     bool useClevoAuto;
     bool maxSpeed;
     bool monitorGpu;
+    bool gpuAutoDetectEnabled;
+    QString gpuDevDir;
 
     ConfigManager();
     ~ConfigManager();

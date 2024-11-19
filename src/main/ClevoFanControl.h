@@ -11,6 +11,8 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qdebug.h>
 #include <QtWidgets/qapplication.h>
+#include <qaction.h>
+#include <qkeysequence.h>
 
 #include "ConfigManager.h"
 #include "CFCmonitor.h"
@@ -29,25 +31,35 @@ public:
 private:
     QDir CFCpath = QDir::current();
     ConfigManager *cfgMgr=nullptr;
-
+    //ui
     QSystemTrayIcon *TrayIcon = NULL;
-    QMenu *menus[3];
-    QAction *actions[8];
+    QMenu * trayMainMenu=nullptr;
+    QMenu * trayProfilesMenu=nullptr;
+    QMenu * trayCommandsMenu=nullptr;
+    QAction *trayMonitorAction=nullptr;
+    QAction *trayConfigAction=nullptr;
+    QAction *trayMaxSpeedAction=nullptr;
+    QAction *traySpeedLimitAction=nullptr;
+    QAction *trayStaticSpeedAction=nullptr;
+    QAction *trayClevoAutoAction=nullptr;
+    QAction *trayMonitorGpuAction=nullptr;
+    QAction *trayExitAction=nullptr;
     QList<QAction*> profileActions;
     QList<QAction*>commandAcions;
     QActionGroup *profilesGroup;
-
+    //window
     CFCmonitor *monitor=nullptr;
     CFCconfig *configWindow=nullptr;
-
+    //fan
     CpuFanController *cpuFan=nullptr;
     GpuFanController *gpuFan=nullptr;
-    std::atomic_bool controllerShouldRun;
-    std::atomic_bool controllerIsRunning[2];
 
+    void buildUi();
+    void initTrayEntry(QAction *&action,QString text, bool checkable);
+    void executeCommand();
+    //ui
     void updateMonitorSlot(int index, int speed, int rpm, int temperature);
     void cfgTrayToRam();
     void cfgRamToTray();
     void trayUpdated();
-    void executeCommand();
 };

@@ -53,6 +53,9 @@ void ConfigManager::readFromJson() {
     this->useClevoAuto=configJson["useClevoAuto"];
     this->maxSpeed=configJson["maxSpeed"];
     this->monitorGpu=configJson["monitorGpu"];
+    this->gpuAutoDetectEnabled=!(configJson["gpuAutoDetect"] == "disabled");
+    if(gpuAutoDetectEnabled)
+        this->gpuDevDir=((std::string)configJson["gpuAutoDetect"]).c_str();
 }
 
 void ConfigManager::saveToJson() {
@@ -98,7 +101,8 @@ void ConfigManager::saveToJson() {
         {"timeIntervals",timeIntervals},
         {"useClevoAuto",this->useClevoAuto},
         {"maxSpeed",this->maxSpeed},
-        {"monitorGpu",this->monitorGpu}
+        {"monitorGpu",this->monitorGpu},
+        {"gpuAutoDetect",this->gpuAutoDetectEnabled ? gpuDevDir.toStdString() : "disabled"}
     };
     
     //write file
@@ -147,7 +151,8 @@ void ConfigManager::createConfigJson() {
         {"timeIntervals",{2000,2000}},
         {"useClevoAuto",false},
         {"maxSpeed",false},
-        {"monitorGpu",false}
+        {"monitorGpu",false},
+        {"gpuAutoDetect","disabled"}
     };
     configJson["profiles"][1][0]="default2";
 

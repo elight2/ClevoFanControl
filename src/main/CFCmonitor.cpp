@@ -9,23 +9,15 @@ CFCmonitor::CFCmonitor(QWidget *parent) : QWidget(parent) {
 
 void CFCmonitor::updateValue(int index, int speed, int rpm, int temperature) {
     //qDebug()<<"CFCmonitor::updateValue ";
-    if(index==1)
-    {
+    if(index==1) {
         ui.label_2->setText(QString::number(temperature));
-        if(speed==-2)
-            ui.label_6->setText("Auto");
-        else
-            ui.label_6->setText(QString::number(temperature));
-        ui.label_11->setText(QString::number(temperature));
+        ui.label_6->setText(QString::number(speed));
+        ui.label_11->setText(QString::number(rpm));
     }
-    else if(index==2)
-    {
+    else if(index==2) {
         ui.label_4->setText(QString::number(temperature));
-        if(speed==-2)
-            ui.label_8->setText("Auto");
-        else
-            ui.label_8->setText(QString::number(temperature));
-        ui.label_12->setText(QString::number(temperature));
+        ui.label_8->setText(QString::number(speed));
+        ui.label_12->setText(QString::number(rpm));
     }
     //qDebug()<<"CFCmonitor::updateValue finish";
     return;
