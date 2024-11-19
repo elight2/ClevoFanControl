@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
-project(ClevoFanControl VERSION 2.3.0 LANGUAGES CXX)
+project(ClevoFanControl VERSION 2.2.0 LANGUAGES CXX)
 
-set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Release")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -31,21 +31,5 @@ add_definitions(-DQT_NO_DEBUG_OUTPUT)
 endif()
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
-
-set(CFC_SOURCE_DIR src/main)
-set(CFC_SOURCE
-${CFC_SOURCE_DIR}/main.cpp
-${CFC_SOURCE_DIR}/ClevoFanControl.cpp
-${CFC_SOURCE_DIR}/ConfigManager.cpp
-${CFC_SOURCE_DIR}/FanController.cpp
-${CFC_SOURCE_DIR}/CFCconfig.cpp
-${CFC_SOURCE_DIR}/CFCmonitor.cpp
-)
-set(CFC_UI_DIR src/ui)
-set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} ${CFC_UI_DIR})
-set(CFC_UI ${CFC_UI_DIR}/config.ui ${CFC_UI_DIR}/monitor.ui)
-set(CFC_RES_DIR src/resources)
-set(CFC_RES ${CFC_RES_DIR}/ClevoFanControl.qrc ${CFC_RES_DIR}/ClevoFanControl.rc)
-add_executable(ClevoFanControl ${CFC_SOURCE} ${CFC_UI} ${CFC_RES})
-
+add_executable(ClevoFanControl main.cpp ClevoFanControl.cpp ClevoFanControl.qrc ClevoFanControl.rc config.ui monitor.ui)
 target_link_libraries(ClevoFanControl PRIVATE Qt6::Core Qt6::Widgets Qt6::Gui)
