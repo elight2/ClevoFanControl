@@ -1,10 +1,9 @@
 #include "ConfigManager.h"
 
 void ConfigManager::readFromJson() {
-    //create is not exist
-    if(!configFile.exists()) {
+    //create if not exist
+    if(!configFile.exists())
         createConfigJson();
-    }
     
     //read
     configFile.open(QIODevice::ReadOnly);
@@ -53,9 +52,9 @@ void ConfigManager::readFromJson() {
     this->useClevoAuto=configJson["useClevoAuto"];
     this->maxSpeed=configJson["maxSpeed"];
     this->monitorGpu=configJson["monitorGpu"];
-    this->gpuAutoDetectEnabled=!(configJson["gpuAutoDetect"] == "disabled");
-    if(gpuAutoDetectEnabled)
-        this->gpuDevDir=((std::string)configJson["gpuAutoDetect"]).c_str();
+    this->gpuAutoDetectEnabled=configJson["gpuAutoDetect"];
+    this->gpuSysDir=((std::string)configJson["gpuSysDir"]).c_str();
+    this->gpuDevDir=((std::string)configJson["gpuDevDir"]).c_str();
 }
 
 void ConfigManager::saveToJson() {
@@ -102,7 +101,9 @@ void ConfigManager::saveToJson() {
         {"useClevoAuto",this->useClevoAuto},
         {"maxSpeed",this->maxSpeed},
         {"monitorGpu",this->monitorGpu},
-        {"gpuAutoDetect",this->gpuAutoDetectEnabled ? gpuDevDir.toStdString() : "disabled"}
+        {"gpuAutoDetect",this->gpuAutoDetectEnabled}, 
+        {"gpuSysDir",gpuSysDir.toStdString()},
+        {"gpuDevDir",gpuDevDir.toStdString()}
     };
     
     //write file
@@ -152,7 +153,9 @@ void ConfigManager::createConfigJson() {
         {"useClevoAuto",false},
         {"maxSpeed",false},
         {"monitorGpu",false},
-        {"gpuAutoDetect","disabled"}
+        {"gpuAutoDetect",false}, 
+        {"gpuSysDir",""},
+        {"gpuDevDir",""}
     };
     configJson["profiles"][1][0]="default2";
 

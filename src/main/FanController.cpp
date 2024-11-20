@@ -192,11 +192,9 @@ void FanController::setShouldStop() {
 void FanController::run() {
     qDebug()<<"FanController run fan: "<<index;
     isRunning=1;
-    while(shouldRun)
-    {
+    while(shouldRun) {
         currentTime=QDateTime::currentMSecsSinceEpoch();
-        if(currentTime>lastControlTime+config->timeIntervals[index-1])
-        {
+        if(currentTime>lastControlTime+config->timeIntervals[index-1]) {
             //qDebug()<<"controling speed fan: "<<index;
             int targetSpeed=-1;
 
@@ -229,12 +227,10 @@ void FanController::run() {
                     if(temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][0]))
                         targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
                     else {
-                        for(int i=0;i<10;i++)
-                        {
+                        for(int i=0;i<10;i++) {
                             if(i==9)
                                 targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][9];
-                            else if(temperature>=(config->fanProfiles[config->profileInUse].TStempList[index-1][i]) && temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][i+1]))
-                            {
+                            else if(temperature>=(config->fanProfiles[config->profileInUse].TStempList[index-1][i]) && temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][i+1])) {
                                 targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][i];
                                 break;
                             }
@@ -326,19 +322,30 @@ int GpuFanController::getTemp() {
     if(config->monitorGpu)
         check=true;
     else {
+        //auto detect
 #ifdef  __linux__
         if(config->gpuAutoDetectEnabled) {
-            QProcess lsof;
-            lsof.start("lsof",{config->gpuDevDir});
-            lsof.waitForFinished();
-            QString output=lsof.readAllStandardOutput();
-            QStringList list=output.split('\n');
-            for(int i=1;i<list.size();i++) {
-                int index=list[i].indexOf(' ');
-                QString proc=list[i].mid(0,index);
-                if(proc != "" && proc != "Xorg" && proc != "nvidia-sm") {
-                    check=true;
-                    break;
+            //sys file check
+            QFile sysFile(config->gpuSysDir);
+            sysFile.open(QIODevice::ReadOnly);
+            QString status=sysFile.readLine();
+            sysFile.close();
+            
+            //only continue when active
+            if(status=="active\n") {
+                //dev file check
+                QProcess lsof;
+                lsof.start("lsof",{config->gpuDevDir});
+                lsof.waitForFinished();
+                QString output=lsof.readAllStandardOutput();
+                QStringList list=output.split('\n');
+                for(int i=1;i<list.size();i++) {
+                    int index=list[i].indexOf(' ');
+                    QString proc=list[i].mid(0,index);
+                    if(proc != "" && proc != "Xorg" && proc != "nvidia-sm") {
+                        check=true;
+                        break;
+                    }
                 }
             }
         }

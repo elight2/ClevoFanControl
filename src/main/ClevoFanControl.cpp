@@ -15,7 +15,6 @@
 #include <string>
 #include <unistd.h>
 
-
 ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     qDebug()<<"cfc construct";
     cfgMgr=new ConfigManager;
@@ -169,4 +168,3 @@ void ClevoFanControl::executeCommand() {
 
     qDebug()<<"executeCommand() finish";
 }
-

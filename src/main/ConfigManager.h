@@ -5,6 +5,7 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
+#include <qcontainerfwd.h>
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
@@ -39,6 +40,7 @@ public:
     bool maxSpeed;
     bool monitorGpu;
     bool gpuAutoDetectEnabled;
+    QString gpuSysDir;
     QString gpuDevDir;
 
     ConfigManager();
