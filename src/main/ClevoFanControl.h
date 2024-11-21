@@ -14,8 +14,6 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qdebug.h>
 #include <QtWidgets/qapplication.h>
-#include <qaction.h>
-#include <qkeysequence.h>
 
 #include "ConfigManager.h"
 #include "CFCmonitor.h"

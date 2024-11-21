@@ -1,5 +1,8 @@
 #include "ConfigManager.h"
 
+#include <QtCore/qdebug.h>
+#include <QtCore/qdir.h>
+
 void ConfigManager::readFromJson() {
     //create if not exist
     if(!configFile.exists())

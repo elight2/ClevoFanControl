@@ -1,5 +1,14 @@
 #include "FanController.h"
 
+#include <QtCore/qprocess.h>
+#include <QtCore/qdebug.h>
+#include <QtCore/qdatetime.h>
+
+#ifdef __linux__
+#include <sys/io.h>
+#include <unistd.h>
+#endif
+
 #ifdef _WIN32
 #include "WinRing0/OlsApiInit.h"
 #endif

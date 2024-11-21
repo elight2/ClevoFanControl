@@ -2,17 +2,10 @@
 #define FAN_CONTROLLER_H
 
 #include <QtCore/qthread.h>
-#include <qobject.h>
 #include <mutex>
-#include <qtmetamacros.h>
-#include <QtCore/qprocess.h>
 
 #ifdef _WIN32
-#include <tchar.h>
 #include <Windows.h>
-#elif __linux__
-#include <sys/io.h>
-#include <unistd.h>
 #endif
 
 #include "ConfigManager.h"

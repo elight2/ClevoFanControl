@@ -1,0 +1,16 @@
+{
+	"tasks": [
+		{
+			"type": "cmake",
+			"label": "CMake: 配置",
+			"command": "configure",
+			"problemMatcher": [],
+			"detail": "CMake 模板 配置 任务",
+			"args":[
+				"-DCMAKE_BUILD_TYPE=Debug",
+				"-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH};/usr/lib/cmake/",
+				"-DINCLUDE_DIRECTORIES=${INCLUDE_DIRECTORIES};/usr/include/qt6/"
+			]
+		}
+	]
+}
