@@ -1,5 +1,4 @@
 #include "CFCmonitor.h"
-#include <qobject.h>
 
 CFCmonitor::CFCmonitor(QWidget *parent) : QWidget(parent) {
     this->setAttribute(Qt::WA_QuitOnClose, 0);

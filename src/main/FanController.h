@@ -10,7 +10,6 @@
 #ifdef _WIN32
 #include <tchar.h>
 #include <Windows.h>
-#include "WinRing0/OlsApiInit.h"
 #elif __linux__
 #include <sys/io.h>
 #include <unistd.h>

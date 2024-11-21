@@ -1,13 +1,8 @@
 #include "FanController.h"
-#include "src/main/ConfigManager.h"
-#include <mutex>
-#include <qcontainerfwd.h>
-#include <qdebug.h>
-#include <qimage.h>
-#include <qlogging.h>
-#include <qobject.h>
-#include <qthread.h>
-#include <unistd.h>
+
+#ifdef _WIN32
+#include "WinRing0/OlsApiInit.h"
+#endif
 
 #define IA32_PACKAGE_THERM_STATUS_MSR 0x1B1
 

@@ -17,14 +17,10 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 include_directories("/usr/include/qt6/")
 set(CMAKE_PREFIX_PATH "/usr/lib/cmake/")
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-include_directories("D:\\Applications\\Qt\\6.7.2\\mingw_64\\include")
-set(CMAKE_PREFIX_PATH "D:\\Applications\\Qt\\6.7.2\\mingw_64\\lib\\cmake")
-set(CMAKE_C_COMPILER "D:\\Applications\\Qt\\Tools\\mingw1120_64\\bin\\gcc.exe") #using custom gcc can cause error
-set(CMAKE_CXX_COMPILER "D:\\Applications\\Qt\\Tools\\mingw1120_64\\bin\\g++.exe")
 if(CMAKE_BUILD_TYPE MATCHES "Release")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
 endif()
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+ENDIF ()
 
 if(CMAKE_BUILD_TYPE MATCHES "Release")
 add_definitions(-DQT_NO_DEBUG_OUTPUT)
@@ -34,12 +30,12 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
 
 set(CFC_SOURCE_DIR src/main)
 set(CFC_SOURCE
-${CFC_SOURCE_DIR}/main.cpp
 ${CFC_SOURCE_DIR}/ClevoFanControl.cpp
 ${CFC_SOURCE_DIR}/ConfigManager.cpp
 ${CFC_SOURCE_DIR}/FanController.cpp
 ${CFC_SOURCE_DIR}/CFCconfig.cpp
 ${CFC_SOURCE_DIR}/CFCmonitor.cpp
+${CFC_SOURCE_DIR}/main.cpp
 )
 set(CFC_UI_DIR src/ui)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} ${CFC_UI_DIR})

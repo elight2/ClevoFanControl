@@ -1,3 +1,6 @@
+#ifndef CLEVO_FAN_CONTROL_H
+#define CLEVO_FAN_CONTROL_H
+
 #include <QtWidgets/qaction.h>
 #include <QtCore/qlist.h>
 #include <QtGui/qicon.h>
@@ -63,3 +66,5 @@ private:
     void cfgRamToTray();
     void trayUpdated();
 };
+
+#endif

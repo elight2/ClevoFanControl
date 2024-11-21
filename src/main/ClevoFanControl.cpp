@@ -1,19 +1,4 @@
 #include "ClevoFanControl.h"
-#include "src/main/FanController.h"
-
-#include <qaction.h>
-#include <qcombobox.h>
-#include <qcoreapplication.h>
-#include <qdebug.h>
-#include <qguiapplication.h>
-#include <qkeysequence.h>
-#include <qlogging.h>
-#include <qmenu.h>
-#include <qnamespace.h>
-#include <qobject.h>
-#include <qthread.h>
-#include <string>
-#include <unistd.h>
 
 ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     qDebug()<<"cfc construct";
