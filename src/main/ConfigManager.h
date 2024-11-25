@@ -3,6 +3,7 @@
 
 #include <QtCore/qlist.h>
 #include <QtCore/qfile.h>
+#include <qcontainerfwd.h>
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
@@ -22,10 +23,9 @@ struct commandEntry {
 
 class ConfigManager {
 public:
-    json configJson;
     int profileCount;
     int commandCount;
-    fanProfile* fanProfiles=nullptr;
+    QList<fanProfile> fanProfiles;
     QList<commandEntry> commands;
     int profileInUse;
     bool useStaticSpeed;
@@ -48,6 +48,8 @@ public:
 
     private:
     QFile configFile;
+    json configJson;
+    const QString configFileName="config.json";
 };
 
 #endif

@@ -17,20 +17,22 @@ void ConfigManager::readFromJson() {
 
     //profiles
     this->profileCount=configJson["profiles"].size();
-    if(fanProfiles!=nullptr)
-        delete [] fanProfiles;
-    fanProfiles=new fanProfile[this->profileCount];
-    for(int i=0;i<profileCount;i++) {
-        fanProfiles[i].name=QString::fromStdString(configJson["profiles"][i][0]);
+    // if(fanProfiles!=nullptr)
+    //     delete [] fanProfiles;
+    //fanProfiles=new fanProfile[this->profileCount];
+    for(int i=0;i<this->profileCount;i++) {
+        fanProfile curProfile;
+        curProfile.name=QString::fromStdString(configJson["profiles"][i][0]);
         for(int j=0;j<2;j++) {
-            fanProfiles[i].inUse[j]=configJson["profiles"][i][j+1][0];
+            curProfile.inUse[j]=configJson["profiles"][i][j+1][0];
             for(int k=0;k<4;k++)
-                fanProfiles[i].MTconfig[j][k]=configJson["profiles"][i][j+1][1][k];
+                curProfile.MTconfig[j][k]=configJson["profiles"][i][j+1][1][k];
             for(int k=0;k<10;k++) {
-                fanProfiles[i].TStempList[j][k]=configJson["profiles"][i][j+1][2][0][k];
-                fanProfiles[i].TSspeedList[j][k]=configJson["profiles"][i][j+1][2][1][k];
+                curProfile.TStempList[j][k]=configJson["profiles"][i][j+1][2][0][k];
+                curProfile.TSspeedList[j][k]=configJson["profiles"][i][j+1][2][1][k];
             }
         }
+        fanProfiles.append(curProfile);
     }
 
     //commands
@@ -117,11 +119,10 @@ void ConfigManager::saveToJson() {
 }
 
 ConfigManager::ConfigManager() {
-    configFile.setFileName((QDir::currentPath() + QDir::separator() + "config.json"));
+    configFile.setFileName((QDir::currentPath() + QDir::separator() + configFileName));
 }
 
 ConfigManager::~ConfigManager() {
-    delete [] fanProfiles;
 }
 
 void ConfigManager::createConfigJson() {

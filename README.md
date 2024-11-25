@@ -53,6 +53,7 @@
 * 主要目的是一键以root身份执行命令，来实现更好的性能和功耗调控，比如使用`nvidia-smi -lgc`或者`cpupower`
 
 #### GPU温度检测功能
+* 
 * Windows下只能使用手动检测：不用显卡时关闭托盘的GPU温度检测开关，使用时手动打开
 * Linux下打开托盘的GPU温度检测开关后强制检测温度
 * Linux下的`config.json`中的`gpuAutoDetect`设置为`false`时（默认状态）等同Windows

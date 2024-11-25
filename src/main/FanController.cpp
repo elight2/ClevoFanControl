@@ -3,6 +3,7 @@
 #include <QtCore/qprocess.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qdatetime.h>
+#include <qlogging.h>
 
 #ifdef __linux__
 #include <sys/io.h>
@@ -249,6 +250,7 @@ void FanController::run() {
             }
 
             if(targetSpeed==-2) { //auto
+                curSpeed=-2;
                 if(!curAuto) {
                     setFanSpeed(-1);
                     curAuto=true;
@@ -268,6 +270,7 @@ void FanController::run() {
             else if(index==2) //gpu
                 rpm=getRpm();
 
+            //qDebug()<<"emit: "<<index<<" "<<targetSpeed<<" "<<rpm<<" "<<temperature;
             emit updateMonitor(index,targetSpeed, rpm, temperature);
 
             if(rpm==0)
@@ -346,7 +349,7 @@ int GpuFanController::getTemp() {
                 for(int i=1;i<list.size();i++) {
                     int index=list[i].indexOf(' ');
                     QString proc=list[i].mid(0,index);
-                    if(proc != "" && proc != "Xorg" && proc != "nvidia-sm") {
+                    if(proc != "" && proc != "Xorg" && proc != "nvidia-sm" && proc != "WebKitWeb") {
                         check=true;
                         break;
                     }
