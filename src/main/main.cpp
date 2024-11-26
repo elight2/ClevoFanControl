@@ -10,9 +10,9 @@
 int main(int argc, char *argv[])
 {
     qDebug()<<"app main()";
-    #ifdef __linux__
+#ifdef __linux__
     QCoreApplication::setSetuidAllowed(true);
-    #endif
+#endif
     QApplication app(argc, argv);
     QFont AppFont("Microsoft Yahei", 9);
     app.setFont(AppFont);

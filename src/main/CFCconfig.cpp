@@ -131,5 +131,5 @@ void CFCconfig::apply() {
     qDebug()<<"clicked apply";
     syncOptions();
     config->saveToJson();
-    emit configUpdatedInConfigWindow();
+    emit cfgWindowUpdate();
 }

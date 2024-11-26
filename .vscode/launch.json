@@ -10,7 +10,7 @@
             "name": "Debug",
             "program": "${workspaceFolder}/build/ClevoFanControl",
             "args": [],
-            "cwd": "${workspaceFolder}/build/",
+            "cwd": "${workspaceFolder}/run/",
             "env": {
                 "XDG_CURRENT_DESKTOP": ""
             }

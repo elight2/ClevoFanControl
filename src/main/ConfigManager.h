@@ -6,8 +6,6 @@
 #include <qcontainerfwd.h>
 #include "nlohmann/json.hpp"
 
-using json = nlohmann::json;
-
 struct fanProfile {
     QString name;
     int inUse[2];//c,g
@@ -41,14 +39,13 @@ public:
     QString gpuDevDir;
 
     ConfigManager();
-    ~ConfigManager();
     void readFromJson();
     void saveToJson();
     void createConfigJson();
 
-    private:
+private:
     QFile configFile;
-    json configJson;
+    nlohmann::json configJson;
     const QString configFileName="config.json";
 };
 

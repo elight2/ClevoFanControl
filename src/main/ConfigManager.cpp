@@ -2,8 +2,11 @@
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
+#include <qlogging.h>
 
 void ConfigManager::readFromJson() {
+    qDebug()<<"readFromJson";
+
     //create if not exist
     if(!configFile.exists())
         createConfigJson();
@@ -13,13 +16,10 @@ void ConfigManager::readFromJson() {
     std::string jsonStr=configFile.readAll().toStdString();
     configFile.close();
     configJson.clear();
-    configJson=json::parse(jsonStr);
+    configJson=nlohmann::json::parse(jsonStr);
 
     //profiles
     this->profileCount=configJson["profiles"].size();
-    // if(fanProfiles!=nullptr)
-    //     delete [] fanProfiles;
-    //fanProfiles=new fanProfile[this->profileCount];
     for(int i=0;i<this->profileCount;i++) {
         fanProfile curProfile;
         curProfile.name=QString::fromStdString(configJson["profiles"][i][0]);
@@ -60,16 +60,18 @@ void ConfigManager::readFromJson() {
     this->gpuAutoDetectEnabled=configJson["gpuAutoDetect"];
     this->gpuSysDir=((std::string)configJson["gpuSysDir"]).c_str();
     this->gpuDevDir=((std::string)configJson["gpuDevDir"]).c_str();
+
+    qDebug()<<"readFromJson finish";
 }
 
 void ConfigManager::saveToJson() {
     qDebug()<<"saveConfigJson";
 
     //profiles
-    json profileArray=json::array();
+    nlohmann::json profileArray=nlohmann::json::array();
     for(int i=0;i<profileCount;i++)
     {
-        json curProfile={
+        nlohmann::json curProfile={
             fanProfiles[i].name.toStdString(),
             {
                 fanProfiles[i].inUse[0],
@@ -92,7 +94,7 @@ void ConfigManager::saveToJson() {
     }
 
     //save commands
-    json commandsSaved=configJson["commands"];
+    nlohmann::json commandsSaved=configJson["commands"];
 
     //create json
     configJson.clear();
@@ -115,6 +117,7 @@ void ConfigManager::saveToJson() {
     configFile.open(QIODevice::WriteOnly);
     configFile.write(configJson.dump().c_str());
     configFile.close();
+
     qDebug()<<"saveConfigJson finish";
 }
 
@@ -122,12 +125,9 @@ ConfigManager::ConfigManager() {
     configFile.setFileName((QDir::currentPath() + QDir::separator() + configFileName));
 }
 
-ConfigManager::~ConfigManager() {
-}
-
 void ConfigManager::createConfigJson() {
     //make default profile
-    json defaultProfile={
+    nlohmann::json defaultProfile={
         "default1",//name
         {//cpu fan
             1,//in use

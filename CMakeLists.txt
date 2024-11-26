@@ -31,6 +31,7 @@ ${CFC_SOURCE_DIR}/FanController.cpp
 ${CFC_SOURCE_DIR}/CFCconfig.cpp
 ${CFC_SOURCE_DIR}/CFCmonitor.cpp
 ${CFC_SOURCE_DIR}/main.cpp
+${CFC_SOURCE_DIR}/ClevoEcAccessor.cpp
 )
 set(CFC_UI_DIR src/ui)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} ${CFC_UI_DIR})

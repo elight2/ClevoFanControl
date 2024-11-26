@@ -20,8 +20,6 @@
 #include "CFCconfig.h"
 #include "FanController.h"
 
-using json = nlohmann::json;
-
 class ClevoFanControl : public QWidget {
 Q_OBJECT
 
@@ -31,7 +29,7 @@ public:
 
 private:
     QDir CFCpath = QDir::current();
-    ConfigManager *cfgMgr=nullptr;
+    ConfigManager *config=nullptr;
     //ui
     QSystemTrayIcon *TrayIcon = NULL;
     QMenu * trayMainMenu=nullptr;
@@ -59,9 +57,8 @@ private:
     void initTrayEntry(QAction *&action,QString text, bool checkable);
     void executeCommand();
     //ui
-    void updateMonitorSlot(int index, int speed, int rpm, int temperature);
-    void cfgTrayToRam();
-    void cfgRamToTray();
+    void cfgTrayToMgr();
+    void cfgMgrToTray();
     void trayUpdated();
 };
 

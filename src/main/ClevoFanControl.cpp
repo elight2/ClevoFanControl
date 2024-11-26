@@ -2,22 +2,22 @@
 
 ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     qDebug()<<"cfc construct";
-    cfgMgr=new ConfigManager;
-    cfgMgr->readFromJson();
+    config=new ConfigManager;
+    config->readFromJson();
 
     //ui
     buildUi();
     TrayIcon->show();
 
     //start controllers
-    cpuFan=new CpuFanController(cfgMgr,this);
-    gpuFan=new GpuFanController(cfgMgr,this);
+    cpuFan=new CpuFanController(config,this);
+    gpuFan=new GpuFanController(config,this);
     QObject::connect(cpuFan, &CpuFanController::updateMonitor, monitor, &CFCmonitor::updateValue, Qt::BlockingQueuedConnection);
     QObject::connect(gpuFan, &GpuFanController::updateMonitor, monitor, &CFCmonitor::updateValue, Qt::BlockingQueuedConnection);
     cpuFan->start();
     gpuFan->start();
     
-    cfgRamToTray();
+    cfgMgrToTray();
    
     qDebug()<<"cfc construct finish";
     return;
@@ -38,7 +38,7 @@ ClevoFanControl::~ClevoFanControl() {
     for(auto i : commandAcions)
         delete i;
 
-    cfgMgr->saveToJson();
+    config->saveToJson();
 
     qInfo()<<"cfc deconstruction finish";
     return;
@@ -73,10 +73,10 @@ void ClevoFanControl::buildUi() {
 
     //tray profile ui build and connect
     profilesGroup=new QActionGroup(this);
-    for(int i=0;i<cfgMgr->profileCount;i++) {
+    for(int i=0;i<config->profileCount;i++) {
         QAction *curAction=new QAction(this);
         curAction->setCheckable(1);
-        curAction->setText(cfgMgr->fanProfiles[i].name);
+        curAction->setText(config->fanProfiles[i].name);
         profilesGroup->addAction(curAction);
         trayProfilesMenu->addAction(curAction);
         profileActions.append(curAction);
@@ -84,8 +84,8 @@ void ClevoFanControl::buildUi() {
     }
 
     //tray command ui build and connect
-    for(int i=0;i<cfgMgr->commandCount;i++) {
-        QAction *curAction=new QAction(cfgMgr->commands[i].name,this);
+    for(int i=0;i<config->commandCount;i++) {
+        QAction *curAction=new QAction(config->commands[i].name,this);
         trayCommandsMenu->addAction(curAction);
         commandAcions.append(curAction);
         QObject::connect(curAction,&QAction::triggered,this,&ClevoFanControl::executeCommand);
@@ -93,13 +93,13 @@ void ClevoFanControl::buildUi() {
 
     //init windows
     monitor=new CFCmonitor(NULL);
-    configWindow = new CFCconfig(nullptr, cfgMgr);
+    configWindow = new CFCconfig(nullptr, config);
 
     //other connects
     QObject::connect(trayExitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
     QObject::connect(trayMonitorAction, &QAction::triggered, this, [this]() { monitor->show(); });
     QObject::connect(trayConfigAction, &QAction::triggered, this, [this]() { configWindow->show(); });
-    QObject::connect(configWindow, &CFCconfig::configUpdatedInConfigWindow, this, &ClevoFanControl::cfgRamToTray);
+    QObject::connect(configWindow, &CFCconfig::cfgWindowUpdate, this, &ClevoFanControl::cfgMgrToTray);
 
     //final
     TrayIcon->setContextMenu(trayMainMenu);
@@ -112,33 +112,33 @@ void ClevoFanControl::initTrayEntry(QAction *&action,QString text, bool checkabl
 }
 
 void ClevoFanControl::trayUpdated() {
-    cfgTrayToRam();
+    cfgTrayToMgr();
     configWindow->setOptions();
-    cfgMgr->saveToJson();
+    config->saveToJson();
 }
 
-void ClevoFanControl::cfgTrayToRam() {
+void ClevoFanControl::cfgTrayToMgr() {
     qDebug()<<"cfgTrayToRam";
-    for (int i=0;i<cfgMgr->profileCount;i++)
+    for (int i=0;i<config->profileCount;i++)
         if(profileActions[i]->isChecked())
-            cfgMgr->profileInUse=i;
-    cfgMgr->useStaticSpeed=trayStaticSpeedAction->isChecked();
-    cfgMgr->useSpeedLimit=traySpeedLimitAction->isChecked();
-    cfgMgr->maxSpeed=trayMaxSpeedAction->isChecked();
-    cfgMgr->useClevoAuto=trayClevoAutoAction->isChecked();
-    cfgMgr->monitorGpu=trayMonitorGpuAction->isChecked();
+            config->profileInUse=i;
+    config->useStaticSpeed=trayStaticSpeedAction->isChecked();
+    config->useSpeedLimit=traySpeedLimitAction->isChecked();
+    config->maxSpeed=trayMaxSpeedAction->isChecked();
+    config->useClevoAuto=trayClevoAutoAction->isChecked();
+    config->monitorGpu=trayMonitorGpuAction->isChecked();
     qDebug()<<"cfgTrayToRam finish";
 }
 
-void ClevoFanControl::cfgRamToTray() {
+void ClevoFanControl::cfgMgrToTray() {
     qDebug()<<"cfgRamToTray";
-    for(int i=0;i<cfgMgr->profileCount;i++)
-        profileActions[i]->setChecked(i == cfgMgr->profileInUse);
-    trayStaticSpeedAction->setChecked(cfgMgr->useStaticSpeed);
-    traySpeedLimitAction->setChecked(cfgMgr->useSpeedLimit);
-    trayMaxSpeedAction->setChecked(cfgMgr->maxSpeed);
-    trayClevoAutoAction->setChecked(cfgMgr->useClevoAuto);
-    trayMonitorGpuAction->setChecked(cfgMgr->monitorGpu);
+    for(int i=0;i<config->profileCount;i++)
+        profileActions[i]->setChecked(i == config->profileInUse);
+    trayStaticSpeedAction->setChecked(config->useStaticSpeed);
+    traySpeedLimitAction->setChecked(config->useSpeedLimit);
+    trayMaxSpeedAction->setChecked(config->maxSpeed);
+    trayClevoAutoAction->setChecked(config->useClevoAuto);
+    trayMonitorGpuAction->setChecked(config->monitorGpu);
     qDebug()<<"cfgRamToTray finish";
 }
 
@@ -146,9 +146,9 @@ void ClevoFanControl::executeCommand() {
     qDebug()<<"executeCommand()";
 
     QString name=((QAction*)sender())->text();
-    for(int i=0;i<cfgMgr->commandCount;i++) {
-        if(cfgMgr->commands[i].name==name)
-            system(cfgMgr->commands[i].content.toStdString().c_str());
+    for(int i=0;i<config->commandCount;i++) {
+        if(config->commands[i].name==name)
+            system(config->commands[i].content.toStdString().c_str());
     }
 
     qDebug()<<"executeCommand() finish";

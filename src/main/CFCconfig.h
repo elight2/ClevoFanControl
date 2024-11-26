@@ -24,7 +24,7 @@ private:
     ConfigManager *config;
 
 signals:
-    void configUpdatedInConfigWindow();
+    void cfgWindowUpdate();
 };
 
 #endif
