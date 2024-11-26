@@ -6,7 +6,7 @@
 #include <qlogging.h>
 
 #ifdef _WIN32
-#include "winRing0Api.h"
+#include "../winRing0Api.h"
 #endif
 
 //for cpu temp in Windows

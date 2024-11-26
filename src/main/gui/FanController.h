@@ -2,7 +2,7 @@
 #define FAN_CONTROLLER_H
 
 #include "ConfigManager.h"
-#include "ClevoEcAccessor.h"
+#include "../ClevoEcAccessor.h"
 
 #include <QtCore/qthread.h>
 

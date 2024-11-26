@@ -8,7 +8,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceFolder}/build/ClevoFanControl",
+            "program": "${workspaceFolder}/build/src/main/gui/ClevoFanControl-gui",
             "args": [],
             "cwd": "${workspaceFolder}/run/",
             "env": {

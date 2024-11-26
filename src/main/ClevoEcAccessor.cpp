@@ -1,5 +1,6 @@
 #include "ClevoEcAccessor.h"
 #include <atomic>
+#include <iostream>
 
 #ifdef __linux__
 #include <sys/io.h>
@@ -9,8 +10,6 @@
 #ifdef _WIN32
 #include "winRing0Api.h"
 #endif
-
-#include <QtCore/qdebug.h>
 
 //std EC
 #define EC_SC_REG 0x66
@@ -36,7 +35,7 @@ std::atomic_bool ClevoEcAccessor::havePrivilege=false;
 
 ClevoEcAccessor::ClevoEcAccessor() {
     if(!ioInitialized) {
-        qDebug()<<"EC accessor not init, init";
+        std::cout<<"Ec accessor not init, init\n";
 
         //check privilege
 #ifdef _WIN32
@@ -45,12 +44,12 @@ ClevoEcAccessor::ClevoEcAccessor() {
         havePrivilege = getuid()==0 ? true : false;
 #endif
         if(!havePrivilege)
-            qWarning()<<"Checking privilege: The app may be running without necessary permissions!";
+            std::cout<<"Checking privilege: The app may be running without necessary permissions!\n";
 
         //init IO
 #ifdef _WIN32
         BOOL WinRing0result=winRing0Api::initApi();
-        qDebug()<<"InitOpenLibSys result: "<<WinRing0result;
+        std::cout<<"InitOpenLibSys result: "<<WinRing0result<<"\n";
 #elif __linux__
         ioperm(0x62, 1, 1);
         ioperm(0x66, 1, 1);
@@ -61,10 +60,10 @@ ClevoEcAccessor::ClevoEcAccessor() {
 
 ClevoEcAccessor::~ClevoEcAccessor() {
     if(ioInitialized) {
-        qDebug()<<"EC accessor not deinit, deinit";
+        std::cout<<"EC accessor not deinit, deinit\n";
 #ifdef _WIN32
         BOOL WinRing0result=winRing0Api::deinitApi();
-        qDebug()<<"DeinitOpenLibSys result: "<<WinRing0result;
+        std::cout<<"DeinitOpenLibSys result: "<<WinRing0result<<"\n";
 #endif
         ioInitialized=false;
     }
@@ -72,7 +71,7 @@ ClevoEcAccessor::~ClevoEcAccessor() {
 
 void ClevoEcAccessor::setFanSpeed(int percentage, int index) {
     if(!havePrivilege) {
-        qWarning()<<"No permission, setting fan speed aborted!";
+        std::cout<<"No permission, setting fan speed aborted!\n";
         return;
     }
     if(percentage!=-1) //normal
@@ -83,7 +82,7 @@ void ClevoEcAccessor::setFanSpeed(int percentage, int index) {
 
 int ClevoEcAccessor::getRpm(int index) {
     if(!havePrivilege) {
-        qWarning()<<"No permission, getting fan RPM aborted!";
+        std::cout<<"No permission, getting fan RPM aborted!\n";
         return 0;
     }
 	int data=0;
