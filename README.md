@@ -53,11 +53,12 @@
 * 主要目的是一键以root身份执行命令，来实现更好的性能和功耗调控，比如使用`nvidia-smi -lgc`或者`cpupower`
 
 #### GPU温度检测功能
-* 
+* 目前仅支持手动编辑配置文件
 * Windows下只能使用手动检测：不用显卡时关闭托盘的GPU温度检测开关，使用时手动打开
 * Linux下打开托盘的GPU温度检测开关后强制检测温度
 * Linux下的`config.json`中的`gpuAutoDetect`设置为`false`时（默认状态）等同Windows
 * `gpuAutoDetect`为`true`时，根据`/sys`和`/dev`下的给定文件自动检测显卡是否开启，来决定是否使用`nvidia-smi`获取显卡温度，具体机制参考代码中的`GpuFanController::getTemp`
+* 自动检测使用`lsof`检测打开显卡系统文件的进程，要排除的进程在代码中硬编码，需要修改请自行修改代码并编译
 
 #### 特殊说明(重要)
 * 关于多配置功能：这个功能只能用于选择或编辑已有配置，目前没有添加/删除/重命名配置的功能，如有需要请手动修改`config.json`
