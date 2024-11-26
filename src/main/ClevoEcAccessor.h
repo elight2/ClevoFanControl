@@ -24,16 +24,8 @@ private:
     unsigned char readEc_1(unsigned char addr);
     void doEc(unsigned char cmd, unsigned char addr, unsigned char value);
 
-#ifdef _WIN32
-    bool InitOpenLibSys_m();
-    bool DeinitOpenLibSys_m();
-#endif
-
     //protect EC
     static std::mutex EClock;
-#ifdef _WIN32
-    static HMODULE WinRing0m;
-#endif
     //only init once
     static std::atomic_bool ioInitialized;
     //avoid crash

@@ -33,6 +33,9 @@ ${CFC_SOURCE_DIR}/CFCmonitor.cpp
 ${CFC_SOURCE_DIR}/main.cpp
 ${CFC_SOURCE_DIR}/ClevoEcAccessor.cpp
 )
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+set(CFC_SOURCE ${CFC_SOURCE} ${CFC_SOURCE_DIR}/winRing0Api.cpp)
+endif()
 set(CFC_UI_DIR src/ui)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} ${CFC_UI_DIR})
 set(CFC_UI ${CFC_UI_DIR}/config.ui ${CFC_UI_DIR}/monitor.ui)

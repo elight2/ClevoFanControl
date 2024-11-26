@@ -7,13 +7,11 @@
 #endif
 
 #ifdef _WIN32
-#include "WinRing0/OlsApiInit.h"
+#include "winRing0Api.h"
 #endif
 
 #include <QtCore/qdebug.h>
 
-//for cpu temp in Windows
-#define IA32_PACKAGE_THERM_STATUS_MSR 0x1B1
 //std EC
 #define EC_SC_REG 0x66
 #define EC_DATA_REG 0x62
@@ -36,17 +34,6 @@ std::atomic_bool ClevoEcAccessor::ioInitialized=false;
 std::mutex ClevoEcAccessor::EClock;
 std::atomic_bool ClevoEcAccessor::havePrivilege=false;
 
-#ifdef _WIN32
-HMODULE FanController::WinRing0m=NULL;
-bool FanController::InitOpenLibSys_m() {
-    return InitOpenLibSys(&WinRing0m);
-}
-
-bool FanController::DeinitOpenLibSys_m() {
-    return DeinitOpenLibSys(&WinRing0m);
-}
-#endif
-
 ClevoEcAccessor::ClevoEcAccessor() {
     if(!ioInitialized) {
         qDebug()<<"EC accessor not init, init";
@@ -62,7 +49,7 @@ ClevoEcAccessor::ClevoEcAccessor() {
 
         //init IO
 #ifdef _WIN32
-        bool WinRing0result=InitOpenLibSys_m();
+        BOOL WinRing0result=winRing0Api::initApi();
         qDebug()<<"InitOpenLibSys result: "<<WinRing0result;
 #elif __linux__
         ioperm(0x62, 1, 1);
@@ -76,7 +63,7 @@ ClevoEcAccessor::~ClevoEcAccessor() {
     if(ioInitialized) {
         qDebug()<<"EC accessor not deinit, deinit";
 #ifdef _WIN32
-        bool WinRing0result=DeinitOpenLibSys_m();
+        BOOL WinRing0result=winRing0Api::deinitApi();
         qDebug()<<"DeinitOpenLibSys result: "<<WinRing0result;
 #endif
         ioInitialized=false;

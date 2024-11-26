@@ -5,6 +5,13 @@
 #include <QtCore/qdatetime.h>
 #include <qlogging.h>
 
+#ifdef _WIN32
+#include "winRing0Api.h"
+#endif
+
+//for cpu temp in Windows
+#define IA32_PACKAGE_THERM_STATUS_MSR 0x1B1
+
 FanController::FanController(ConfigManager *config, QObject *parent) : QThread(parent) {
     qDebug()<<"FanController general construct";
     this->config=config;
