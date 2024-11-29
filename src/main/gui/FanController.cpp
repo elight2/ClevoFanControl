@@ -110,7 +110,7 @@ void FanController::run() {
                 curSpeed=0;//toggle speed adjust
             lastControlTime=currentTime;
         }
-        QThread::msleep(100);
+        QThread::msleep(minControlInterval);
     }
     accessor.setFanSpeed(-1,index); //finalize auto
     isRunning=false;

@@ -32,6 +32,7 @@ private:
     qint64 currentTime = 0;
     int curSpeed=30;
     const int minSafeSpeed=10;
+    const int minControlInterval=100;
     bool curAuto=false;
     int temperature=0;
     int rpm=0;

@@ -47,7 +47,6 @@ ClevoFanControl::~ClevoFanControl() {
 void ClevoFanControl::buildUi() {
     //tray main ui build
     TrayIcon = new QSystemTrayIcon(QIcon("ClevoFanControl.ico"), this);
-    TrayIcon->setToolTip("Clevo Fan Control");
     trayMainMenu = new QMenu(this);
     trayProfilesMenu=new QMenu("Profiles", this);
     trayCommandsMenu = new QMenu("Commands", this);
@@ -103,6 +102,7 @@ void ClevoFanControl::buildUi() {
 
     //final
     TrayIcon->setContextMenu(trayMainMenu);
+    TrayIcon->setToolTip("Clevo Fan Control");
 }
 
 void ClevoFanControl::initTrayEntry(QAction *&action,QString text, bool checkable) {

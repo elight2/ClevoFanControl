@@ -1,6 +1,6 @@
 project(ClevoFanControl-gui)
 
-include_directories("../../../include")
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # qt
 set(CMAKE_AUTOMOC ON)
@@ -25,18 +25,18 @@ FanController.cpp
 CFCconfig.cpp 
 CFCmonitor.cpp 
 main.cpp 
-../ClevoEcAccessor.cpp)
+${CFC_SOURCE_DIR}/ClevoEcAccessor.cpp)
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-set(CFC_SOURCE_GUI ${CFC_SOURCE_GUI} ../winRing0Api.cpp)
+set(CFC_SOURCE_GUI ${CFC_SOURCE_GUI} ${CFC_SOURCE_DIR}/winRing0Api.cpp)
 endif()
 
 # ui
-set(CFC_UI_DIR ../../ui)
+set(CFC_UI_DIR ${CMAKE_SOURCE_DIR}/src/ui)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} ${CFC_UI_DIR})
 set(CFC_UI ${CFC_UI_DIR}/config.ui ${CFC_UI_DIR}/monitor.ui)
 
 # rc
-set(CFC_RES_DIR ../../resources)
+set(CFC_RES_DIR ${CMAKE_SOURCE_DIR}/src/resources)
 set(CFC_RES ${CFC_RES_DIR}/ClevoFanControl.qrc ${CFC_RES_DIR}/ClevoFanControl.rc)
 
 add_executable(ClevoFanControl-gui ${CFC_SOURCE_GUI} ${CFC_UI} ${CFC_RES})

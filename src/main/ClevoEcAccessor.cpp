@@ -1,6 +1,7 @@
 #include "ClevoEcAccessor.h"
 #include <atomic>
 #include <iostream>
+#include <iterator>
 
 #ifdef __linux__
 #include <sys/io.h>
@@ -35,7 +36,7 @@ std::atomic_bool ClevoEcAccessor::havePrivilege=false;
 
 ClevoEcAccessor::ClevoEcAccessor() {
     if(!ioInitialized) {
-        std::cout<<"Ec accessor not init, init\n";
+        stdLog("init");
 
         //check privilege
 #ifdef _WIN32
@@ -44,12 +45,12 @@ ClevoEcAccessor::ClevoEcAccessor() {
         havePrivilege = getuid()==0 ? true : false;
 #endif
         if(!havePrivilege)
-            std::cout<<"Checking privilege: The app may be running without necessary permissions!\n";
+            stdLog("init: insufficient privilege!");
 
         //init IO
 #ifdef _WIN32
         BOOL WinRing0result=winRing0Api::initApi();
-        std::cout<<"InitOpenLibSys result: "<<WinRing0result<<"\n";
+        stdLog("InitializeOls result: "+WinRing0result);
 #elif __linux__
         ioperm(0x62, 1, 1);
         ioperm(0x66, 1, 1);
@@ -60,36 +61,44 @@ ClevoEcAccessor::ClevoEcAccessor() {
 
 ClevoEcAccessor::~ClevoEcAccessor() {
     if(ioInitialized) {
-        std::cout<<"EC accessor not deinit, deinit\n";
+        stdLog("deinit");
 #ifdef _WIN32
         BOOL WinRing0result=winRing0Api::deinitApi();
-        std::cout<<"DeinitOpenLibSys result: "<<WinRing0result<<"\n";
+        stdLog("FreeLibrary result: "+WinRing0result);
 #endif
         ioInitialized=false;
     }
 }
 
+void ClevoEcAccessor::stdLog(std::string log) {
+    std::cout<<"EcAccessor: "<<log<<std::endl;
+}
+
 void ClevoEcAccessor::setFanSpeed(int percentage, int index) {
     if(!havePrivilege) {
-        std::cout<<"No permission, setting fan speed aborted!\n";
+        stdLog("No permission, fan speed modification aborted!");
         return;
     }
+    EClock.lock();
     if(percentage!=-1) //normal
         doEc(EC_SET_FAN_SPEED_CMD, index,percentage*255/100);
     else //auto
         doEc(EC_SET_FAN_SPEED_CMD, EC_SET_FAN_AUTO_ADDR, index);
+    EClock.unlock();
 }
 
 int ClevoEcAccessor::getRpm(int index) {
     if(!havePrivilege) {
-        std::cout<<"No permission, getting fan RPM aborted!\n";
+        stdLog("No permission, fan RPM query aborted!");
         return 0;
     }
 	int data=0;
+    EClock.lock();
     if(index==1)
         data = (readEc_1(EC_CPU_FAN_RPM_HI_ADDR) << 8) + (readEc_1(EC_CPU_FAN_RPM_LO_ADDR));
     else if(index==2)
         data=(readEc_1(EC_GPU_FAN_RPM_HI_ADDR) << 8) + (readEc_1(EC_GPU_FAN_RPM_LO_ADDR));
+    EClock.unlock();
     return data==0 ? 0 : (2156220 / data);
 }
 
@@ -127,7 +136,6 @@ void ClevoEcAccessor::waitEc(unsigned short port, unsigned char index, unsigned 
 // unsigned char readEc(unsigned char addr)
 // {
 //     //qDebug()<<"read ec";
-//     EClock.lock();
 // 	waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
 // 	ioOutByte(EC_SC_REG,EC_READ_CMD);
 // 	waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
@@ -136,13 +144,11 @@ void ClevoEcAccessor::waitEc(unsigned short port, unsigned char index, unsigned 
 // 	unsigned char value=0;
 // 	value=ioInByte(EC_DATA_REG);
 //     //qDebug()<<"read ec finish";
-//     EClock.unlock();
 // 	return value;
 // }
 
 unsigned char ClevoEcAccessor::readEc_1(unsigned char addr) {
     //qDebug()<<"read ec";
-    EClock.lock();
     waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
     ioOutByte(EC_SC_REG,EC_READ_CMD);
     waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
@@ -155,7 +161,6 @@ unsigned char ClevoEcAccessor::readEc_1(unsigned char addr) {
     unsigned char value=0;
     value=ioInByte(EC_DATA_REG);
     //qDebug()<<"read ec finish";
-    EClock.unlock();
 	return value;
 }
 
@@ -172,7 +177,6 @@ unsigned char ClevoEcAccessor::readEc_1(unsigned char addr) {
 // }
 
 void ClevoEcAccessor::doEc(unsigned char cmd, unsigned char addr, unsigned char value) {
-    EClock.lock();
     waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);//not in doc, but for safety reason
     ioOutByte(EC_SC_REG,cmd);
     waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
@@ -180,6 +184,5 @@ void ClevoEcAccessor::doEc(unsigned char cmd, unsigned char addr, unsigned char 
     waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
     ioOutByte(EC_DATA_REG,value);
     waitEc(EC_SC_REG,EC_SC_IBF_INDEX,0);
-    EClock.unlock();
 	return;
 }

@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <atomic>
+#include <string>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -23,6 +24,9 @@ private:
     void waitEc(unsigned short port, unsigned char index, unsigned char value);
     unsigned char readEc_1(unsigned char addr);
     void doEc(unsigned char cmd, unsigned char addr, unsigned char value);
+    
+    //log
+    void stdLog(std::string log);
 
     //protect EC
     static std::mutex EClock;
