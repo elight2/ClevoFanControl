@@ -1,5 +1,4 @@
 #include <Windows.h>
-#include <qwindowdefs_win.h>
 #include <tchar.h>
 
 #include <atomic>
