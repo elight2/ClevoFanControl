@@ -1,7 +1,6 @@
-中文
---------------
-**使用本软件有风险，使用前请注意！建议先阅读功能介绍！作者对可能造成的损坏概不负责！**
+# ClevoFanControl
 
+<<<<<<< HEAD
 如果使用中遇到bug，欢迎提[issue](https://github.com/elight2/ClevoFanControl/issues)
 
 此软件用来自动控制蓝天模具笔记本的风扇，大家可以做参考使用
@@ -12,11 +11,15 @@
 * [关于Windows环境的问题](https://tieba.baidu.com/p/9101786783)
 * [Linux环境及原理解释](https://tieba.baidu.com/p/9101786783)
 * 仓库里的`ec.zip`里面有我备份的参考资料
+=======
+Clevo laptop fan control utility
 
-#### 风扇控制接口
-* Windows：[WinRing0](https://github.com/GermanAizek/WinRing0) [预编译文件](https://github.com/QCute/WinRing0)
-* Linux：inb()和outb()
+# English version of this article is still under construction 
+>>>>>>> dev
 
+[简体中文](README_zh_cn.md)
+
+<<<<<<< HEAD
 #### 温度获取接口
 * Windows：CPU使用MSR寄存器中的`IA32_PACKAGE_THERM_STATUS_MSR`，显卡使用`nvidia-smi`
 * Linux：CPU使用`/sys/class/thermal/thermal_zone`，显卡使用`nvidia-smi`
@@ -81,12 +84,14 @@
 
 English
 --------------
+=======
+>>>>>>> dev
 **Modifying Hardware is risky, the Author is not responsible for any damage caused by this software!**
 
 This software is used to control Clevo laptops' fan.
 
 ### mechanism
-* `ec-reference.zip` in this repository contains all the referance resource I found.
+* `ec.zip` in this repository contains all the referance resource I found.
 #### Fan control interface
 * Windows: [WinRing0](https://github.com/GermanAizek/WinRing0) [pre-compiled binaries](https://github.com/QCute/WinRing0)
 * Linux: `inb()` and `outb()`
