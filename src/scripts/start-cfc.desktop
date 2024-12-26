@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=start-cfc
+Type=Application
+Exec=/home/main/Applications/ClevoFanControl/start-cfc.sh
+Path=/home/main/Applications/ClevoFanControl/
+Icon=/home/main/Applications/ClevoFanControl/ClevoFanControl.ico
