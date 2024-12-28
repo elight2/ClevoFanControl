@@ -25,6 +25,7 @@ public:
     int commandCount;
     QList<fanProfile> fanProfiles;
     QList<commandEntry> commands;
+    QList<QString> gpuLsofExcludeProc;
     int profileInUse;
     bool useStaticSpeed;
     int staticSpeed[2];
@@ -47,6 +48,10 @@ private:
     QFile configFile;
     nlohmann::json configJson;
     const QString configFileName="config.json";
+    const QString defaultConfigFileName="default_config.json";
+
+    void writeJsonFile(nlohmann::json &content, QFile &file);
+    nlohmann::json readJsonFile(QFile &file);
 };
 
 #endif

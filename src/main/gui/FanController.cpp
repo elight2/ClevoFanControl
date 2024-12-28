@@ -177,7 +177,14 @@ int GpuFanController::getTemp() {
                 for(int i=1;i<list.size();i++) {
                     int index=list[i].indexOf(' ');
                     QString proc=list[i].mid(0,index);
-                    if(proc != "" && proc != "Xorg" && proc != "nvidia-sm" && proc != "WebKitWeb") {
+                    bool inList=false;
+                    for(auto i : config->gpuLsofExcludeProc) {
+                        if(proc==i) {
+                            inList=true;
+                            break;
+                        }
+                    }
+                    if(!inList) {
                         check=true;
                         break;
                     }
@@ -187,6 +194,7 @@ int GpuFanController::getTemp() {
 #endif
     }
 
+    //read temp
     if(check) {
         QProcess nvsmi;
         nvsmi.start("nvidia-smi",{"-q","-d=TEMPERATURE"});

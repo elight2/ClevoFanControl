@@ -1,0 +1,75 @@
+{
+    "maxSpeed": false,
+    "useClevoAuto": false,
+    "profileInUse": 0,
+    "gpuDetect": {
+        "monitorGpu": false,
+        "autoDetectEnabled": false,
+        "gpuDevDir": "/dev/nvidia0",
+        "gpuSysDir": "/sys/bus/pci/devices/0000:01:00.0/power/runtime_status",
+        "procExclude": [
+            "",
+            "Xorg",
+            "nvidia-sm",
+            "WebKitWeb"
+        ]
+    },
+    "speedLimit": [
+        false,
+        80,
+        80
+    ],
+    "staticSpeed": [
+        false,
+        80,
+        80
+    ],
+    "timeIntervals": [
+        2000,
+        2000
+    ],
+    "commands": {
+        "GPU-1200": "nvidia-smi -lgc=0,1200",
+        "GPU-rgc": "nvidia-smi -rgc"
+    },
+    "profiles": [
+        [
+            "normal",
+            [
+                1,
+                [80,75,20,5],
+                [
+                    [58,60,63,65,68,70,73,75,78,80],
+                    [20,25,30,40,50,60,70,80,90,100]
+                ]
+            ],
+            [
+                1,
+                [80,75,20,5],
+                [
+                    [58,60,63,65,68,70,73,75,78,80],
+                    [20,25,30,40,50,60,70,80,90,100]
+                ]
+            ]
+        ],
+        [
+            "game4030",
+            [
+                1,
+                [80,78,40,5],
+                [
+                    [58,60,63,65,68,70,73,75,78,80],
+                    [20,25,30,40,50,60,70,80,90,100]
+                ]
+            ],
+            [
+                1,
+                [75,73,30,5],
+                [
+                    [58,60,63,65,68,70,73,75,78,80],
+                    [20,25,30,40,50,60,70,80,90,100]
+                ]
+            ]
+        ]
+    ]
+}

@@ -73,6 +73,8 @@ int main(int argc, char* argv[]) {
         cout<<"ClevoFanControl cmd mode!\nYou need some args to use it!\n";
     else if(args[1]=="/?" || args[1]=="--help")
         printHelp();
+    else if(args.size()<3)
+        cout<<"Only 1 arg found!\nUse --help or /? to check the usage.\n";
     else if(args.size()>3)
         cout<<"More than 2 args detected!\nUse --help or /? to check the usage.\n";
     else

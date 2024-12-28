@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(ClevoFanControl VERSION 2.3.0 LANGUAGES CXX)
+project(ClevoFanControl VERSION 2.3.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CXX_STANDARD 23)

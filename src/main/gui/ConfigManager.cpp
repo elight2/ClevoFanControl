@@ -1,4 +1,5 @@
 #include "ConfigManager.h"
+#include "nlohmann/json_fwd.hpp"
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
@@ -10,13 +11,8 @@ void ConfigManager::readFromJson() {
     //create if not exist
     if(!configFile.exists())
         createConfigJson();
-    
-    //read
-    configFile.open(QIODevice::ReadOnly);
-    std::string jsonStr=configFile.readAll().toStdString();
-    configFile.close();
-    configJson.clear();
-    configJson=nlohmann::json::parse(jsonStr);
+
+    configJson=readJsonFile(configFile);
 
     //profiles
     this->profileCount=configJson["profiles"].size();
@@ -46,20 +42,28 @@ void ConfigManager::readFromJson() {
 
     //others
     this->profileInUse=configJson["profileInUse"];
+    //
     this->useStaticSpeed=configJson["staticSpeed"][0];
     this->staticSpeed[0]=configJson["staticSpeed"][1];
     this->staticSpeed[1]=configJson["staticSpeed"][2];
+    //
     this->useSpeedLimit=configJson["speedLimit"][0];
     this->speedLimit[0]=configJson["speedLimit"][1];
     this->speedLimit[1]=configJson["speedLimit"][2];
+    //
     this->timeIntervals[0]=configJson["timeIntervals"][0];
     this->timeIntervals[1]=configJson["timeIntervals"][1];
+    //
     this->useClevoAuto=configJson["useClevoAuto"];
+    //
     this->maxSpeed=configJson["maxSpeed"];
-    this->monitorGpu=configJson["monitorGpu"];
-    this->gpuAutoDetectEnabled=configJson["gpuAutoDetect"];
-    this->gpuSysDir=((std::string)configJson["gpuSysDir"]).c_str();
-    this->gpuDevDir=((std::string)configJson["gpuDevDir"]).c_str();
+    //
+    this->monitorGpu=configJson["gpuDetect"]["monitorGpu"];
+    this->gpuAutoDetectEnabled=configJson["gpuDetect"]["autoDetectEnabled"];
+    this->gpuSysDir=((std::string)configJson["gpuDetect"]["gpuSysDir"]).c_str();
+    this->gpuDevDir=((std::string)configJson["gpuDetect"]["gpuDevDir"]).c_str();
+    for(auto i : configJson["gpuDetect"]["procExclude"])
+        this->gpuLsofExcludeProc.push_back(((std::string)i).c_str());
 
     qDebug()<<"readFromJson finish";
 }
@@ -67,10 +71,9 @@ void ConfigManager::readFromJson() {
 void ConfigManager::saveToJson() {
     qDebug()<<"saveConfigJson";
 
-    //profiles
+    //build profiles
     nlohmann::json profileArray=nlohmann::json::array();
-    for(int i=0;i<profileCount;i++)
-    {
+    for(int i=0;i<profileCount;i++) {
         nlohmann::json curProfile={
             fanProfiles[i].name.toStdString(),
             {
@@ -93,30 +96,28 @@ void ConfigManager::saveToJson() {
         profileArray+=curProfile;
     }
 
-    //save commands
-    nlohmann::json commandsSaved=configJson["commands"];
-
     //create json
+    nlohmann::json oldConfigJson=configJson;
     configJson.clear();
     configJson={
         {"profiles",profileArray},
-        {"commands",commandsSaved},
+        {"commands",oldConfigJson["commands"]},
         {"profileInUse",this->profileInUse},
         {"staticSpeed",{this->useStaticSpeed,this->staticSpeed[0],this->staticSpeed[1]}},
         {"speedLimit",{this->useSpeedLimit,speedLimit[0],speedLimit[1]}},
         {"timeIntervals",timeIntervals},
         {"useClevoAuto",this->useClevoAuto},
         {"maxSpeed",this->maxSpeed},
-        {"monitorGpu",this->monitorGpu},
-        {"gpuAutoDetect",this->gpuAutoDetectEnabled}, 
-        {"gpuSysDir",gpuSysDir.toStdString()},
-        {"gpuDevDir",gpuDevDir.toStdString()}
+        {"gpuDetect",{
+            {"monitorGpu",this->monitorGpu},
+            {"autoDetectEnabled",oldConfigJson["gpuDetect"]["autoDetectEnabled"]}, 
+            {"gpuSysDir",oldConfigJson["gpuDetect"]["gpuSysDir"]},
+            {"gpuDevDir",oldConfigJson["gpuDetect"]["gpuDevDir"]},
+            {"procExclude",oldConfigJson["gpuDetect"]["procExclude"]}
+        }}
     };
     
-    //write file
-    configFile.open(QIODevice::WriteOnly);
-    configFile.write(configJson.dump().c_str());
-    configFile.close();
+    writeJsonFile(configJson,configFile);
 
     qDebug()<<"saveConfigJson finish";
 }
@@ -126,44 +127,25 @@ ConfigManager::ConfigManager() {
 }
 
 void ConfigManager::createConfigJson() {
-    //make default profile
-    nlohmann::json defaultProfile={
-        "default1",//name
-        {//cpu fan
-            1,//in use
-            {80,75,20,5},//mt
-            {//ts
-                {58, 60, 63, 65, 68, 70, 73, 75, 78, 80},//temp list
-                {20, 25, 30, 40, 50, 60, 70, 80, 90, 100}//speed list
-            }
-         },
-         {//gpu fan
-            1,//in use
-            {80,75,20,5},//mt
-            {//ts
-                {58, 60, 63, 65, 68, 70, 73, 75, 78, 80},//temp list
-                {20, 25, 30, 40, 50, 60, 70, 80, 90, 100}//speed list
-            }
-         }
-    };
-    configJson.clear();
-    configJson={
-    {"profiles",{defaultProfile,defaultProfile}},
-        {"commands",{{"CPU-ondemond","cpupower frequency-set -g ondemand"},{"CPU-conservative","cpupower frequency-set -g conservative"}}},
-        {"profileInUse",0},
-        {"staticSpeed",{false,80,80}},
-        {"speedLimit",{false,80,80}},
-        {"timeIntervals",{2000,2000}},
-        {"useClevoAuto",false},
-        {"maxSpeed",false},
-        {"monitorGpu",false},
-        {"gpuAutoDetect",false}, 
-        {"gpuSysDir",""},
-        {"gpuDevDir",""}
-    };
-    configJson["profiles"][1][0]="default2";
+    QFile defaultConfigFile;
+    defaultConfigFile.setFileName((QDir::currentPath() + QDir::separator() + defaultConfigFileName));
+    nlohmann::json defaultConfigJson=readJsonFile(defaultConfigFile);
 
-    configFile.open(QIODevice::WriteOnly);
-    configFile.write(configJson.dump().c_str());
-    configFile.close();
+    writeJsonFile(defaultConfigJson, configFile);
+}
+
+void ConfigManager::writeJsonFile(nlohmann::json &content, QFile &file) {
+    file.open(QIODevice::WriteOnly);
+    file.write(content.dump(4).c_str());
+    file.close();
+}
+
+nlohmann::json ConfigManager::readJsonFile(QFile &file) {
+    file.open(QIODevice::ReadOnly);
+    std::string jsonStr=file.readAll().toStdString();
+    file.close();
+    nlohmann::json result;
+    result.clear();
+    result=nlohmann::json::parse(jsonStr);
+    return result;
 }
