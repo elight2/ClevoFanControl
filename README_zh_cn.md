@@ -126,6 +126,3 @@
 |--------|------------------------------------------|---------------------------------|
 |CPU     |MSR寄存器中的`IA32_PACKAGE_THERM_STATUS_MSR`|`/sys/class/thermal/thermal_zone`|
 |GPU     |`nvidia-smi`                              |`nvidia-smi`                      |
-
-*n卡驱动版本似乎必须是500以上才能正确读取温度*
-

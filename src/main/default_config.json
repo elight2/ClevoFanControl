@@ -28,8 +28,8 @@
         2000
     ],
     "commands": {
-        "GPU-1200": "nvidia-smi -lgc=0,1200",
-        "GPU-rgc": "nvidia-smi -rgc"
+        "GPU-1200": "nvidia-smi --lock-gpu-clocks=0,1200",
+        "GPU-rgc": "nvidia-smi --reset-gpu-clocks"
     },
     "profiles": [
         [

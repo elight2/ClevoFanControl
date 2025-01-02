@@ -197,7 +197,7 @@ int GpuFanController::getTemp() {
     //read temp
     if(check) {
         QProcess nvsmi;
-        nvsmi.start("nvidia-smi",{"-q","-d=TEMPERATURE"});
+        nvsmi.start("nvidia-smi",{"-q","--display=TEMPERATURE"});
         nvsmi.waitForFinished();
         QString output=nvsmi.readAllStandardOutput();
         int index=output.indexOf(static_cast<QString>("GPU Current Temp"));
