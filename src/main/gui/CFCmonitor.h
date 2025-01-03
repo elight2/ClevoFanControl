@@ -11,7 +11,7 @@ Q_OBJECT
 
 public:
     CFCmonitor(QWidget *parent);
-    void updateValue(int index, int speed, int rpm, int temperature);
+    void updateValue(int index, int speed, int rpm, int temperature, double power);
 
     Ui::CFCmonitorWindow ui;
 };

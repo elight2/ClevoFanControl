@@ -12,6 +12,57 @@
 //for cpu temp in Windows
 #define IA32_PACKAGE_THERM_STATUS_MSR 0x1B1
 
+void CpuPowerMonitor::rdmsr(int pos, int len, char *dest) {
+    memset(dest, 0, len);
+#ifdef __linux__
+    try {
+        FILE *fp=fopen(cpuMsrDir,"rb");
+        if(fp==NULL)
+            return;
+        fseek(fp, pos, SEEK_SET);
+        fread(dest,len,1,fp);
+        fclose(fp);
+        return;
+    } catch(std::exception &exc) {
+        return;
+    }
+#elif _WIN32
+    DWORD eax=0;
+	DWORD edx=0;
+    Rdmsr(pos,&eax,&edx);
+    memcpy(dest,&eax,len);
+#endif
+}
+
+CpuPowerMonitor::CpuPowerMonitor(int index) {
+    this->cpuIndex=index;
+    this->lastQueryTime=std::chrono::system_clock::now().time_since_epoch().count();
+    std::string msrDir="/dev/cpu/"+std::to_string(cpuIndex)+"/msr";
+    strcpy(cpuMsrDir, msrDir.c_str());
+    this->lastEnergy=getCurEnergy();
+}
+
+double CpuPowerMonitor::getCurEnergy() {
+    char buff[8];
+    rdmsr(MSR_RAPL_POWER_UNIT, 8, buff);
+    char times=0;
+    memcpy(&times, buff+1, 1);
+    rdmsr(MSR_PKG_ENERGY_STATUS, 8, buff);
+    uint32_t oriEnergy;
+    memcpy(&oriEnergy,buff,4);
+    double realEnergy=(double)oriEnergy*1000/std::pow(2,times); // in mwatt
+    return realEnergy;
+}
+
+double CpuPowerMonitor::getPower() {
+    long curTime=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    double curEnergy=getCurEnergy();
+    double pwr=(curEnergy-lastEnergy)/(curTime-lastQueryTime);
+    lastQueryTime=curTime;
+    lastEnergy=curEnergy;
+    return pwr;
+}
+
 FanController::FanController(ConfigManager *config, QObject *parent) : QThread(parent) {
     qDebug()<<"FanController general construct";
     this->config=config;
@@ -33,6 +84,9 @@ void FanController::run() {
     while(shouldRun) {
         currentTime=QDateTime::currentMSecsSinceEpoch();
         if(currentTime>lastControlTime+config->timeIntervals[index-1]) {
+            temperature = getTemp();
+            rpm=getRpm();
+            power=getPower();
             //qDebug()<<"controling speed fan: "<<index;
             int targetSpeed=-1;
 
@@ -49,7 +103,6 @@ void FanController::run() {
                 //qDebug()<<"adjust fan: "<<index<<" static"<<targetSpeed;
             }
             else {
-                temperature = getTemp();
                 int mode=config->fanProfiles[config->profileInUse].inUse[index-1];
                 targetSpeed=curSpeed;
                 if(mode==1) {
@@ -98,16 +151,13 @@ void FanController::run() {
                     curSpeed=targetSpeed;
                 }
             }
-            if(index==1) //cpu
-                rpm=getRpm();
-            else if(index==2) //gpu
-                rpm=getRpm();
-
+            
             //qDebug()<<"emit: "<<index<<" "<<targetSpeed<<" "<<rpm<<" "<<temperature;
-            emit updateMonitor(index,targetSpeed, rpm, temperature);
+            emit updateMonitor(index,targetSpeed, rpm, temperature, power);
 
             if(rpm==0)
                 curSpeed=0;//toggle speed adjust
+            
             lastControlTime=currentTime;
         }
         QThread::msleep(minControlInterval);
@@ -123,6 +173,11 @@ int FanController::getRpm() {
 
 CpuFanController::CpuFanController(ConfigManager *config, QObject *parent) : FanController(config, parent) {
     index=1;
+    cpuMonitor=new CpuPowerMonitor(0); //temp solution
+}
+
+CpuFanController::~CpuFanController() {
+    delete cpuMonitor;
 }
 
 int CpuFanController::getTemp() {
@@ -146,65 +201,93 @@ int CpuFanController::getTemp() {
     return temperature;
 }
 
+double CpuFanController::getPower() {
+    return cpuMonitor->getPower();
+}
+
 GpuFanController::GpuFanController(ConfigManager *config, QObject *parent) : FanController(config, parent) {
     index=2;
 }
 
-int GpuFanController::getTemp() {
-    //qDebug()<<"get gpu temp";
-    int temperature=0;
+bool GpuFanController::shouldMonitorGpu() {
+    if(config->monitorGpu) //when force enabled
+        return true;
+
+    //auto detect
+#ifdef __linux__ //linux only, on windows will return 0
+    if(!config->gpuAutoDetectEnabled)
+        return false;
+
     bool check=false;
-    if(config->monitorGpu)
-        check=true;
-    else {
-        //auto detect
-#ifdef  __linux__
-        if(config->gpuAutoDetectEnabled) {
-            //sys file check
-            QFile sysFile(config->gpuSysDir);
-            sysFile.open(QIODevice::ReadOnly);
-            QString status=sysFile.readLine();
-            sysFile.close();
-            
-            //only continue when active
-            if(status=="active\n") {
-                //dev file check
-                QProcess lsof;
-                lsof.start("lsof",{config->gpuDevDir});
-                lsof.waitForFinished();
-                QString output=lsof.readAllStandardOutput();
-                QStringList list=output.split('\n');
-                for(int i=1;i<list.size();i++) {
-                    int index=list[i].indexOf(' ');
-                    QString proc=list[i].mid(0,index);
-                    bool inList=false;
-                    for(auto i : config->gpuLsofExcludeProc) {
-                        if(proc==i) {
-                            inList=true;
-                            break;
-                        }
-                    }
-                    if(!inList) {
-                        check=true;
-                        break;
-                    }
+    //sys file check
+    QFile sysFile(config->gpuSysDir);
+    sysFile.open(QIODevice::ReadOnly);
+    QString status=sysFile.readLine();
+    sysFile.close();
+    
+    //only continue when active
+    if(status=="active\n") {
+        //dev file check
+        QProcess lsof;
+        lsof.start("lsof",{config->gpuDevDir});
+        lsof.waitForFinished();
+        QString output=lsof.readAllStandardOutput();
+        QStringList list=output.split('\n');
+        for(int i=1;i<list.size();i++) {
+            int index=list[i].indexOf(' ');
+            QString proc=list[i].mid(0,index);
+            bool inList=false;
+            for(auto i : config->gpuLsofExcludeProc) {
+                if(proc==i) {
+                    inList=true;
+                    break;
                 }
             }
+            if(!inList) {
+                check=true;
+                break;
+            }
         }
-#endif
     }
+    return check;
+#elif _WIN32
+    return false;
+#endif
+}
+
+int GpuFanController::getTemp() {
+    //qDebug()<<"get gpu temp";
 
     //read temp
-    if(check) {
+    if(shouldMonitorGpu()) {
+        int temperature=0;
         QProcess nvsmi;
         nvsmi.start("nvidia-smi",{"-q","--display=TEMPERATURE"});
         nvsmi.waitForFinished();
         QString output=nvsmi.readAllStandardOutput();
-        int index=output.indexOf(static_cast<QString>("GPU Current Temp"));
-        int index2=output.indexOf(static_cast<QString>(":"),index);
-        int index3=output.indexOf(static_cast<QString>(" "),index2+2);
+        int index=output.indexOf("GPU Current Temp");
+        int index2=output.indexOf(":",index);
+        int index3=output.indexOf(" ",index2+2);
         temperature=output.mid(index2+2,index3-index2-2).toInt();
+        return temperature;
     }
+    return 0;
     //qDebug()<<"get gpu temp finish: "<<temperature;
-    return temperature;
+}
+
+double GpuFanController::getPower() {
+    if(shouldMonitorGpu()) {
+        double temperature=0;
+        QProcess nvsmi;
+        nvsmi.start("nvidia-smi",{"-q","--display=POWER"});
+        nvsmi.waitForFinished();
+        QString output=nvsmi.readAllStandardOutput();
+        int index=output.indexOf("Power Draw");
+        int index2=output.indexOf(":",index);
+        int index3=output.indexOf(" ",index2+2);
+        temperature=output.mid(index2+2,index3-index2-2).toDouble();
+        return temperature;
+    }
+    else
+        return 0;
 }
