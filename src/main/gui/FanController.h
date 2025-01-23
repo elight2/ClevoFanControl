@@ -7,6 +7,8 @@
 #include "../ClevoEcAccessor.h"
 
 #include <QtCore/qthread.h>
+#include <qcontainerfwd.h>
+#include <qlist.h>
 
 class CpuPowerMonitor {
 public:
@@ -88,7 +90,15 @@ protected:
     double getPower();
 
 private:
+    qint64 gpuCheckPauseTime=0;
+    bool gpuCheckPaused=false;
+    const int nvsmiPauseInterval=10;
+
+    QStringList nvsmiOutputParser(QStringList args, QString flag);
     bool shouldMonitorGpu();
+    bool checkDevFile();
+    bool checkSysFile();
+    bool checkNvsmiProc();
 };
 
 #endif

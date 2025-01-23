@@ -3,6 +3,7 @@
 #include <QtCore/qprocess.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qdatetime.h>
+#include <qcontainerfwd.h>
 #include <qlogging.h>
 
 #ifdef _WIN32
@@ -210,85 +211,108 @@ GpuFanController::GpuFanController(ConfigManager *config, QObject *parent) : Fan
     index=2;
 }
 
+QStringList GpuFanController::nvsmiOutputParser(QStringList args, QString flag) {
+    QStringList result;
+    QProcess nvsmi;
+    nvsmi.start("nvidia-smi",args);
+    nvsmi.waitForFinished();
+    QString output=nvsmi.readAllStandardOutput();
+
+    QStringList list=output.split('\n');
+    for(auto curStr : list) {
+        int index=curStr.indexOf(flag);
+        if(index!=-1) {
+            int index2=curStr.indexOf(":",index);
+            result.push_back(curStr.mid(index2+2,curStr.size()-index2));
+        }
+    }
+    return result;
+}
+
+bool GpuFanController::checkDevFile() {
+    QProcess lsof;
+    lsof.start("lsof",{config->gpuDevDir});
+    lsof.waitForFinished();
+    QString output=lsof.readAllStandardOutput();
+
+    if(output=="") //empty list
+        return false;
+
+    //found proc
+    QStringList outputList=output.split('\n');
+    for(int i=1;i<outputList.size();i++) {
+        int spaceIndex=outputList[i].indexOf(' ');
+        QString procName=outputList[i].mid(0,spaceIndex);
+
+        //check exclude proc
+        if(!(config->gpuLsofExcludeProc.contains(procName)))
+            return true;
+    }
+
+    return false;
+}
+
+bool GpuFanController::checkSysFile() {
+    QFile sysFile(config->gpuSysDir);
+    sysFile.open(QIODevice::ReadOnly);
+    QString status=sysFile.readLine();
+    sysFile.close();
+    return status=="active\n";
+}
+
+bool GpuFanController::checkNvsmiProc() {
+    QStringList list=nvsmiOutputParser({"-q","--display=PIDS"}, "Name");
+    for(auto curStr : list) {
+        if(curStr!="/usr/lib/Xorg")
+            return true;
+    }
+
+    return false;
+}
+
 bool GpuFanController::shouldMonitorGpu() {
     if(config->monitorGpu) //when force enabled
         return true;
 
     //auto detect
 #ifdef __linux__ //linux only, on windows will return 0
-    if(!config->gpuAutoDetectEnabled)
-        return false;
+    if(config->gpuAutoDetectEnabled) {
+        if(gpuCheckPaused) {
+            if(QDateTime::currentSecsSinceEpoch()<=gpuCheckPauseTime+nvsmiPauseInterval)
+                return false;
+            else
+                gpuCheckPaused=false;
+        }
 
-    bool check=false;
-    //sys file check
-    QFile sysFile(config->gpuSysDir);
-    sysFile.open(QIODevice::ReadOnly);
-    QString status=sysFile.readLine();
-    sysFile.close();
-    
-    //only continue when active
-    if(status=="active\n") {
-        //dev file check
-        QProcess lsof;
-        lsof.start("lsof",{config->gpuDevDir});
-        lsof.waitForFinished();
-        QString output=lsof.readAllStandardOutput();
-        QStringList list=output.split('\n');
-        for(int i=1;i<list.size();i++) {
-            int index=list[i].indexOf(' ');
-            QString proc=list[i].mid(0,index);
-            bool inList=false;
-            for(auto i : config->gpuLsofExcludeProc) {
-                if(proc==i) {
-                    inList=true;
-                    break;
-                }
+        if(!checkSysFile())
+            return false;
+        else {
+            if(!checkNvsmiProc()) {
+                gpuCheckPaused=true;
+                gpuCheckPauseTime=QDateTime::currentSecsSinceEpoch();
             }
-            if(!inList) {
-                check=true;
-                break;
-            }
+            return true;
         }
     }
-    return check;
+
+    return false;
 #elif _WIN32
     return false;
 #endif
 }
 
 int GpuFanController::getTemp() {
-    //qDebug()<<"get gpu temp";
-
-    //read temp
     if(shouldMonitorGpu()) {
-        int temperature=0;
-        QProcess nvsmi;
-        nvsmi.start("nvidia-smi",{"-q","--display=TEMPERATURE"});
-        nvsmi.waitForFinished();
-        QString output=nvsmi.readAllStandardOutput();
-        int index=output.indexOf("GPU Current Temp");
-        int index2=output.indexOf(":",index);
-        int index3=output.indexOf(" ",index2+2);
-        temperature=output.mid(index2+2,index3-index2-2).toInt();
-        return temperature;
+        QStringList list=nvsmiOutputParser({"-q","--display=TEMPERATURE"}, "GPU Current Temp");
+        return list[0].mid(0,list[0].size()-1).toInt();
     }
     return 0;
-    //qDebug()<<"get gpu temp finish: "<<temperature;
 }
 
 double GpuFanController::getPower() {
     if(shouldMonitorGpu()) {
-        double temperature=0;
-        QProcess nvsmi;
-        nvsmi.start("nvidia-smi",{"-q","--display=POWER"});
-        nvsmi.waitForFinished();
-        QString output=nvsmi.readAllStandardOutput();
-        int index=output.indexOf("Power Draw");
-        int index2=output.indexOf(":",index);
-        int index3=output.indexOf(" ",index2+2);
-        temperature=output.mid(index2+2,index3-index2-2).toDouble();
-        return temperature;
+        QStringList list=nvsmiOutputParser({"-q","--display=POWER"}, "Power Draw");
+        return list[0].mid(0,list[0].size()-1).toDouble();
     }
-    else
-        return 0;
+    return 0;
 }
