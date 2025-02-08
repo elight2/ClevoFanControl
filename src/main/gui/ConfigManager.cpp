@@ -53,6 +53,8 @@ void ConfigManager::readFromJson() {
     //
     this->timeIntervals[0]=configJson["timeIntervals"][0];
     this->timeIntervals[1]=configJson["timeIntervals"][1];
+    this->timeIntervals[2]=configJson["timeIntervals"][2];
+    this->timeIntervals[3]=configJson["timeIntervals"][3];
     //
     this->useClevoAuto=configJson["useClevoAuto"];
     //

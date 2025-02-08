@@ -1,14 +1,17 @@
 #ifndef FAN_CONTROLLER_H
 #define FAN_CONTROLLER_H
 
+#include <atomic>
 #include <chrono>
 
 #include "ConfigManager.h"
 #include "../ClevoEcAccessor.h"
+#include "CFCmonitor.h"
 
 #include <QtCore/qthread.h>
 #include <qcontainerfwd.h>
 #include <qlist.h>
+#include <qtmetamacros.h>
 
 class CpuPowerMonitor {
 public:
@@ -27,78 +30,73 @@ private:
     const int MSR_PKG_ENERGY_STATUS=0x611;
 };
 
+class HardwareMonitor : public QThread {
+Q_OBJECT
+
+public:
+    HardwareMonitor(int index, ConfigManager *cfg, QObject *parent);
+    void stop();
+
+    std::atomic_int temperature;
+    std::atomic<double> power;
+
+private:
+    void run();
+    int getcTemp();
+    double getcPower();
+    int getgTemp();
+    double getgPower();
+
+    QStringList nvsmiOutputParser(QStringList args, QString flag);
+    bool shouldMonitorGpu();
+    // bool checkDevFile();
+    bool checkSysFile();
+    bool checkNvsmiProc();
+
+    int index;
+    ConfigManager *cfg;
+    CpuPowerMonitor *cmonitor;
+    std::atomic_bool shouldRun=true;
+    std::atomic_bool running=true;
+    qint64 gpuCheckPauseTime=0;
+    bool gpuCheckPaused=false;
+    const int nvsmiPauseInterval=12;
+
+signals:
+    void requireUpdateMonitor2(int index, int temperature, double power);
+};
+
 class FanController : public QThread {
 Q_OBJECT
 
 public:
-    FanController(ConfigManager *config, QObject *parent);
+    FanController(ConfigManager *config, QObject *parent, int index, CFCmonitor *appMonitor);
     ~FanController();
-
-    void setShouldStop();
-
-protected:
-    virtual int getTemp()=0;
-    virtual double getPower()=0;
+    void stop();
 
     ConfigManager *config;
-    int index=-1;
+    int index;
 
 private:
     void run();
     int getRpm();
 
+    HardwareMonitor *hwMonitor;
+    CFCmonitor *appMonitor;
     ClevoEcAccessor accessor;
-    std::atomic_bool shouldRun=1;
-    std::atomic_bool isRunning=0;
+    std::atomic_bool shouldRun=true;
+    std::atomic_bool running=false;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
     int curSpeed=30;
     const int minSafeSpeed=10;
     const int minControlInterval=100;
     bool curAuto=false;
-    int temperature=0;
     int rpm=0;
     double power=0;
 
 signals:
-    void updateMonitor(int index, int speed, int rpm, int temperature, double power);
-};
-
-class CpuFanController : public FanController {
-Q_OBJECT
-
-public:
-    CpuFanController(ConfigManager *config, QObject *parent);
-    ~CpuFanController();
-
-protected:
-    int getTemp();
-    double getPower();
-
-private:
-    CpuPowerMonitor *cpuMonitor=nullptr;
-};
-
-class GpuFanController : public FanController {
-Q_OBJECT
-
-public:
-    GpuFanController(ConfigManager *config, QObject *parent);
-
-protected:
-    int getTemp();
-    double getPower();
-
-private:
-    qint64 gpuCheckPauseTime=0;
-    bool gpuCheckPaused=false;
-    const int nvsmiPauseInterval=10;
-
-    QStringList nvsmiOutputParser(QStringList args, QString flag);
-    bool shouldMonitorGpu();
-    bool checkDevFile();
-    bool checkSysFile();
-    bool checkNvsmiProc();
+    void requireUpdateMonitor1(int index, int speed, int rpm);
 };
 
 #endif

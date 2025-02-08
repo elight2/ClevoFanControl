@@ -6,19 +6,29 @@ CFCmonitor::CFCmonitor(QWidget *parent) : QWidget(parent) {
     ui.setupUi(this);
 }
 
-void CFCmonitor::updateValue(int index, int speed, int rpm, int temperature, double power) {
+void CFCmonitor::updateValue1(int index, int speed, int rpm) {
     //qDebug()<<"CFCmonitor::updateValue ";
     if(index==1) {
-        ui.label_2->setText(QString::number(temperature));
-        ui.label_4->setText(QString::number(power,'f',2));
         ui.label_6->setText(QString::number(speed));
         ui.label_11->setText(QString::number(rpm));
     }
     else if(index==2) {
-        ui.label_15->setText(QString::number(temperature));
-        ui.label_16->setText(QString::number(power,'f',2));
         ui.label_8->setText(QString::number(speed));
         ui.label_12->setText(QString::number(rpm));
+    }
+    //qDebug()<<"CFCmonitor::updateValue finish";
+    return;
+}
+
+void CFCmonitor::updateValue2(int index, int temperature, double power) {
+    //qDebug()<<"CFCmonitor::updateValue ";
+    if(index==1) {
+        ui.label_2->setText(QString::number(temperature));
+        ui.label_4->setText(QString::number(power,'f',2));
+    }
+    else if(index==2) {
+        ui.label_15->setText(QString::number(temperature));
+        ui.label_16->setText(QString::number(power,'f',2));
     }
     //qDebug()<<"CFCmonitor::updateValue finish";
     return;

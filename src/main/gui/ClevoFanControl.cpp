@@ -10,10 +10,8 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     TrayIcon->show();
 
     //start controllers
-    cpuFan=new CpuFanController(config,this);
-    gpuFan=new GpuFanController(config,this);
-    QObject::connect(cpuFan, &CpuFanController::updateMonitor, monitor, &CFCmonitor::updateValue, Qt::BlockingQueuedConnection);
-    QObject::connect(gpuFan, &GpuFanController::updateMonitor, monitor, &CFCmonitor::updateValue, Qt::BlockingQueuedConnection);
+    cpuFan=new FanController(config,this,1,monitor);
+    gpuFan=new FanController(config,this,2,monitor);
     cpuFan->start();
     gpuFan->start();
     
@@ -27,8 +25,8 @@ ClevoFanControl::~ClevoFanControl() {
     qInfo()<<"cfc deconstructing";
 
     //stop controller
-    cpuFan->setShouldStop();
-    gpuFan->setShouldStop();
+    cpuFan->stop();
+    gpuFan->stop();
     delete cpuFan;
     delete gpuFan;
 

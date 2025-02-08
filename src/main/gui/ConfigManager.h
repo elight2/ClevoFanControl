@@ -31,7 +31,7 @@ public:
     int staticSpeed[2];
     bool useSpeedLimit;
     int speedLimit[2];
-    int timeIntervals[2];
+    int timeIntervals[4];
     bool useClevoAuto;
     bool maxSpeed;
     bool monitorGpu;

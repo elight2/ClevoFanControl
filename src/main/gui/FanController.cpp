@@ -1,10 +1,13 @@
 #include "FanController.h"
+#include "CFCmonitor.h"
 
 #include <QtCore/qprocess.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qdatetime.h>
 #include <qcontainerfwd.h>
+#include <qcoreapplication.h>
 #include <qlogging.h>
+#include <qthread.h>
 
 #ifdef _WIN32
 #include "../winRing0Api.h"
@@ -65,124 +68,49 @@ double CpuPowerMonitor::getPower() {
     return pwr;
 }
 
-FanController::FanController(ConfigManager *config, QObject *parent) : QThread(parent) {
-    qDebug()<<"FanController general construct";
-    this->config=config;
+HardwareMonitor::HardwareMonitor(int index, ConfigManager *cfg, QObject *parent) : QThread(parent) {
+    this->index=index;
+    this->cfg=cfg;
 }
 
-FanController::~FanController() {
-    qDebug()<<"FanController general deconstruct";
-}
-
-void FanController::setShouldStop() {
-    shouldRun=0;
-    while(isRunning)
+void HardwareMonitor::stop() {
+    this->shouldRun=false;
+    while(this->running)
         QThread::msleep(100);
 }
 
-void FanController::run() {
-    qDebug()<<"FanController run fan: "<<index;
-    isRunning=1;
-    while(shouldRun) {
-        currentTime=QDateTime::currentMSecsSinceEpoch();
-        if(currentTime>lastControlTime+config->timeIntervals[index-1]) {
-            temperature = getTemp();
-            rpm=getRpm();
-            power=getPower();
-            //qDebug()<<"controling speed fan: "<<index;
-            int targetSpeed=-1;
+void HardwareMonitor::run() {
+    qDebug()<<"HardwareMonitor start fan: "<<index;
+    this->running=true;
 
-            if(config->useClevoAuto) {
-                targetSpeed=-2;
-                qDebug()<<"adjust fan: "<<index<<" auto";
-            }
-            else if(config->maxSpeed) {
-                targetSpeed=100;
-                //qDebug()<<"adjust fan: "<<index<<" max";
-            }
-            else if(config->useStaticSpeed) {
-                targetSpeed=config->staticSpeed[index-1];
-                //qDebug()<<"adjust fan: "<<index<<" static"<<targetSpeed;
-            }
-            else {
-                int mode=config->fanProfiles[config->profileInUse].inUse[index-1];
-                targetSpeed=curSpeed;
-                if(mode==1) {
-                    if(temperature>(config->fanProfiles[config->profileInUse].MTconfig[index-1][0]))//> max
-                        targetSpeed+=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//+=step
-                    else if(temperature<(config->fanProfiles[config->profileInUse].MTconfig[index-1][1]))//<min
-                        targetSpeed-=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//-=step
-                    targetSpeed=std::max({targetSpeed,minSafeSpeed,config->fanProfiles[config->profileInUse].MTconfig[index-1][2]});
-                    targetSpeed=std::min(targetSpeed,100);
-                }
-                else if(mode==2) {
-                    targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
-                    if(temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][0]))
-                        targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
-                    else {
-                        for(int i=0;i<10;i++) {
-                            if(i==9)
-                                targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][9];
-                            else if(temperature>=(config->fanProfiles[config->profileInUse].TStempList[index-1][i]) && temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][i+1])) {
-                                targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][i];
-                                break;
-                            }
-                        }
-                    }
-                    targetSpeed=std::max(targetSpeed,minSafeSpeed);
-                    targetSpeed=std::min(targetSpeed,100);
-                }
-                if(config->useSpeedLimit)
-                    targetSpeed=std::min(targetSpeed,config->speedLimit[index-1]);
-                //qDebug()<<"adjust fan: "<<index<<" normal"<<targetSpeed;
-            }
+    if(index==1)
+        this->cmonitor=new CpuPowerMonitor(0);
 
-            if(targetSpeed==-2) { //auto
-                curSpeed=-2;
-                if(!curAuto) {
-                    accessor.setFanSpeed(-1, index);
-                    curAuto=true;
-                }
+    while(this->shouldRun) {
+        if(index==1) {
+            this->temperature=getcTemp();
+            this->power=getcPower();
+        } else if(index==2) {
+            if(shouldMonitorGpu()) {
+                this->temperature=getgTemp();
+                this->power=getgPower();
+            } else {
+                this->temperature=0;
+                this->power=0;
             }
-            else {
-                curAuto=false;
-                if(curSpeed!=targetSpeed) {
-                    qDebug()<<"apply speed: "<<index<<" "<<targetSpeed;
-                    accessor.setFanSpeed(targetSpeed, index);
-                    qDebug()<<"apply speed finish: "<<index<<" "<<targetSpeed;
-                    curSpeed=targetSpeed;
-                }
-            }
-            
-            //qDebug()<<"emit: "<<index<<" "<<targetSpeed<<" "<<rpm<<" "<<temperature;
-            emit updateMonitor(index,targetSpeed, rpm, temperature, power);
-
-            if(rpm==0)
-                curSpeed=0;//toggle speed adjust
-            
-            lastControlTime=currentTime;
         }
-        QThread::msleep(minControlInterval);
+        emit requireUpdateMonitor2(this->index, this->temperature, this->power);
+        QThread::msleep(cfg->timeIntervals[this->index+1]);
     }
-    accessor.setFanSpeed(-1,index); //finalize auto
-    isRunning=false;
-    qDebug()<<"FanController run finish "<<index;
+
+    if(index==1)
+        delete this->cmonitor;
+
+    this->running=false;
+    qDebug()<<"HardwareMonitor finish fan: "<<index;
 }
 
-int FanController::getRpm() {
-    return accessor.getRpm(index);
-}
-
-CpuFanController::CpuFanController(ConfigManager *config, QObject *parent) : FanController(config, parent) {
-    index=1;
-    cpuMonitor=new CpuPowerMonitor(0); //temp solution
-}
-
-CpuFanController::~CpuFanController() {
-    delete cpuMonitor;
-}
-
-int CpuFanController::getTemp() {
+int HardwareMonitor::getcTemp() {
     //qDebug()<<"get cpu temp";
     int temperature=0;
 #ifdef _WIN32
@@ -203,20 +131,40 @@ int CpuFanController::getTemp() {
     return temperature;
 }
 
-double CpuFanController::getPower() {
-    return cpuMonitor->getPower();
+double HardwareMonitor::getcPower() {
+    return this->cmonitor->getPower();
 }
 
-GpuFanController::GpuFanController(ConfigManager *config, QObject *parent) : FanController(config, parent) {
-    index=2;
+int HardwareMonitor::getgTemp() {
+    QStringList list;
+    try {
+        list=nvsmiOutputParser({"-q","--display=TEMPERATURE"}, "GPU Current Temp");
+        return list[0].mid(0,list[0].size()-1).toInt();
+    } catch (const char* exc) {
+        return 0;
+    }
 }
 
-QStringList GpuFanController::nvsmiOutputParser(QStringList args, QString flag) {
+double HardwareMonitor::getgPower() {
+    QStringList list;
+    try {
+        list=nvsmiOutputParser({"-q","--display=POWER"}, "Power Draw");
+        return list[0].mid(0,list[0].size()-1).toDouble();
+    } catch (const char* exc) {
+        return 0;
+    }
+}
+
+QStringList HardwareMonitor::nvsmiOutputParser(QStringList args, QString flag) {
     QStringList result;
     QProcess nvsmi;
     nvsmi.start("nvidia-smi",args);
     nvsmi.waitForFinished();
     QString output=nvsmi.readAllStandardOutput();
+
+    if(output.contains("NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver.")) {
+        throw "driver-error";
+    }
 
     QStringList list=output.split('\n');
     for(auto curStr : list) {
@@ -229,39 +177,47 @@ QStringList GpuFanController::nvsmiOutputParser(QStringList args, QString flag) 
     return result;
 }
 
-bool GpuFanController::checkDevFile() {
-    QProcess lsof;
-    lsof.start("lsof",{config->gpuDevDir});
-    lsof.waitForFinished();
-    QString output=lsof.readAllStandardOutput();
+// bool GpuFanController::checkDevFile() {
+//     QProcess lsof;
+//     lsof.start("lsof",{config->gpuDevDir});
+//     lsof.waitForFinished();
+//     QString output=lsof.readAllStandardOutput();
 
-    if(output=="") //empty list
+//     if(output=="") //empty list
+//         return false;
+
+//     //found proc
+//     QStringList outputList=output.split('\n');
+//     for(int i=1;i<outputList.size();i++) {
+//         int spaceIndex=outputList[i].indexOf(' ');
+//         QString procName=outputList[i].mid(0,spaceIndex);
+
+//         //check exclude proc
+//         if(!(config->gpuLsofExcludeProc.contains(procName)))
+//             return true;
+//     }
+
+//     return false;
+// }
+
+bool HardwareMonitor::checkSysFile() {
+    QFile sysFile(cfg->gpuSysDir);
+    if(sysFile.exists()) {
+        sysFile.open(QIODevice::ReadOnly);
+        QString status=sysFile.readLine();
+        sysFile.close();
+        return status=="active\n";
+    } else
         return false;
+}
 
-    //found proc
-    QStringList outputList=output.split('\n');
-    for(int i=1;i<outputList.size();i++) {
-        int spaceIndex=outputList[i].indexOf(' ');
-        QString procName=outputList[i].mid(0,spaceIndex);
-
-        //check exclude proc
-        if(!(config->gpuLsofExcludeProc.contains(procName)))
-            return true;
+bool HardwareMonitor::checkNvsmiProc() {
+    QStringList list;
+    try {
+        list=nvsmiOutputParser({"-q","--display=PIDS"}, "Name");
+    } catch (const char* exc) {
+        return false;
     }
-
-    return false;
-}
-
-bool GpuFanController::checkSysFile() {
-    QFile sysFile(config->gpuSysDir);
-    sysFile.open(QIODevice::ReadOnly);
-    QString status=sysFile.readLine();
-    sysFile.close();
-    return status=="active\n";
-}
-
-bool GpuFanController::checkNvsmiProc() {
-    QStringList list=nvsmiOutputParser({"-q","--display=PIDS"}, "Name");
     for(auto curStr : list) {
         if(curStr!="/usr/lib/Xorg")
             return true;
@@ -270,13 +226,13 @@ bool GpuFanController::checkNvsmiProc() {
     return false;
 }
 
-bool GpuFanController::shouldMonitorGpu() {
-    if(config->monitorGpu) //when force enabled
+bool HardwareMonitor::shouldMonitorGpu() {
+    if(cfg->monitorGpu) //when force enabled
         return true;
 
     //auto detect
 #ifdef __linux__ //linux only, on windows will return 0
-    if(config->gpuAutoDetectEnabled) {
+    if(cfg->gpuAutoDetectEnabled) {
         if(gpuCheckPaused) {
             if(QDateTime::currentSecsSinceEpoch()<=gpuCheckPauseTime+nvsmiPauseInterval)
                 return false;
@@ -301,18 +257,111 @@ bool GpuFanController::shouldMonitorGpu() {
 #endif
 }
 
-int GpuFanController::getTemp() {
-    if(shouldMonitorGpu()) {
-        QStringList list=nvsmiOutputParser({"-q","--display=TEMPERATURE"}, "GPU Current Temp");
-        return list[0].mid(0,list[0].size()-1).toInt();
-    }
-    return 0;
+FanController::FanController(ConfigManager *config, QObject *parent, int index, CFCmonitor *appMonitor) : QThread(parent) {
+    qDebug()<<"FanController general construct";
+    this->index=index;
+    this->config=config;
+    this->appMonitor=appMonitor;
+    this->hwMonitor=new HardwareMonitor(index,config,this);
+    QObject::connect(this, &FanController::requireUpdateMonitor1, appMonitor, &CFCmonitor::updateValue1, Qt::BlockingQueuedConnection);
+    QObject::connect(hwMonitor, &HardwareMonitor::requireUpdateMonitor2, appMonitor, &CFCmonitor::updateValue2, Qt::BlockingQueuedConnection);
 }
 
-double GpuFanController::getPower() {
-    if(shouldMonitorGpu()) {
-        QStringList list=nvsmiOutputParser({"-q","--display=POWER"}, "Power Draw");
-        return list[0].mid(0,list[0].size()-1).toDouble();
+FanController::~FanController() {
+    qDebug()<<"FanController general deconstruct";
+}
+
+void FanController::stop() {
+    this->shouldRun=false;
+    while(running) {
+        QThread::msleep(100);
+        QCoreApplication::processEvents();
     }
-    return 0;
+}
+
+void FanController::run() {
+    qDebug()<<"FanController start fan: "<<index;
+    running=true;
+    this->hwMonitor->start();
+    while(shouldRun) {
+        currentTime=QDateTime::currentMSecsSinceEpoch();
+        if(currentTime>lastControlTime+config->timeIntervals[index-1]) {
+            qDebug()<<"time to adjust fan: "<<index;
+            rpm=getRpm();
+            int targetSpeed=-1;
+
+            if(config->useClevoAuto) {
+                targetSpeed=-2;
+            }
+            else if(config->maxSpeed) {
+                targetSpeed=100;
+            }
+            else if(config->useStaticSpeed) {
+                targetSpeed=config->staticSpeed[index-1];
+            }
+            else {
+                int mode=config->fanProfiles[config->profileInUse].inUse[index-1];
+                targetSpeed=curSpeed;
+                if(mode==1) {
+                    if(this->hwMonitor->temperature>(config->fanProfiles[config->profileInUse].MTconfig[index-1][0]))//> max
+                        targetSpeed+=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//+=step
+                    else if(this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].MTconfig[index-1][1]))//<min
+                        targetSpeed-=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//-=step
+                    targetSpeed=std::max({targetSpeed,minSafeSpeed,config->fanProfiles[config->profileInUse].MTconfig[index-1][2]});
+                    targetSpeed=std::min(targetSpeed,100);
+                }
+                else if(mode==2) {
+                    targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
+                    if(this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][0]))
+                        targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
+                    else {
+                        for(int i=0;i<10;i++) {
+                            if(i==9)
+                                targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][9];
+                            else if(this->hwMonitor->temperature>=(config->fanProfiles[config->profileInUse].TStempList[index-1][i]) && this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][i+1])) {
+                                targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][i];
+                                break;
+                            }
+                        }
+                    }
+                    targetSpeed=std::max(targetSpeed,minSafeSpeed);
+                    targetSpeed=std::min(targetSpeed,100);
+                }
+                if(config->useSpeedLimit)
+                    targetSpeed=std::min(targetSpeed,config->speedLimit[index-1]);
+            }
+
+            qDebug()<<"determine speed finish: "<<index;
+            if(targetSpeed==-2) { //auto
+                curSpeed=-2;
+                if(!curAuto) {
+                    accessor.setFanSpeed(-1, index);
+                    curAuto=true;
+                }
+            }
+            else {
+                curAuto=false;
+                if(curSpeed!=targetSpeed) {
+                    accessor.setFanSpeed(targetSpeed, index);
+                    curSpeed=targetSpeed;
+                }
+            }
+            qDebug()<<"speed applied: "<<index;
+            emit requireUpdateMonitor1(index,targetSpeed, rpm);
+
+            if(rpm==0)
+                curSpeed=0;//toggle speed adjust
+            
+            lastControlTime=currentTime;
+        }
+        QThread::msleep(minControlInterval);
+    }
+    accessor.setFanSpeed(-1,index); //finalize auto
+    this->hwMonitor->stop();
+    running=false;
+    qDebug()<<"FanController run finish "<<index;
+}
+
+int FanController::getRpm() {
+    return accessor.getRpm(index);
 }

@@ -50,8 +50,8 @@ private:
     CFCmonitor *monitor=nullptr;
     CFCconfig *configWindow=nullptr;
     //fan
-    CpuFanController *cpuFan=nullptr;
-    GpuFanController *gpuFan=nullptr;
+    FanController *cpuFan=nullptr;
+    FanController *gpuFan=nullptr;
 
     void buildUi();
     void initTrayEntry(QAction *&action,QString text, bool checkable);
