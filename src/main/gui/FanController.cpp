@@ -91,7 +91,8 @@ void HardwareMonitor::run() {
             this->temperature=getcTemp();
             this->power=getcPower();
         } else if(index==2) {
-            if(shouldMonitorGpu()) {
+            this->shouldMonitorGpu=checkShouldMonitorGpu();
+            if(this->shouldMonitorGpu) {
                 this->temperature=getgTemp();
                 this->power=getgPower();
             } else {
@@ -226,7 +227,7 @@ bool HardwareMonitor::checkNvsmiProc() {
     return false;
 }
 
-bool HardwareMonitor::shouldMonitorGpu() {
+bool HardwareMonitor::checkShouldMonitorGpu() {
     if(cfg->monitorGpu) //when force enabled
         return true;
 
@@ -287,6 +288,7 @@ void FanController::run() {
         currentTime=QDateTime::currentMSecsSinceEpoch();
         if(currentTime>lastControlTime+config->timeIntervals[index-1]) {
             qDebug()<<"time to adjust fan: "<<index;
+            this->curMinSafeSpeed=this->hwMonitor->shouldMonitorGpu ? this->minSafeSpeedWhenGpuActive : 0;
             rpm=getRpm();
             int targetSpeed=-1;
 
@@ -307,7 +309,7 @@ void FanController::run() {
                         targetSpeed+=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//+=step
                     else if(this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].MTconfig[index-1][1]))//<min
                         targetSpeed-=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//-=step
-                    targetSpeed=std::max({targetSpeed,minSafeSpeed,config->fanProfiles[config->profileInUse].MTconfig[index-1][2]});
+                    targetSpeed=std::max({targetSpeed,curMinSafeSpeed,config->fanProfiles[config->profileInUse].MTconfig[index-1][2]});
                     targetSpeed=std::min(targetSpeed,100);
                 }
                 else if(mode==2) {
@@ -324,7 +326,7 @@ void FanController::run() {
                             }
                         }
                     }
-                    targetSpeed=std::max(targetSpeed,minSafeSpeed);
+                    targetSpeed=std::max(targetSpeed,curMinSafeSpeed);
                     targetSpeed=std::min(targetSpeed,100);
                 }
                 if(config->useSpeedLimit)
@@ -336,6 +338,7 @@ void FanController::run() {
                 curSpeed=-2;
                 if(!curAuto) {
                     accessor.setFanSpeed(-1, index);
+                    qDebug()<<"speed applied: "<<index;
                     curAuto=true;
                 }
             }
@@ -343,14 +346,12 @@ void FanController::run() {
                 curAuto=false;
                 if(curSpeed!=targetSpeed) {
                     accessor.setFanSpeed(targetSpeed, index);
+                    qDebug()<<"speed applied: "<<index;
                     curSpeed=targetSpeed;
                 }
             }
-            qDebug()<<"speed applied: "<<index;
+            
             emit requireUpdateMonitor1(index,targetSpeed, rpm);
-
-            if(rpm==0)
-                curSpeed=0;//toggle speed adjust
             
             lastControlTime=currentTime;
         }

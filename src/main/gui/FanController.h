@@ -39,6 +39,7 @@ public:
 
     std::atomic_int temperature;
     std::atomic<double> power;
+    std::atomic_bool shouldMonitorGpu;
 
 private:
     void run();
@@ -48,7 +49,7 @@ private:
     double getgPower();
 
     QStringList nvsmiOutputParser(QStringList args, QString flag);
-    bool shouldMonitorGpu();
+    bool checkShouldMonitorGpu();
     // bool checkDevFile();
     bool checkSysFile();
     bool checkNvsmiProc();
@@ -89,7 +90,8 @@ private:
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
     int curSpeed=30;
-    const int minSafeSpeed=10;
+    int curMinSafeSpeed=0;
+    const int minSafeSpeedWhenGpuActive=20;
     const int minControlInterval=100;
     bool curAuto=false;
     int rpm=0;
