@@ -6,12 +6,17 @@
 #include <qcontainerfwd.h>
 #include "nlohmann/json.hpp"
 
+struct fanArg {
+    int operateInterval;
+    int speedStep;
+    int minSpeed;
+    int speedUpTemp;
+    int slowDownTemp;
+};
+
 struct fanProfile {
     QString name;
-    int inUse[2];//c,g
-    int MTconfig[2][4];
-    int TStempList[2][10];
-    int TSspeedList[2][10];
+    fanArg args[2];
 };
 
 struct commandEntry {
@@ -25,19 +30,17 @@ public:
     int commandCount;
     QList<fanProfile> fanProfiles;
     QList<commandEntry> commands;
-    QList<QString> gpuLsofExcludeProc;
     int profileInUse;
     bool useStaticSpeed;
     int staticSpeed[2];
     bool useSpeedLimit;
     int speedLimit[2];
-    int timeIntervals[4];
+    int monitorIntervals[2];
     bool useClevoAuto;
     bool maxSpeed;
     bool monitorGpu;
     bool gpuAutoDetectEnabled;
     QString gpuSysDir;
-    QString gpuDevDir;
 
     ConfigManager();
     void readFromJson();

@@ -1,9 +1,11 @@
 #include "FanController.h"
 #include "CFCmonitor.h"
+#include "ConfigManager.h"
 
 #include <QtCore/qprocess.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qdatetime.h>
+#include <algorithm>
 #include <qcontainerfwd.h>
 #include <qcoreapplication.h>
 #include <qlogging.h>
@@ -101,7 +103,7 @@ void HardwareMonitor::run() {
             }
         }
         emit requireUpdateMonitor2(this->index, this->temperature, this->power);
-        QThread::msleep(cfg->timeIntervals[this->index+1]);
+        QThread::msleep(cfg->monitorIntervals[this->index-1]);
     }
 
     if(index==1)
@@ -284,72 +286,112 @@ void FanController::run() {
     qDebug()<<"FanController start fan: "<<index;
     running=true;
     this->hwMonitor->start();
+    this->accessor.setFanSpeed(defaultSpeed, this->index);
     while(shouldRun) {
         currentTime=QDateTime::currentMSecsSinceEpoch();
-        if(currentTime>lastControlTime+config->timeIntervals[index-1]) {
-            qDebug()<<"time to adjust fan: "<<index;
-            this->curMinSafeSpeed=this->hwMonitor->shouldMonitorGpu ? this->minSafeSpeedWhenGpuActive : 0;
+        fanArg *curProfileArgs=&(config->fanProfiles[config->profileInUse].args[index-1]);
+        if(currentTime>lastControlTime+curProfileArgs->operateInterval) {
+            // qDebug()<<"time to adjust fan: "<<index;
+
             rpm=getRpm();
-            int targetSpeed=-1;
-
-            if(config->useClevoAuto) {
-                targetSpeed=-2;
-            }
-            else if(config->maxSpeed) {
+            //first decide speed
+            int targetSpeed=-10;
+            if (config->useClevoAuto)
+                targetSpeed=-1;
+            else if (config->useStaticSpeed)
+                targetSpeed=std::clamp(config->staticSpeed[index-1],0,100);
+            else if (config->maxSpeed)
                 targetSpeed=100;
-            }
-            else if(config->useStaticSpeed) {
-                targetSpeed=config->staticSpeed[index-1];
-            }
             else {
-                int mode=config->fanProfiles[config->profileInUse].inUse[index-1];
-                targetSpeed=curSpeed;
-                if(mode==1) {
-                    if(this->hwMonitor->temperature>(config->fanProfiles[config->profileInUse].MTconfig[index-1][0]))//> max
-                        targetSpeed+=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//+=step
-                    else if(this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].MTconfig[index-1][1]))//<min
-                        targetSpeed-=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//-=step
-                    targetSpeed=std::max({targetSpeed,curMinSafeSpeed,config->fanProfiles[config->profileInUse].MTconfig[index-1][2]});
-                    targetSpeed=std::min(targetSpeed,100);
-                }
-                else if(mode==2) {
-                    targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
-                    if(this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][0]))
-                        targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
-                    else {
-                        for(int i=0;i<10;i++) {
-                            if(i==9)
-                                targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][9];
-                            else if(this->hwMonitor->temperature>=(config->fanProfiles[config->profileInUse].TStempList[index-1][i]) && this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][i+1])) {
-                                targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][i];
-                                break;
-                            }
-                        }
-                    }
-                    targetSpeed=std::max(targetSpeed,curMinSafeSpeed);
-                    targetSpeed=std::min(targetSpeed,100);
-                }
-                if(config->useSpeedLimit)
-                    targetSpeed=std::min(targetSpeed,config->speedLimit[index-1]);
+                int curTemp=this->hwMonitor->temperature;
+                if (curTemp>curProfileArgs->speedUpTemp)
+                    targetSpeed=this->curSpeed+curProfileArgs->speedStep;
+                else if (curTemp<curProfileArgs->slowDownTemp)
+                    targetSpeed=this->curSpeed-curProfileArgs->speedStep;
+                else
+                    targetSpeed=curSpeed;
+                targetSpeed=std::clamp(targetSpeed,curProfileArgs->minSpeed,100);
+                if (hwMonitor->shouldMonitorGpu) //prevent overheating
+                    targetSpeed=std::clamp(targetSpeed,minSafeSpeedWhenGpuActive,100);
             }
 
-            qDebug()<<"determine speed finish: "<<index;
-            if(targetSpeed==-2) { //auto
-                curSpeed=-2;
-                if(!curAuto) {
+            //correct the data
+            if (config->useSpeedLimit && targetSpeed!=-1)
+                targetSpeed=std::clamp(targetSpeed,0,config->speedLimit[index-1]);
+
+            //then apply speed
+            if (curSpeed!=targetSpeed) {
+                //auto
+                if (targetSpeed==-1)
                     accessor.setFanSpeed(-1, index);
-                    qDebug()<<"speed applied: "<<index;
-                    curAuto=true;
-                }
-            }
-            else {
-                curAuto=false;
-                if(curSpeed!=targetSpeed) {
+                else
                     accessor.setFanSpeed(targetSpeed, index);
-                    qDebug()<<"speed applied: "<<index;
-                    curSpeed=targetSpeed;
-                }
+                curSpeed=targetSpeed;
             }
+            
+
+            // this->curMinSafeSpeed=this->hwMonitor->shouldMonitorGpu ? this->minSafeSpeedWhenGpuActive : 0;
+            // rpm=getRpm();
+            // int targetSpeed=-1;
+
+            // if(config->useClevoAuto) {
+            //     targetSpeed=-2;
+            // }
+            // else if(config->maxSpeed) {
+            //     targetSpeed=100;
+            // }
+            // else if(config->useStaticSpeed) {
+            //     targetSpeed=config->staticSpeed[index-1];
+            // }
+            // else {
+            //     int mode=config->fanProfiles[config->profileInUse].inUse[index-1];
+            //     targetSpeed=curSpeed;
+            //     if(mode==1) {
+            //         if(this->hwMonitor->temperature>(config->fanProfiles[config->profileInUse].MTconfig[index-1][0]))//> max
+            //             targetSpeed+=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//+=step
+            //         else if(this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].MTconfig[index-1][1]))//<min
+            //             targetSpeed-=config->fanProfiles[config->profileInUse].MTconfig[index-1][3];//-=step
+            //         targetSpeed=std::max({targetSpeed,curMinSafeSpeed,config->fanProfiles[config->profileInUse].MTconfig[index-1][2]});
+            //         targetSpeed=std::min(targetSpeed,100);
+            //     }
+            //     else if(mode==2) {
+            //         targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
+            //         if(this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][0]))
+            //             targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][0];
+            //         else {
+            //             for(int i=0;i<10;i++) {
+            //                 if(i==9)
+            //                     targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][9];
+            //                 else if(this->hwMonitor->temperature>=(config->fanProfiles[config->profileInUse].TStempList[index-1][i]) && this->hwMonitor->temperature<(config->fanProfiles[config->profileInUse].TStempList[index-1][i+1])) {
+            //                     targetSpeed=config->fanProfiles[config->profileInUse].TSspeedList[index-1][i];
+            //                     break;
+            //                 }
+            //             }
+            //         }
+            //         targetSpeed=std::max(targetSpeed,curMinSafeSpeed);
+            //         targetSpeed=std::min(targetSpeed,100);
+            //     }
+            //     if(config->useSpeedLimit)
+            //         targetSpeed=std::min(targetSpeed,config->speedLimit[index-1]);
+            // }
+
+            // qDebug()<<"determine speed finish: "<<index;
+            // if(targetSpeed==-2) { //auto
+            //     curSpeed=-2;
+            //     if(!curAuto) {
+            //         accessor.setFanSpeed(-1, index);
+            //         qDebug()<<"speed applied: "<<index;
+            //         curAuto=true;
+            //     }
+            // }
+            // else {
+            //     curAuto=false;
+            //     if(curSpeed!=targetSpeed) {
+            //         accessor.setFanSpeed(targetSpeed, index);
+            //         qDebug()<<"speed applied: "<<index;
+            //         curSpeed=targetSpeed;
+            //     }
+            // }
             
             emit requireUpdateMonitor1(index,targetSpeed, rpm);
             

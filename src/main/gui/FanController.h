@@ -89,11 +89,11 @@ private:
     std::atomic_bool running=false;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
-    int curSpeed=30;
-    int curMinSafeSpeed=0;
     const int minSafeSpeedWhenGpuActive=20;
     const int minControlInterval=100;
-    bool curAuto=false;
+    const int defaultSpeed=20;
+    int curSpeed=defaultSpeed;
+    int curMinSafeSpeed=0;
     int rpm=0;
     double power=0;
 

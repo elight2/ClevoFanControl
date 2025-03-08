@@ -16,24 +16,22 @@ void ConfigManager::readFromJson() {
 
     //profiles
     this->profileCount=configJson["profiles"].size();
-    for(int i=0;i<this->profileCount;i++) {
+    for(auto i:configJson["profiles"]) {
         fanProfile curProfile;
-        curProfile.name=QString::fromStdString(configJson["profiles"][i][0]);
+        curProfile.name=QString::fromStdString(i["name"]);
         for(int j=0;j<2;j++) {
-            curProfile.inUse[j]=configJson["profiles"][i][j+1][0];
-            for(int k=0;k<4;k++)
-                curProfile.MTconfig[j][k]=configJson["profiles"][i][j+1][1][k];
-            for(int k=0;k<10;k++) {
-                curProfile.TStempList[j][k]=configJson["profiles"][i][j+1][2][0][k];
-                curProfile.TSspeedList[j][k]=configJson["profiles"][i][j+1][2][1][k];
-            }
+            curProfile.args[j].operateInterval=i["fans"][j]["operateInterval"];
+            curProfile.args[j].speedStep=i["fans"][j]["speedStep"];
+            curProfile.args[j].minSpeed=i["fans"][j]["minSpeed"];
+            curProfile.args[j].speedUpTemp=i["fans"][j]["speedUpTemp"];
+            curProfile.args[j].slowDownTemp=i["fans"][j]["slowDownTemp"];
         }
         fanProfiles.append(curProfile);
     }
 
     //commands
     this->commandCount=configJson["commands"].size();
-    for(auto &i :configJson["commands"].items()) {
+    for(auto &i : configJson["commands"].items()) {
         commandEntry curCommand;
         curCommand.name=i.key().c_str();
         curCommand.content=((std::string)i.value()).c_str();
@@ -51,10 +49,8 @@ void ConfigManager::readFromJson() {
     this->speedLimit[0]=configJson["speedLimit"][1];
     this->speedLimit[1]=configJson["speedLimit"][2];
     //
-    this->timeIntervals[0]=configJson["timeIntervals"][0];
-    this->timeIntervals[1]=configJson["timeIntervals"][1];
-    this->timeIntervals[2]=configJson["timeIntervals"][2];
-    this->timeIntervals[3]=configJson["timeIntervals"][3];
+    this->monitorIntervals[0]=configJson["monitorIntervals"][0];
+    this->monitorIntervals[1]=configJson["monitorIntervals"][1];
     //
     this->useClevoAuto=configJson["useClevoAuto"];
     //
@@ -63,9 +59,6 @@ void ConfigManager::readFromJson() {
     this->monitorGpu=configJson["gpuDetect"]["monitorGpu"];
     this->gpuAutoDetectEnabled=configJson["gpuDetect"]["autoDetectEnabled"];
     this->gpuSysDir=((std::string)configJson["gpuDetect"]["gpuSysDir"]).c_str();
-    this->gpuDevDir=((std::string)configJson["gpuDetect"]["gpuDevDir"]).c_str();
-    for(auto i : configJson["gpuDetect"]["procExclude"])
-        this->gpuLsofExcludeProc.push_back(((std::string)i).c_str());
 
     qDebug()<<"readFromJson finish";
 }
@@ -74,29 +67,7 @@ void ConfigManager::saveToJson() {
     qDebug()<<"saveConfigJson";
 
     //build profiles
-    nlohmann::json profileArray=nlohmann::json::array();
-    for(int i=0;i<profileCount;i++) {
-        nlohmann::json curProfile={
-            fanProfiles[i].name.toStdString(),
-            {
-                fanProfiles[i].inUse[0],
-                fanProfiles[i].MTconfig[0],
-                {
-                    fanProfiles[i].TStempList[0],
-                    fanProfiles[i].TSspeedList[0]
-                }
-            },
-            {
-                fanProfiles[i].inUse[1],
-                fanProfiles[i].MTconfig[1],
-                {
-                    fanProfiles[i].TStempList[1],
-                    fanProfiles[i].TSspeedList[1]
-                }
-            }
-        };
-        profileArray+=curProfile;
-    }
+    nlohmann::json profileArray=this->configJson["profiles"];
 
     //create json
     nlohmann::json oldConfigJson=configJson;
@@ -107,15 +78,13 @@ void ConfigManager::saveToJson() {
         {"profileInUse",this->profileInUse},
         {"staticSpeed",{this->useStaticSpeed,this->staticSpeed[0],this->staticSpeed[1]}},
         {"speedLimit",{this->useSpeedLimit,speedLimit[0],speedLimit[1]}},
-        {"timeIntervals",timeIntervals},
+        {"monitorIntervals",monitorIntervals},
         {"useClevoAuto",this->useClevoAuto},
         {"maxSpeed",this->maxSpeed},
         {"gpuDetect",{
             {"monitorGpu",this->monitorGpu},
             {"autoDetectEnabled",oldConfigJson["gpuDetect"]["autoDetectEnabled"]}, 
-            {"gpuSysDir",oldConfigJson["gpuDetect"]["gpuSysDir"]},
-            {"gpuDevDir",oldConfigJson["gpuDetect"]["gpuDevDir"]},
-            {"procExclude",oldConfigJson["gpuDetect"]["procExclude"]}
+            {"gpuSysDir",oldConfigJson["gpuDetect"]["gpuSysDir"]}
         }}
     };
     
