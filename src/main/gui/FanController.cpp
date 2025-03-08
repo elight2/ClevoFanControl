@@ -142,7 +142,8 @@ int HardwareMonitor::getgTemp() {
     QStringList list;
     try {
         list=nvsmiOutputParser({"-q","--display=TEMPERATURE"}, "GPU Current Temp");
-        return list[0].mid(0,list[0].size()-1).toInt();
+        qDebug()<<list;
+        return list[0].trimmed().mid(0,list[0].size()-2).toInt();
     } catch (const char* exc) {
         return 0;
     }
@@ -152,7 +153,8 @@ double HardwareMonitor::getgPower() {
     QStringList list;
     try {
         list=nvsmiOutputParser({"-q","--display=POWER"}, "Power Draw");
-        return list[0].mid(0,list[0].size()-1).toDouble();
+        qDebug()<<list;
+        return list[0].trimmed().mid(0,list[0].size()-2).toDouble();
     } catch (const char* exc) {
         return 0;
     }
