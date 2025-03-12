@@ -142,7 +142,6 @@ int HardwareMonitor::getgTemp() {
     QStringList list;
     try {
         list=nvsmiOutputParser({"-q","--display=TEMPERATURE"}, "GPU Current Temp");
-        qDebug()<<list;
         return list[0].trimmed().mid(0,list[0].size()-2).toInt();
     } catch (const char* exc) {
         return 0;
@@ -153,7 +152,6 @@ double HardwareMonitor::getgPower() {
     QStringList list;
     try {
         list=nvsmiOutputParser({"-q","--display=POWER"}, "Power Draw");
-        qDebug()<<list;
         return list[0].trimmed().mid(0,list[0].size()-2).toDouble();
     } catch (const char* exc) {
         return 0;
@@ -298,13 +296,13 @@ void FanController::run() {
             rpm=getRpm();
             //first decide speed
             int targetSpeed=-10;
-            if (config->useClevoAuto)
+            if (config->useClevoAuto) //auto
                 targetSpeed=-1;
-            else if (config->useStaticSpeed)
+            else if (config->useStaticSpeed) //static
                 targetSpeed=std::clamp(config->staticSpeed[index-1],0,100);
-            else if (config->maxSpeed)
+            else if (config->maxSpeed) //max speed
                 targetSpeed=100;
-            else {
+            else { //normal
                 int curTemp=this->hwMonitor->temperature;
                 if (curTemp>curProfileArgs->speedUpTemp)
                     targetSpeed=this->curSpeed+curProfileArgs->speedStep;
@@ -324,6 +322,7 @@ void FanController::run() {
             //then apply speed
             if (curSpeed!=targetSpeed) {
                 //auto
+                qDebug()<<"Apply fan spped index "<<index<<" "<<targetSpeed;
                 if (targetSpeed==-1)
                     accessor.setFanSpeed(-1, index);
                 else
