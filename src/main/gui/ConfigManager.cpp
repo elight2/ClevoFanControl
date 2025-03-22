@@ -22,9 +22,26 @@ void ConfigManager::readFromJson() {
         for(int j=0;j<2;j++) {
             curProfile.args[j].operateInterval=i["fans"][j]["operateInterval"];
             curProfile.args[j].speedStep=i["fans"][j]["speedStep"];
-            curProfile.args[j].minSpeed=i["fans"][j]["minSpeed"];
             curProfile.args[j].speedUpTemp=i["fans"][j]["speedUpTemp"];
             curProfile.args[j].slowDownTemp=i["fans"][j]["slowDownTemp"];
+
+            curProfile.args[j].minSpeedList.clear();
+            nlohmann::json minSpeedData=i["fans"][j]["minSpeed"];
+            if(minSpeedData.type()==nlohmann::json::value_t::array) { // auto mode
+                curProfile.args[j].minSpeed=minSpeedData.size();
+
+                for(auto k : minSpeedData) {
+                    curvePoint curEntry{k[0],k[1]};
+                    curProfile.args[j].minSpeedList.append(curEntry);
+                }
+
+                if (curProfile.args[j].minSpeedList[0].x!=0) { // add 0,0
+                    curvePoint curEntry{0,10};
+                    curProfile.args[j].minSpeedList.prepend(curEntry);
+                }
+            }
+            else //normal mode
+                curProfile.args[j].minSpeed=minSpeedData;
         }
         fanProfiles.append(curProfile);
     }

@@ -6,6 +6,7 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/qdatetime.h>
 #include <algorithm>
+#include <numeric>
 #include <qcontainerfwd.h>
 #include <qcoreapplication.h>
 #include <qlogging.h>
@@ -73,6 +74,8 @@ double CpuPowerMonitor::getPower() {
 HardwareMonitor::HardwareMonitor(int index, ConfigManager *cfg, QObject *parent) : QThread(parent) {
     this->index=index;
     this->cfg=cfg;
+    for (int i=0;i<this->powerAvgLen;i++)
+        this->lastPower.append(0.0);
 }
 
 void HardwareMonitor::stop() {
@@ -89,6 +92,7 @@ void HardwareMonitor::run() {
         this->cmonitor=new CpuPowerMonitor(0);
 
     while(this->shouldRun) {
+        //get values
         if(index==1) {
             this->temperature=getcTemp();
             this->power=getcPower();
@@ -102,6 +106,10 @@ void HardwareMonitor::run() {
                 this->power=0;
             }
         }
+
+        this->lastPower.append(this->power > 0 ? this->power.load() : 0);
+        this->lastPower.removeFirst();
+
         emit requireUpdateMonitor2(this->index, this->temperature, this->power);
         QThread::msleep(cfg->monitorIntervals[this->index-1]);
     }
@@ -265,6 +273,7 @@ FanController::FanController(ConfigManager *config, QObject *parent, int index, 
     this->index=index;
     this->config=config;
     this->appMonitor=appMonitor;
+
     this->hwMonitor=new HardwareMonitor(index,config,this);
     QObject::connect(this, &FanController::requireUpdateMonitor1, appMonitor, &CFCmonitor::updateValue1, Qt::BlockingQueuedConnection);
     QObject::connect(hwMonitor, &HardwareMonitor::requireUpdateMonitor2, appMonitor, &CFCmonitor::updateValue2, Qt::BlockingQueuedConnection);
@@ -282,11 +291,46 @@ void FanController::stop() {
     }
 }
 
+int FanController::getMinSpeed() {
+    int result=0;
+    fanArg *profileArgs=&(config->fanProfiles[config->profileInUse].args[index-1]);
+
+    if (profileArgs->minSpeedList.size()==0)
+        result=profileArgs->minSpeed;
+    else {
+        //avg
+        float avgPower=std::accumulate(hwMonitor->lastPower.begin(),hwMonitor->lastPower.end(),0.0)/hwMonitor->powerAvgLen;
+
+        bool found=false;
+        for (int i=0;i<profileArgs->minSpeedList.size();i++) {
+            if (avgPower<profileArgs->minSpeedList[i].x) {
+                curvePoint a=profileArgs->minSpeedList[i-1];
+                curvePoint b=profileArgs->minSpeedList[i];
+                result=a.y+(b.y-a.y)*((avgPower-a.x)/(b.x-a.x));
+                found=true;
+                break;
+            }
+        }
+
+        if (!found)
+            result=profileArgs->minSpeedList.last().y;
+
+        qDebug()<<"Fan "<<index<<" pwr "<<avgPower<<" minSpeed "<<result;
+    }
+
+    // gpu
+    if (hwMonitor->shouldMonitorGpu)
+        result=std::clamp(result,this->minSafeSpeedWhenGpuActive,100);
+    return result;
+}
+
 void FanController::run() {
     qDebug()<<"FanController start fan: "<<index;
     running=true;
     this->hwMonitor->start();
     this->accessor.setFanSpeed(defaultSpeed, this->index);
+
+    // loop
     while(shouldRun) {
         currentTime=QDateTime::currentMSecsSinceEpoch();
         fanArg *curProfileArgs=&(config->fanProfiles[config->profileInUse].args[index-1]);
@@ -310,9 +354,7 @@ void FanController::run() {
                     targetSpeed=this->curSpeed-curProfileArgs->speedStep;
                 else
                     targetSpeed=curSpeed;
-                targetSpeed=std::clamp(targetSpeed,curProfileArgs->minSpeed,100);
-                if (hwMonitor->shouldMonitorGpu) //prevent overheating
-                    targetSpeed=std::clamp(targetSpeed,minSafeSpeedWhenGpuActive,100);
+                targetSpeed=std::clamp(targetSpeed,getMinSpeed(),100);
             }
 
             //correct the data

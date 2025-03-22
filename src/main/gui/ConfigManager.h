@@ -6,10 +6,16 @@
 #include <qcontainerfwd.h>
 #include "nlohmann/json.hpp"
 
+struct curvePoint {
+    int x;
+    int y;
+};
+
 struct fanArg {
     int operateInterval;
     int speedStep;
-    int minSpeed;
+    int minSpeed; // for normal mode, speed value, for auto mode, list size
+    QList<curvePoint> minSpeedList;
     int speedUpTemp;
     int slowDownTemp;
 };

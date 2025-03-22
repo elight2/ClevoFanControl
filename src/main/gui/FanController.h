@@ -34,12 +34,15 @@ class HardwareMonitor : public QThread {
 Q_OBJECT
 
 public:
+    static const int powerAvgLen=10;
+
     HardwareMonitor(int index, ConfigManager *cfg, QObject *parent);
     void stop();
 
     std::atomic_int temperature;
     std::atomic<double> power;
     std::atomic_bool shouldMonitorGpu;
+    QList<float> lastPower;
 
 private:
     void run();
@@ -54,6 +57,8 @@ private:
     bool checkSysFile();
     bool checkNvsmiProc();
 
+    const int nvsmiPauseInterval=12;
+
     int index;
     ConfigManager *cfg;
     CpuPowerMonitor *cmonitor;
@@ -61,7 +66,6 @@ private:
     std::atomic_bool running=true;
     qint64 gpuCheckPauseTime=0;
     bool gpuCheckPaused=false;
-    const int nvsmiPauseInterval=12;
 
 signals:
     void requireUpdateMonitor2(int index, int temperature, double power);
@@ -81,6 +85,11 @@ public:
 private:
     void run();
     int getRpm();
+    int getMinSpeed();
+
+    const int minSafeSpeedWhenGpuActive=20;
+    const int minControlInterval=100;
+    const int defaultSpeed=20;
 
     HardwareMonitor *hwMonitor;
     CFCmonitor *appMonitor;
@@ -89,9 +98,6 @@ private:
     std::atomic_bool running=false;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
-    const int minSafeSpeedWhenGpuActive=20;
-    const int minControlInterval=100;
-    const int defaultSpeed=20;
     int curSpeed=defaultSpeed;
     int curMinSafeSpeed=0;
     int rpm=0;

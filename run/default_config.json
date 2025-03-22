@@ -27,23 +27,65 @@
     },
     "profiles": [
         {
-            "name":"normal",
-            "fans":[
+            "fans": [
                 {
-                    "operateInterval":1000,
-                    "speedStep":5,
-                    "minSpeed":20,
-                    "speedUpTemp":80,
-                    "slowDownTemp":75
+                    "minSpeed": [
+                        [
+                            0,
+                            20
+                        ],
+                        [
+                            30,
+                            20
+                        ],
+                        [
+                            35,
+                            35
+                        ],
+                        [
+                            45,
+                            45
+                        ],
+                        [
+                            80,
+                            45
+                        ]
+                    ],
+                    "operateInterval": 500,
+                    "slowDownTemp": 78,
+                    "speedStep": 1,
+                    "speedUpTemp": 81
                 },
                 {
-                    "operateInterval":1000,
-                    "speedStep":5,
-                    "minSpeed":20,
-                    "speedUpTemp":80,
-                    "slowDownTemp":75
+                    "minSpeed": [
+                        [
+                            0,
+                            20
+                        ],
+                        [
+                            30,
+                            20
+                        ],
+                        [
+                            35,
+                            35
+                        ],
+                        [
+                            45,
+                            45
+                        ],
+                        [
+                            80,
+                            45
+                        ]
+                    ],
+                    "operateInterval": 500,
+                    "slowDownTemp": 73,
+                    "speedStep": 1,
+                    "speedUpTemp": 75
                 }
-            ]
+            ],
+            "name": "general"
         }
     ]
 }
