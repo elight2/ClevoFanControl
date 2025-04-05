@@ -51,6 +51,7 @@
                             45
                         ]
                     ],
+                    "minSpeedPwrCount":10,
                     "operateInterval": 500,
                     "slowDownTemp": 78,
                     "speedStep": 1,
@@ -79,6 +80,7 @@
                             45
                         ]
                     ],
+                    "minSpeedPwrCount":10,
                     "operateInterval": 500,
                     "slowDownTemp": 73,
                     "speedStep": 1,

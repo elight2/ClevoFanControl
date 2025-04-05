@@ -2,8 +2,12 @@
 #include <QtGui/qfont.h>
 #include <QtCore/qdebug.h>
 #include <QtWidgets/qstylefactory.h>
+#include <qcontainerfwd.h>
 #include <qlogging.h>
+#include <qexception.h>
+#include <exception>
 #include "ClevoFanControl.h"
+#include "../utils.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -11,16 +15,26 @@
 
 int main(int argc, char *argv[])
 {
-    qDebug()<<"app main()";
-#ifdef __linux__
-    QCoreApplication::setSetuidAllowed(true);
-#endif
-    QApplication app(argc, argv);
-    ClevoFanControl *cfc=new ClevoFanControl();
-    int ret = 0;
-    
-    ret = app.exec();
+    writeLog("cfc launching");
 
-    delete cfc;
-    return ret;
+    try {
+        //suid
+        #ifdef __linux__
+        QCoreApplication::setSetuidAllowed(true);
+        #endif
+
+        QApplication app(argc, argv);
+        ClevoFanControl *cfc=new ClevoFanControl();
+        int ret = 0;
+        ret = app.exec();
+
+        delete cfc;
+        return ret;
+    } catch (QException &exc) {
+        writeLog(QString("QException: ")+exc.what());
+    } catch (std::exception &exc) {
+        writeLog(QString("std::exception: ")+exc.what());
+    }
+
+    writeLog("cfc exiting");
 }

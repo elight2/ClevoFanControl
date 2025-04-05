@@ -1,5 +1,6 @@
 #include "ConfigManager.h"
 #include "nlohmann/json_fwd.hpp"
+#include "../defines.h"
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
@@ -17,14 +18,20 @@ void ConfigManager::readFromJson() {
     //profiles
     this->profileCount=configJson["profiles"].size();
     for(auto i:configJson["profiles"]) {
+        //name
         fanProfile curProfile;
         curProfile.name=QString::fromStdString(i["name"]);
+
+        //for each fan
         for(int j=0;j<2;j++) {
+            //normal cfgs
+            curProfile.args[j].pwrCount=i["fans"][j]["minSpeedPwrCount"];
             curProfile.args[j].operateInterval=i["fans"][j]["operateInterval"];
             curProfile.args[j].speedStep=i["fans"][j]["speedStep"];
             curProfile.args[j].speedUpTemp=i["fans"][j]["speedUpTemp"];
             curProfile.args[j].slowDownTemp=i["fans"][j]["slowDownTemp"];
 
+            //min speed
             curProfile.args[j].minSpeedList.clear();
             nlohmann::json minSpeedData=i["fans"][j]["minSpeed"];
             if(minSpeedData.type()==nlohmann::json::value_t::array) { // auto mode
@@ -35,7 +42,7 @@ void ConfigManager::readFromJson() {
                     curProfile.args[j].minSpeedList.append(curEntry);
                 }
 
-                if (curProfile.args[j].minSpeedList[0].x!=0) { // add 0,0
+                if (curProfile.args[j].minSpeedList[0].x!=0) { // add 0,10
                     curvePoint curEntry{0,10};
                     curProfile.args[j].minSpeedList.prepend(curEntry);
                 }
@@ -111,12 +118,12 @@ void ConfigManager::saveToJson() {
 }
 
 ConfigManager::ConfigManager() {
-    configFile.setFileName((QDir::currentPath() + QDir::separator() + configFileName));
+    configFile.setFileName((QDir::currentPath() + QDir::separator() + CFG_DIR));
 }
 
 void ConfigManager::createConfigJson() {
     QFile defaultConfigFile;
-    defaultConfigFile.setFileName((QDir::currentPath() + QDir::separator() + defaultConfigFileName));
+    defaultConfigFile.setFileName((QDir::currentPath() + QDir::separator() + DEFAULT_CFG_DIR));
     nlohmann::json defaultConfigJson=readJsonFile(defaultConfigFile);
 
     writeJsonFile(defaultConfigJson, configFile);

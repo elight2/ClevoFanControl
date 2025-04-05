@@ -16,6 +16,7 @@ struct fanArg {
     int speedStep;
     int minSpeed; // for normal mode, speed value, for auto mode, list size
     QList<curvePoint> minSpeedList;
+    int pwrCount;
     int speedUpTemp;
     int slowDownTemp;
 };
@@ -56,8 +57,6 @@ public:
 private:
     QFile configFile;
     nlohmann::json configJson;
-    const QString configFileName="config.json";
-    const QString defaultConfigFileName="default_config.json";
 
     void writeJsonFile(nlohmann::json &content, QFile &file);
     nlohmann::json readJsonFile(QFile &file);

@@ -7,6 +7,7 @@
 #include "ConfigManager.h"
 #include "../ClevoEcAccessor.h"
 #include "CFCmonitor.h"
+#include "../defines.h"
 
 #include <QtCore/qthread.h>
 #include <qcontainerfwd.h>
@@ -34,8 +35,6 @@ class HardwareMonitor : public QThread {
 Q_OBJECT
 
 public:
-    static const int powerAvgLen=10;
-
     HardwareMonitor(int index, ConfigManager *cfg, QObject *parent);
     void stop();
 
@@ -87,10 +86,6 @@ private:
     int getRpm();
     int getMinSpeed();
 
-    const int minSafeSpeedWhenGpuActive=20;
-    const int minControlInterval=100;
-    const int defaultSpeed=20;
-
     HardwareMonitor *hwMonitor;
     CFCmonitor *appMonitor;
     ClevoEcAccessor accessor;
@@ -98,7 +93,7 @@ private:
     std::atomic_bool running=false;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
-    int curSpeed=defaultSpeed;
+    int curSpeed=DEFAULT_SPEED;
     int curMinSafeSpeed=0;
     int rpm=0;
     double power=0;
