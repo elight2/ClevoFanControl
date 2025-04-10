@@ -3,17 +3,21 @@
 #include <qlogging.h>
 #include <qdebug.h>
 #include <qdatetime.h>
+#include <qobject.h>
 
-void writeLog(QString info) {
-    QFile logFile(LOG_DIR);
-    if(!logFile.exists()) {
+bool cfcUtils::logFirstTime=true;
+
+void cfcUtils::writeLog(QString info) {
+    QFile logFile(cfcDef::LOG_DIR);
+    if(!logFile.exists() || logFirstTime) {
         logFile.open(QIODeviceBase::WriteOnly);
         logFile.close();
+        logFirstTime=false;
     }
 
     logFile.open(QIODeviceBase::Append);
-    logFile.write((QDateTime::currentDateTime().toString()+" "+info+"\n").toUtf8());
+    logFile.write(QString("%1 %2\n").arg(QDateTime::currentDateTime().toString(),info).toUtf8());
     logFile.close();
 
-    qDebug()<<"LOG: "+info;
+    qDebug()<<"LOG:"<<info;
 }

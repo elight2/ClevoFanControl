@@ -74,7 +74,7 @@ double CpuPowerMonitor::getPower() {
 HardwareMonitor::HardwareMonitor(int index, ConfigManager *cfg, QObject *parent) : QThread(parent) {
     this->index=index;
     this->cfg=cfg;
-    for (int i=0;i<this->powerAvgLen;i++)
+    for (int i=0;i<cfg->fanProfiles[cfg->profileInUse].args[index-1].pwrCount;i++)
         this->lastPower.append(0.0);
 }
 
@@ -299,7 +299,7 @@ int FanController::getMinSpeed() {
         result=profileArgs->minSpeed;
     else {
         //avg
-        float avgPower=std::accumulate(hwMonitor->lastPower.begin(),hwMonitor->lastPower.end(),0.0)/hwMonitor->powerAvgLen;
+        float avgPower=std::accumulate(hwMonitor->lastPower.begin(),hwMonitor->lastPower.end(),0.0)/hwMonitor->lastPower.size();
 
         bool found=false;
         for (int i=0;i<profileArgs->minSpeedList.size();i++) {
@@ -320,7 +320,7 @@ int FanController::getMinSpeed() {
 
     // gpu
     if (hwMonitor->shouldMonitorGpu)
-        result=std::clamp(result,this->minSafeSpeedWhenGpuActive,100);
+        result=std::clamp(result,cfcDef::GPU_MIN_FAN_SPEED,100);
     return result;
 }
 
@@ -328,7 +328,7 @@ void FanController::run() {
     qDebug()<<"FanController start fan: "<<index;
     running=true;
     this->hwMonitor->start();
-    this->accessor.setFanSpeed(defaultSpeed, this->index);
+    this->accessor.setFanSpeed(cfcDef::DEFAULT_SPEED, this->index);
 
     // loop
     while(shouldRun) {
@@ -440,7 +440,7 @@ void FanController::run() {
             
             lastControlTime=currentTime;
         }
-        QThread::msleep(minControlInterval);
+        QThread::msleep(cfcDef::MIN_CONTROL_INTERVAL);
     }
     accessor.setFanSpeed(-1,index); //finalize auto
     this->hwMonitor->stop();

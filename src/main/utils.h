@@ -5,6 +5,12 @@
 #include <qfile.h>
 #include <qstring.h>
 
-void writeLog(QString info);
+class cfcUtils {
+public:
+    static void writeLog(QString info);
+
+private:
+    static bool logFirstTime;
+};
 
 #endif

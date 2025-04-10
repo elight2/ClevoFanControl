@@ -2,7 +2,6 @@
 #define FAN_CONTROLLER_H
 
 #include <atomic>
-#include <chrono>
 
 #include "ConfigManager.h"
 #include "../ClevoEcAccessor.h"
@@ -93,7 +92,7 @@ private:
     std::atomic_bool running=false;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
-    int curSpeed=DEFAULT_SPEED;
+    int curSpeed=cfcDef::DEFAULT_SPEED;
     int curMinSafeSpeed=0;
     int rpm=0;
     double power=0;

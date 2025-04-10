@@ -15,7 +15,7 @@
 
 int main(int argc, char *argv[])
 {
-    writeLog("cfc launching");
+    cfcUtils::writeLog("cfc launching");
 
     try {
         //suid
@@ -26,15 +26,17 @@ int main(int argc, char *argv[])
         QApplication app(argc, argv);
         ClevoFanControl *cfc=new ClevoFanControl();
         int ret = 0;
+
+        cfcUtils::writeLog("cfc init finish, entering loop");
         ret = app.exec();
 
         delete cfc;
         return ret;
     } catch (QException &exc) {
-        writeLog(QString("QException: ")+exc.what());
+        cfcUtils::writeLog(QString("QException: ")+exc.what());
     } catch (std::exception &exc) {
-        writeLog(QString("std::exception: ")+exc.what());
+        cfcUtils::writeLog(QString("std::exception: ")+exc.what());
     }
 
-    writeLog("cfc exiting");
+    cfcUtils::writeLog("cfc exiting");
 }

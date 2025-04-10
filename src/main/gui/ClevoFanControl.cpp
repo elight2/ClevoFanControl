@@ -1,5 +1,7 @@
 #include "ClevoFanControl.h"
 
+#include "../utils.h"
+
 ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     qDebug()<<"cfc construct";
     config=new ConfigManager;
@@ -43,6 +45,8 @@ ClevoFanControl::~ClevoFanControl() {
 }
 
 void ClevoFanControl::buildUi() {
+    cfcUtils::writeLog("building ui");
+
     //tray main ui build
     TrayIcon = new QSystemTrayIcon(QIcon("ClevoFanControl.ico"), this);
     trayMainMenu = new QMenu(this);
@@ -101,6 +105,8 @@ void ClevoFanControl::buildUi() {
     //final
     TrayIcon->setContextMenu(trayMainMenu);
     TrayIcon->setToolTip("Clevo Fan Control");
+
+    cfcUtils::writeLog("build ui finish");
 }
 
 void ClevoFanControl::initTrayEntry(QAction *&action,QString text, bool checkable) {

@@ -25,7 +25,8 @@ FanController.cpp
 CFCconfig.cpp 
 CFCmonitor.cpp 
 main.cpp 
-${CFC_SOURCE_DIR}/ClevoEcAccessor.cpp)
+${CFC_SOURCE_DIR}/ClevoEcAccessor.cpp
+${CFC_SOURCE_DIR}/utils.cpp)
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 set(CFC_SOURCE_GUI ${CFC_SOURCE_GUI} ${CFC_SOURCE_DIR}/winRing0Api.cpp)
 endif()
