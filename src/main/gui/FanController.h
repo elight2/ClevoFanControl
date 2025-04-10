@@ -7,6 +7,7 @@
 #include "../ClevoEcAccessor.h"
 #include "CFCmonitor.h"
 #include "../defines.h"
+#include "ExternalFan.h"
 
 #include <QtCore/qthread.h>
 #include <qcontainerfwd.h>
@@ -73,7 +74,7 @@ class FanController : public QThread {
 Q_OBJECT
 
 public:
-    FanController(ConfigManager *config, QObject *parent, int index, CFCmonitor *appMonitor);
+    FanController(ConfigManager *config, QObject *parent, int index, CFCmonitor *appMonitor, ExternalFan *exFan);
     ~FanController();
     void stop();
 
@@ -85,6 +86,7 @@ private:
     int getRpm();
     int getMinSpeed();
 
+    ExternalFan *exFan;
     HardwareMonitor *hwMonitor;
     CFCmonitor *appMonitor;
     ClevoEcAccessor accessor;

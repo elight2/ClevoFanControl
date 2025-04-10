@@ -6,7 +6,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui SerialPort)
 if(CMAKE_BUILD_TYPE MATCHES "Release")
 add_definitions(-DQT_NO_DEBUG_OUTPUT)
 endif()
@@ -17,6 +17,7 @@ if(CMAKE_BUILD_TYPE MATCHES "Release")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
 endif()
 ENDIF ()
+
 # source
 set(CFC_SOURCE_GUI
 ClevoFanControl.cpp 
@@ -27,6 +28,12 @@ CFCmonitor.cpp
 main.cpp 
 ${CFC_SOURCE_DIR}/ClevoEcAccessor.cpp
 ${CFC_SOURCE_DIR}/utils.cpp)
+
+if(CFC_USE_EX_FAN)
+    add_compile_definitions(CFC_USE_EX_FAN)
+    list(APPEND CFC_SOURCE_GUI ExternalFan.cpp)
+endif()
+
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 set(CFC_SOURCE_GUI ${CFC_SOURCE_GUI} ${CFC_SOURCE_DIR}/winRing0Api.cpp)
 endif()
@@ -41,4 +48,4 @@ set(CFC_RES_DIR ${CMAKE_SOURCE_DIR}/src/resources)
 set(CFC_RES ${CFC_RES_DIR}/ClevoFanControl.qrc ${CFC_RES_DIR}/ClevoFanControl.rc)
 
 add_executable(ClevoFanControl-gui ${CFC_SOURCE_GUI} ${CFC_UI} ${CFC_RES})
-target_link_libraries(ClevoFanControl-gui Qt6::Core Qt6::Widgets Qt6::Gui)
+target_link_libraries(ClevoFanControl-gui Qt6::Core Qt6::Widgets Qt6::Gui Qt6::SerialPort)

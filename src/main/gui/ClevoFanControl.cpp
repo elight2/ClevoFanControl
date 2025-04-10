@@ -1,6 +1,8 @@
 #include "ClevoFanControl.h"
 
 #include "../utils.h"
+#include "ExternalFan.h"
+#include <qobject.h>
 
 ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     qDebug()<<"cfc construct";
@@ -11,13 +13,18 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     buildUi();
     TrayIcon->show();
 
-    //start controllers
-    cpuFan=new FanController(config,this,1,monitor);
-    gpuFan=new FanController(config,this,2,monitor);
-    cpuFan->start();
-    gpuFan->start();
+    //ex fan
+    exFan=new ExternalFan;
+    exFan->init();
+    QObject::connect(exFan,&ExternalFan::adjustFanSig,exFan,&ExternalFan::adjustFan);
     
     cfgMgrToTray();
+
+    //start controllers
+    cpuFan=new FanController(config,this,1,monitor,exFan);
+    gpuFan=new FanController(config,this,2,monitor,exFan);
+    cpuFan->start();
+    gpuFan->start();
    
     qDebug()<<"cfc construct finish";
     return;
@@ -25,6 +32,8 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
 
 ClevoFanControl::~ClevoFanControl() {
     qInfo()<<"cfc deconstructing";
+
+    delete exFan;
 
     //stop controller
     cpuFan->stop();

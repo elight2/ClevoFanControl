@@ -20,6 +20,8 @@
 #include "CFCconfig.h"
 #include "FanController.h"
 
+#include "ExternalFan.h"
+
 class ClevoFanControl : public QWidget {
 Q_OBJECT
 
@@ -52,6 +54,10 @@ private:
     //fan
     FanController *cpuFan=nullptr;
     FanController *gpuFan=nullptr;
+
+#ifdef CFC_USE_EX_FAN
+    ExternalFan *exFan=nullptr;
+#endif
 
     void buildUi();
     void initTrayEntry(QAction *&action,QString text, bool checkable);
