@@ -26,6 +26,7 @@ private:
     std::vector<float> pwrList[2];
 
     void setSpeed(QSerialPort &port, int num, int speed);
+    void initPort(QSerialPort &port,QString name);
 
 signals:
     void adjustFanSig(int index,float power);

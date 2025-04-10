@@ -19,18 +19,18 @@ int cfcUtils::calcTable(const curvePoint table[],int count,int value) {
             break;
         } else if (table[i].x==value) {
             index1=i;
-            index2=1;
+            index2=i;
             break;
         } else {
             if (value<table[i+1].x) {
-                index1=1;
+                index1=i;
                 index2=i+1;
                 break;
             }
         }
     }
 
-    return (table[index1].y+table[index2].y)/2.0;
+    return table[index1].y+float(table[index2].y-table[index1].y)*(value-table[index1].x)/(table[index2].x-table[index1].x);
 }
 
 void cfcUtils::writeLog(QString info) {

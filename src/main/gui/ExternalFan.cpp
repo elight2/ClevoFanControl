@@ -1,5 +1,6 @@
 #include "ExternalFan.h"
 
+#include <algorithm>
 #include <numeric>
 #include <qcontainerfwd.h>
 #include <qdebug.h>
@@ -16,8 +17,24 @@ const int controlInterval=1000;
 const cfcUtils::curvePoint fanTable1[]={
     {0,25},
     {60,25},
+    {100,35},
+    {200,45},
     {230,80}
 };
+const cfcUtils::curvePoint fanTable2[]={
+    {0,25},
+    {60,25},
+    {230,80}
+};
+
+void ExternalFan::initPort(QSerialPort &port,QString name) {
+    port.setPortName(name);
+    port.setBaudRate(QSerialPort::Baud9600);
+    port.setDataBits(QSerialPort::Data8);
+    port.setStopBits(QSerialPort::OneStop);
+    port.setParity(QSerialPort::NoParity);
+    port.setFlowControl(QSerialPort::NoFlowControl);
+}
 
 void ExternalFan::init() {
     cfcUtils::writeLog("init ex fan");
@@ -34,12 +51,7 @@ void ExternalFan::init() {
     cfgFile.close();
     cfcUtils::writeLog("port name: "+portName);
 
-    port1.setPortName(portName);
-    port1.setBaudRate(QSerialPort::Baud9600);
-    port1.setDataBits(QSerialPort::Data8);
-    port1.setStopBits(QSerialPort::OneStop);
-    port1.setParity(QSerialPort::NoParity);
-    port1.setFlowControl(QSerialPort::NoFlowControl);
+    initPort(port1, portName);
 }
 
 void ExternalFan::setSpeed(QSerialPort &port, int num, int speed) {
@@ -83,7 +95,7 @@ void ExternalFan::adjustFan(int index,float power) {
         float gAvg=std::accumulate(pwrList[1].begin(),pwrList[1].end(),0.0)/pwrList[1].size();
         float totalAvg=cAvg+gAvg;
         int targetSpeed=cfcUtils::calcTable(fanTable1, sizeof(fanTable1)/sizeof(cfcUtils::curvePoint), totalAvg);
-        setSpeed(port1, 1, targetSpeed);
+        setSpeed(port1, 1, std::clamp(targetSpeed,0,100));
         qDebug()<<"fan "<<index<<" pwr "<<cAvg<<"+"<<gAvg<<" % "<<targetSpeed;
 
         lastControlTime=currentTime;
