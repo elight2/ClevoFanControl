@@ -1,20 +1,20 @@
-Thu Apr 10 22:22:40 2025 cfc launching
-Thu Apr 10 22:22:41 2025 loading config json
-Thu Apr 10 22:22:41 2025 loading profiles, total: 1
-Thu Apr 10 22:22:41 2025 loading profile: general
-Thu Apr 10 22:22:41 2025 loading normal args
-Thu Apr 10 22:22:41 2025 loading min speed args
-Thu Apr 10 22:22:41 2025 using min speed table, with size of 5
-Thu Apr 10 22:22:41 2025 no point have power of 0W. adding 0,10
-Thu Apr 10 22:22:41 2025 loading normal args
-Thu Apr 10 22:22:41 2025 loading min speed args
-Thu Apr 10 22:22:41 2025 using min speed table, with size of 4
-Thu Apr 10 22:22:41 2025 no point have power of 0W. adding 0,10
-Thu Apr 10 22:22:41 2025 loading commands, total: 9
-Thu Apr 10 22:22:41 2025 loading other options
-Thu Apr 10 22:22:41 2025 read config finish
-Thu Apr 10 22:22:41 2025 building ui
-Thu Apr 10 22:22:41 2025 build ui finish
-Thu Apr 10 22:22:41 2025 init ex fan
-Thu Apr 10 22:22:41 2025 port name: ttyUSB0
-Thu Apr 10 22:22:41 2025 cfc init finish, entering loop
+Fri Apr 11 00:16:15 2025 cfc launching
+Fri Apr 11 00:16:15 2025 loading config json
+Fri Apr 11 00:16:15 2025 loading profiles, total: 1
+Fri Apr 11 00:16:15 2025 loading profile: general
+Fri Apr 11 00:16:15 2025 loading normal args
+Fri Apr 11 00:16:15 2025 loading min speed args
+Fri Apr 11 00:16:15 2025 using min speed table, with size of 5
+Fri Apr 11 00:16:15 2025 no point have power of 0W. adding 0,10
+Fri Apr 11 00:16:15 2025 loading normal args
+Fri Apr 11 00:16:15 2025 loading min speed args
+Fri Apr 11 00:16:15 2025 using min speed table, with size of 4
+Fri Apr 11 00:16:15 2025 no point have power of 0W. adding 0,10
+Fri Apr 11 00:16:15 2025 loading commands, total: 9
+Fri Apr 11 00:16:15 2025 loading other options
+Fri Apr 11 00:16:15 2025 read config finish
+Fri Apr 11 00:16:15 2025 building ui
+Fri Apr 11 00:16:15 2025 build ui finish
+Fri Apr 11 00:16:15 2025 init ex fan
+Fri Apr 11 00:16:15 2025 port name: ttyUSB0
+Fri Apr 11 00:16:15 2025 cfc init finish, entering loop

@@ -307,8 +307,8 @@ int FanController::getMinSpeed() {
         bool found=false;
         for (int i=0;i<profileArgs->minSpeedList.size();i++) {
             if (avgPower<profileArgs->minSpeedList[i].x) {
-                curvePoint a=profileArgs->minSpeedList[i-1];
-                curvePoint b=profileArgs->minSpeedList[i];
+                cfcUtils::curvePoint a=profileArgs->minSpeedList[i-1];
+                cfcUtils::curvePoint b=profileArgs->minSpeedList[i];
                 result=a.y+(b.y-a.y)*((avgPower-a.x)/(b.x-a.x));
                 found=true;
                 break;
@@ -367,7 +367,7 @@ void FanController::run() {
             //then apply speed
             if (curSpeed!=targetSpeed) {
                 //auto
-                qDebug()<<"Apply fan spped index "<<index<<" "<<targetSpeed;
+                // qDebug()<<"Apply fan spped index "<<index<<" "<<targetSpeed;
                 if (targetSpeed==-1)
                     accessor.setFanSpeed(-1, index);
                 else
@@ -378,7 +378,7 @@ void FanController::run() {
             emit requireUpdateMonitor1(index,targetSpeed, rpm);
 
 #ifdef CFC_USE_EX_FAN
-            emit exFan->adjustFanSig(this->index,this->hwMonitor->temperature,this->hwMonitor->power);
+            emit exFan->adjustFanSig(this->index,this->hwMonitor->power);
 #endif
             
             lastControlTime=currentTime;

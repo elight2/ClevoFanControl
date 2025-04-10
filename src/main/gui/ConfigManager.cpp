@@ -46,7 +46,7 @@ void ConfigManager::readFromJson() {
                 curProfile.args[j].minSpeed=minSpeedData.size();
                 cfcUtils::writeLog("using min speed table, with size of "+QString::number(curProfile.args[j].minSpeed));
                 for (auto k : minSpeedData)
-                    curProfile.args[j].minSpeedList.append((curvePoint){k[0],k[1]});
+                    curProfile.args[j].minSpeedList.append((cfcUtils::curvePoint){k[0],k[1]});
 
                 cfcUtils::writeLog("no point have power of 0W. adding 0,10");
                 if (curProfile.args[j].minSpeedList[0].x!=0) // add 0,10
