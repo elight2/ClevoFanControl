@@ -9,19 +9,29 @@
 #include <vector>
 #include <qdatetime.h>
 
+#include "../utils.h"
+
 class ExternalFan : public QObject {
 Q_OBJECT
 
 public:
-    void init();
+    ExternalFan();
+    ~ExternalFan();
     void adjustFan(int index,float power);
 
 private:
     QString EX_FAN_CFG_FILE_DIR="./ex_fan.txt";
-    QString portName;
     QSerialPort port1;
+    QSerialPort port2;
+
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
+    int controlInterval;
+
+    int pwrListLen;
+    bool disabled=false;
+    cfcUtils::curvePoint *fanTables[2];
+    int fanTableLens[2];
 
     std::vector<float> pwrList[2];
 

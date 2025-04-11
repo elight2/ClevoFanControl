@@ -4,17 +4,21 @@
 #include <qdebug.h>
 #include <qdatetime.h>
 #include <qobject.h>
+#include <stdexcept>
 
 bool cfcUtils::logFirstTime=true;
 
 int cfcUtils::calcTable(const curvePoint table[],int count,int value) {
+    if (value<0)
+        return table[0].y;
+
     if (count==1)
         return table[0].y;
 
     int index1,index2;
     for (int i=0;i<count;i++) {
         if (i==count-1) {
-            index1=i-1;
+            index1=i;
             index2=i;
             break;
         } else if (table[i].x==value) {

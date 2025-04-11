@@ -14,8 +14,7 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     TrayIcon->show();
 
     //ex fan
-    exFan=new ExternalFan;
-    exFan->init();
+    exFan=new ExternalFan();
     QObject::connect(exFan,&ExternalFan::adjustFanSig,exFan,&ExternalFan::adjustFan);
     
     cfgMgrToTray();
