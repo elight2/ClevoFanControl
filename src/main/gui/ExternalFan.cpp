@@ -36,6 +36,9 @@ ExternalFan::ExternalFan() {
     cfgFile.open(QIODevice::ReadOnly);
 
     disabled=cfgFile.readLine().trimmed()=="0";
+    if (disabled)
+        return;
+
     QString portName1,portName2;
 #ifdef __linux__
     portName1=cfgFile.readLine().trimmed();
@@ -70,6 +73,8 @@ ExternalFan::ExternalFan() {
 }
 
 ExternalFan::~ExternalFan() {
+    if (disabled)
+        return;
     port1.close();
     delete [] fanTables[0];
     delete [] fanTables[1];
@@ -94,6 +99,9 @@ void ExternalFan::setSpeed(QSerialPort &port, int num, int speed) {
 }
 
 void ExternalFan::adjustFan(int index,float power) {
+    if (disabled)
+        return;
+
     currentTime=QDateTime::currentMSecsSinceEpoch();
 
     //record
