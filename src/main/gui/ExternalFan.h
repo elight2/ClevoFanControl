@@ -30,8 +30,8 @@ private:
 
     int pwrListLen;
     bool disabled=false;
-    cfcUtils::curvePoint *fanTables[2];
-    int fanTableLens[2];
+    cfcUtils::curvePoint *fanTables[3];
+    int fanTableLens[3];
 
     std::vector<float> pwrList[2];
 

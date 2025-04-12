@@ -32,13 +32,13 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
 ClevoFanControl::~ClevoFanControl() {
     qInfo()<<"cfc deconstructing";
 
-    delete exFan;
-
     //stop controller
     cpuFan->stop();
     gpuFan->stop();
     delete cpuFan;
     delete gpuFan;
+
+    delete exFan;
 
     //delete profiles and commands
     for(QAction *i : profileActions)

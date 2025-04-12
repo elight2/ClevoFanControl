@@ -9,6 +9,7 @@
 #include <qlogging.h>
 #include <qthread.h>
 #include <qserialport.h>
+#include <qserialportinfo.h>
 #include <stdexcept>
 #include "../defines.h"
 
@@ -39,18 +40,25 @@ ExternalFan::ExternalFan() {
     if (disabled)
         return;
 
+    //search port
     QString portName1,portName2;
-#ifdef __linux__
-    portName1=cfgFile.readLine().trimmed();
-    portName2=cfgFile.readLine().trimmed();
-    cfgFile.readLine();
-    cfgFile.readLine();
-#elif _WIN32
-    cfgFile.readLine();
-    cfgFile.readLine();
-    portName1=cfgFile.readLine().trimmed();
-    portName2=cfgFile.readLine().trimmed();
-#endif
+    auto allPorts=QSerialPortInfo::availablePorts();
+    for (auto i : allPorts) {
+        if (i.description()=="USB Serial") {
+            QSerialPort curPort;
+            initPort(curPort, i.portName());
+            curPort.write("read");
+            curPort.waitForReadyRead();
+            QString content=curPort.readAll();
+            curPort.close();
+            if (content[4]=='1') // F50.01
+                portName2=i.portName();
+            else
+                portName1=i.portName();
+        }
+    }
+
+    //read fan tables
     pwrListLen=cfgFile.readLine().trimmed().toInt();
     controlInterval=cfgFile.readLine().trimmed().toInt();
     for (int i=0;i<sizeof(fanTables)/sizeof(cfcUtils::curvePoint*);i++) {
@@ -65,10 +73,10 @@ ExternalFan::ExternalFan() {
 
     cfgFile.close();
     cfcUtils::writeLog("port1 name: "+portName1);
-    cfcUtils::writeLog("port2 name: "+portName1);
+    cfcUtils::writeLog("port2 name: "+portName2);
 
     initPort(port1, portName1);
-    // initPort(port2, portName2);
+    initPort(port2, portName2);
     cfcUtils::writeLog("ex fan init finish");
 }
 
@@ -76,9 +84,9 @@ ExternalFan::~ExternalFan() {
     if (disabled)
         return;
     port1.close();
-    delete [] fanTables[0];
-    delete [] fanTables[1];
-    // port2.close();
+    port2.close();
+    for (int i=0;i<sizeof(fanTables)/sizeof(cfcUtils::curvePoint*);i++)
+        delete [] fanTables[i];
 }
 
 void ExternalFan::setSpeed(QSerialPort &port, int num, int speed) {
@@ -114,10 +122,14 @@ void ExternalFan::adjustFan(int index,float power) {
         float cAvg=std::accumulate(pwrList[0].begin(),pwrList[0].end(),0.0)/pwrList[0].size();
         float gAvg=std::accumulate(pwrList[1].begin(),pwrList[1].end(),0.0)/pwrList[1].size();
         float totalAvg=cAvg+gAvg;
+
         int targetSpeed1=cfcUtils::calcTable(fanTables[0], fanTableLens[0], totalAvg);
         int targetSpeed2=cfcUtils::calcTable(fanTables[1], fanTableLens[1], totalAvg);
+        int targetSpeed3=cfcUtils::calcTable(fanTables[2], fanTableLens[2], totalAvg);
         setSpeed(port1, 1, std::clamp(targetSpeed1,0,100));
         setSpeed(port1, 2, std::clamp(targetSpeed2,0,100));
+        setSpeed(port2, 3, std::clamp(targetSpeed3,0,100));
+        qDebug()<<cAvg<<"+"<<gAvg<<"="<<totalAvg<<"#1:"<<targetSpeed1<<"#2:"<<targetSpeed2<<"#3"<<targetSpeed3;
 
         lastControlTime=currentTime;
     }
