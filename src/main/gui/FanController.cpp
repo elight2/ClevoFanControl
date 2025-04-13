@@ -6,11 +6,13 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/qdatetime.h>
 #include <algorithm>
+#include <atomic>
 #include <numeric>
 #include <qcontainerfwd.h>
 #include <qcoreapplication.h>
 #include <qlogging.h>
 #include <qthread.h>
+#include <iostream>
 
 #ifdef _WIN32
 #include "../winRing0Api.h"
@@ -20,6 +22,8 @@
 
 //for cpu temp in Windows
 #define IA32_PACKAGE_THERM_STATUS_MSR 0x1B1
+
+std::atomic_bool HardwareMonitor::shouldMonitorGpu=0;
 
 void CpuPowerMonitor::rdmsr(int pos, char *dest) {
     memset(dest, 0, 8);
@@ -99,8 +103,8 @@ void HardwareMonitor::run() {
             this->temperature=getcTemp();
             this->power=getcPower();
         } else if(index==2) {
-            this->shouldMonitorGpu=checkShouldMonitorGpu();
-            if(this->shouldMonitorGpu) {
+            HardwareMonitor::shouldMonitorGpu=checkShouldMonitorGpu();
+            if(HardwareMonitor::shouldMonitorGpu) {
                 this->temperature=getgTemp();
                 this->power=getgPower();
             } else {

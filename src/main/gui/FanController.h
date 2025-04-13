@@ -40,7 +40,7 @@ public:
 
     std::atomic_int temperature;
     std::atomic<double> power;
-    std::atomic_bool shouldMonitorGpu;
+    static std::atomic_bool shouldMonitorGpu;
     QList<float> lastPower;
 
 private:
