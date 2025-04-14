@@ -21,8 +21,7 @@ public:
 
 private:
     QString EX_FAN_CFG_FILE_DIR="./ex_fan.txt";
-    QSerialPort port1;
-    QSerialPort port2;
+    QSerialPort ports[2];
 
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
@@ -35,8 +34,10 @@ private:
 
     std::vector<float> pwrList[2];
 
-    void setSpeed(QSerialPort &port, int num, int speed);
+    void setSpeed(int index, int num, int speed);
+    void initPort(int index,QString name);
     void initPort(QSerialPort &port,QString name);
+    QString searchPort(int index);
 
 signals:
     void adjustFanSig(int index,float power);

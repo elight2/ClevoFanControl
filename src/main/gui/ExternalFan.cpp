@@ -1,17 +1,23 @@
 #include "ExternalFan.h"
 
 #include <algorithm>
+#include <exception>
 #include <numeric>
 #include <qcontainerfwd.h>
 #include <qdebug.h>
 #include <qfile.h>
 #include <qlist.h>
 #include <qlogging.h>
+#include <qobject.h>
 #include <qthread.h>
 #include <qserialport.h>
 #include <qserialportinfo.h>
 #include <stdexcept>
 #include "../defines.h"
+
+void ExternalFan::initPort(int index,QString name) {
+    initPort(ports[index],name);
+}
 
 void ExternalFan::initPort(QSerialPort &port,QString name) {
     port.setPortName(name);
@@ -23,10 +29,34 @@ void ExternalFan::initPort(QSerialPort &port,QString name) {
 
     port.close();
     if (!port.open(QIODevice::ReadWrite)) {
-        cfcUtils::writeLog("ex fan fail to open port: "+name);
+        cfcUtils::writeLog("ex fan: fail to open port: "+name);
         cfcUtils::writeLog("error: "+port.errorString());
-        throw std::runtime_error("ex fan fail to open port");
     }
+}
+
+QString ExternalFan::searchPort(int index) {
+    auto allPorts=QSerialPortInfo::availablePorts();
+    for (auto i : allPorts) {
+        if (i.description()=="USB Serial") { //only USB ones
+            QSerialPort curPort;
+            initPort(curPort, i.portName());
+            if (!curPort.isOpen())
+                return "NOT_FOUND";
+            curPort.write("read");
+            curPort.waitForReadyRead();
+            QString content=curPort.readAll();
+            curPort.close();
+            if (index==0) {
+                if (content[4]=='0') //50.0
+                    return i.portName();
+            } else if (index==1) {
+                if (content[4]=='1') // F50.1
+                    return i.portName();
+            }
+        }
+    }
+
+    return "NOT_FOUND";
 }
 
 ExternalFan::ExternalFan() {
@@ -37,26 +67,14 @@ ExternalFan::ExternalFan() {
     cfgFile.open(QIODevice::ReadOnly);
 
     disabled=cfgFile.readLine().trimmed()=="0";
-    if (disabled)
+    if (disabled) {
+        cfgFile.close();
         return;
+    }
 
     //search port
-    QString portName1,portName2;
-    auto allPorts=QSerialPortInfo::availablePorts();
-    for (auto i : allPorts) {
-        if (i.description()=="USB Serial") {
-            QSerialPort curPort;
-            initPort(curPort, i.portName());
-            curPort.write("read");
-            curPort.waitForReadyRead();
-            QString content=curPort.readAll();
-            curPort.close();
-            if (content[4]=='1') // F50.01
-                portName2=i.portName();
-            else
-                portName1=i.portName();
-        }
-    }
+    QString portName1=searchPort(0);
+    QString portName2=searchPort(1);
 
     //read fan tables
     pwrListLen=cfgFile.readLine().trimmed().toInt();
@@ -75,21 +93,22 @@ ExternalFan::ExternalFan() {
     cfcUtils::writeLog("port1 name: "+portName1);
     cfcUtils::writeLog("port2 name: "+portName2);
 
-    initPort(port1, portName1);
-    initPort(port2, portName2);
+    initPort(ports[0], portName1);
+    initPort(ports[1], portName2);
+
     cfcUtils::writeLog("ex fan init finish");
 }
 
 ExternalFan::~ExternalFan() {
     if (disabled)
         return;
-    port1.close();
-    port2.close();
+    ports[0].close();
+    ports[1].close();
     for (int i=0;i<sizeof(fanTables)/sizeof(cfcUtils::curvePoint*);i++)
         delete [] fanTables[i];
 }
 
-void ExternalFan::setSpeed(QSerialPort &port, int num, int speed) {
+void ExternalFan::setSpeed(int index, int num, int speed) {
     //gen str
     char data[7]="D0:000";
     data[1]=num+48;
@@ -101,8 +120,25 @@ void ExternalFan::setSpeed(QSerialPort &port, int num, int speed) {
     data[5]=last+48;
     
     //write
-    port.write(data);
-    port.waitForBytesWritten();
+    if (ports[index].error()==QSerialPort::NoError) {
+        if (!ports[index].isOpen()) {
+            cfcUtils::writeLog("ex fan: port "+QString::number(index)+" not open, reopening");
+            ports[index].open(QIODevice::ReadWrite);
+        } else {
+            ports[index].write(data);
+            ports[index].waitForBytesWritten();
+        }
+    } else {
+        cfcUtils::writeLog("ex fan: port "+ports[index].portName()+" error: "+QString::number(ports[index].error())+", researching");
+        QString portName=searchPort(index);
+        if (portName=="NOT_FOUND") {
+            cfcUtils::writeLog("ex fan: port "+QString::number(index)+" not found");
+        } else {
+            ports[index].close();
+            ports[index].setPortName(portName);
+            ports[index].open(QIODevice::ReadWrite);
+        }
+    }
     QThread::msleep(cfcDef::MIN_CONTROL_INTERVAL);
 }
 
@@ -126,9 +162,9 @@ void ExternalFan::adjustFan(int index,float power) {
         int targetSpeed1=cfcUtils::calcTable(fanTables[0], fanTableLens[0], totalAvg);
         int targetSpeed2=cfcUtils::calcTable(fanTables[1], fanTableLens[1], totalAvg);
         int targetSpeed3=cfcUtils::calcTable(fanTables[2], fanTableLens[2], totalAvg);
-        setSpeed(port1, 1, std::clamp(targetSpeed1,0,100));
-        setSpeed(port1, 2, std::clamp(targetSpeed2,0,100));
-        setSpeed(port2, 3, std::clamp(targetSpeed3,0,100));
+        setSpeed(0, 1, std::clamp(targetSpeed1,0,100));
+        setSpeed(0, 2, std::clamp(targetSpeed2,0,100));
+        setSpeed(1, 3, std::clamp(targetSpeed3,0,100));
         qDebug()<<cAvg<<"+"<<gAvg<<"="<<totalAvg<<"#1:"<<targetSpeed1<<"#2:"<<targetSpeed2<<"#3"<<targetSpeed3;
 
         lastControlTime=currentTime;
