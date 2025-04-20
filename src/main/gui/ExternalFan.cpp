@@ -129,6 +129,7 @@ void ExternalFan::setSpeed(int index, int num, int speed) {
             ports[index].waitForBytesWritten();
         }
     } else {
+        ports[index].close();
         cfcUtils::writeLog("ex fan: port "+ports[index].portName()+" error: "+QString::number(ports[index].error())+", researching");
         QString portName=searchPort(index);
         if (portName=="NOT_FOUND") {

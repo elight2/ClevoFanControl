@@ -1,507 +1,106 @@
-Mon Apr 14 16:53:43 2025 cfc launching
-Mon Apr 14 16:53:43 2025 loading config json
-Mon Apr 14 16:53:43 2025 loading profiles, total: 1
-Mon Apr 14 16:53:43 2025 loading profile: general
-Mon Apr 14 16:53:43 2025 loading normal args
-Mon Apr 14 16:53:43 2025 loading min speed args
-Mon Apr 14 16:53:43 2025 using min speed table, with size of 4
-Mon Apr 14 16:53:43 2025 no point have power of 0W. adding 0,10
-Mon Apr 14 16:53:43 2025 loading normal args
-Mon Apr 14 16:53:43 2025 loading min speed args
-Mon Apr 14 16:53:43 2025 using min speed table, with size of 4
-Mon Apr 14 16:53:43 2025 no point have power of 0W. adding 0,10
-Mon Apr 14 16:53:43 2025 loading commands, total: 9
-Mon Apr 14 16:53:43 2025 loading other options
-Mon Apr 14 16:53:43 2025 read config finish
-Mon Apr 14 16:53:43 2025 building ui
-Mon Apr 14 16:53:43 2025 build ui finish
-Mon Apr 14 16:53:43 2025 init ex fan
-Mon Apr 14 16:53:43 2025 port1 name: ttyUSB0
-Mon Apr 14 16:53:43 2025 port2 name: NOT_FOUND
-Mon Apr 14 16:53:43 2025 ex fan: fail to open port: NOT_FOUND
-Mon Apr 14 16:53:43 2025 error: No such file or directory
-Mon Apr 14 16:53:43 2025 ex fan init finish
-Mon Apr 14 16:53:43 2025 cfc init finish, entering loop
-Mon Apr 14 16:53:44 2025 ex fan: port NOT_FOUND error: 1, researching
-Mon Apr 14 16:53:44 2025 ex fan: fail to open port: ttyUSB0
-Mon Apr 14 16:53:44 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:44 2025 ex fan: port 1 not found
-Mon Apr 14 16:53:45 2025 ex fan: port NOT_FOUND error: 1, researching
-Mon Apr 14 16:53:45 2025 ex fan: fail to open port: ttyUSB0
-Mon Apr 14 16:53:45 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:45 2025 ex fan: port 1 not found
-Mon Apr 14 16:53:46 2025 ex fan: port NOT_FOUND error: 1, researching
-Mon Apr 14 16:53:46 2025 ex fan: fail to open port: ttyUSB0
-Mon Apr 14 16:53:46 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:46 2025 ex fan: port 1 not found
-Mon Apr 14 16:53:47 2025 ex fan: port NOT_FOUND error: 1, researching
-Mon Apr 14 16:53:47 2025 ex fan: fail to open port: ttyUSB0
-Mon Apr 14 16:53:47 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:47 2025 ex fan: port 1 not found
-Mon Apr 14 16:53:48 2025 ex fan: port NOT_FOUND error: 1, researching
-Mon Apr 14 16:53:49 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:49 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:49 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:49 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:49 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:49 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:49 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:49 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:50 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:50 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:50 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:50 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:50 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:50 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:50 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:50 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:51 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:51 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:51 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:51 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:51 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:51 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:51 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:51 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:52 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:52 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:52 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:52 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:52 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:52 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:52 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:52 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:53 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:53 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:53 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:53 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:53 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:53 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:53 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:53 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:54 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:54 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:54 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:54 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:54 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:54 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:54 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:54 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:55 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:55 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:55 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:55 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:55 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:55 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:55 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:55 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:56 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:56 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:56 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:56 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:56 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:56 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:56 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:56 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:57 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:57 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:57 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:57 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:57 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:57 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:57 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:57 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:58 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:58 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:58 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:58 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:58 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:58 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:58 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:58 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:59 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:59 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:59 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:59 2025 ex fan: port 0 not found
-Mon Apr 14 16:53:59 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:53:59 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:53:59 2025 error: Permission error while locking the device
-Mon Apr 14 16:53:59 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:00 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:00 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:54:00 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:00 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:00 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:00 2025 ex fan: fail to open port: ttyUSB1
-Mon Apr 14 16:54:00 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:00 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:01 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:01 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:01 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:01 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:02 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:02 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:02 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:02 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:02 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:02 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:03 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:03 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:03 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:03 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:03 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:03 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:04 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:04 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:04 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:04 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:04 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:04 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:05 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:05 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:05 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:05 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:05 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:05 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:06 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:06 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:06 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:06 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:06 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:06 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:07 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:07 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:07 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:07 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:07 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:07 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:08 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:08 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:08 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:08 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:08 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:08 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:09 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:09 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:09 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:09 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:09 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:09 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:10 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:10 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:10 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:10 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:10 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:10 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:11 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:11 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:11 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:11 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:11 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:11 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:12 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:12 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:12 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:12 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:12 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:12 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:13 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:13 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:13 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:13 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:13 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:14 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:14 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:14 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:14 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:14 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:14 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:14 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:14 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:15 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:15 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:15 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:15 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:15 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:15 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:15 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:15 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:16 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:16 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:16 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:16 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:16 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:16 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:16 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:16 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:17 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:17 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:17 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:17 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:17 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:17 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:17 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:17 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:18 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:18 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:18 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:18 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:18 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:18 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:18 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:18 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:19 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:19 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:19 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:19 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:19 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:19 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:19 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:19 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:20 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:20 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:20 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:20 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:20 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:20 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:20 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:20 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:21 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:21 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:21 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:21 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:21 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:21 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:21 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:21 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:22 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:22 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:22 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:22 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:22 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:22 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:22 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:22 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:23 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:23 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:23 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:23 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:23 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:23 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:23 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:23 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:24 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:24 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:24 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:24 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:24 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:25 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:25 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:25 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:25 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:25 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:25 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:25 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:26 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:26 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:26 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:26 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:26 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:26 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:26 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:26 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:27 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:27 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:27 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:27 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:27 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:27 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:27 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:27 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:28 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:28 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:28 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:28 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:28 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:28 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:28 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:28 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:29 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:29 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:29 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:29 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:29 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:30 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:30 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:30 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:30 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:30 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:30 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:30 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:31 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:31 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:31 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:31 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:31 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:31 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:31 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:31 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:32 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:32 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:32 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:32 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:32 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:32 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:32 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:32 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:33 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:33 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:33 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:33 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:33 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:33 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:33 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:33 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:34 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:34 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:34 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:34 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:34 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:34 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:34 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:34 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:35 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:35 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:35 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:35 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:35 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:35 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:35 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:35 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:36 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:36 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:36 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:36 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:36 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:36 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:36 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:36 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:37 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:54:47 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:47 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:47 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:47 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:47 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:47 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:47 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:47 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:48 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:48 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:48 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:48 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:48 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:48 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:48 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:48 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:49 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:49 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:49 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:49 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:49 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:49 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:49 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:49 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:50 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:50 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:50 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:50 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:50 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:50 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:50 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:50 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:51 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:51 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:51 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:51 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:51 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:51 2025 ex fan: fail to open port: ttyUSB2
-Mon Apr 14 16:54:51 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:51 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:52 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:52 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:52 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:52 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:53 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:53 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:53 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:53 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:53 2025 ex fan: port ttyUSB2 error: 6, researching
-Mon Apr 14 16:54:53 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:54 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:54 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:54 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:54 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:54 2025 ex fan: port ttyUSB2 error: 6, researching
-Mon Apr 14 16:54:54 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:55 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:55 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:55 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:55 2025 ex fan: port 0 not found
-Mon Apr 14 16:54:55 2025 ex fan: port ttyUSB2 error: 6, researching
-Mon Apr 14 16:54:55 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:56 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:54:56 2025 ex fan: port ttyUSB2 error: 6, researching
-Mon Apr 14 16:54:56 2025 ex fan: fail to open port: ttyUSB0
-Mon Apr 14 16:54:56 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:56 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:57 2025 ex fan: port ttyUSB2 error: 6, researching
-Mon Apr 14 16:54:57 2025 ex fan: fail to open port: ttyUSB0
-Mon Apr 14 16:54:57 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:57 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:58 2025 ex fan: port ttyUSB2 error: 6, researching
-Mon Apr 14 16:54:58 2025 ex fan: fail to open port: ttyUSB0
-Mon Apr 14 16:54:58 2025 error: Permission error while locking the device
-Mon Apr 14 16:54:58 2025 ex fan: port 1 not found
-Mon Apr 14 16:54:59 2025 ex fan: port ttyUSB2 error: 6, researching
-Mon Apr 14 16:55:08 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:08 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:08 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:08 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:09 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:55:09 2025 ex fan: port 1 not found
-Mon Apr 14 16:55:09 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:09 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:09 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:10 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:10 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:55:10 2025 ex fan: port 1 not found
-Mon Apr 14 16:55:10 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:10 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:11 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:11 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:11 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:55:11 2025 ex fan: port 1 not found
-Mon Apr 14 16:55:11 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:11 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:12 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:12 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:12 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:55:12 2025 ex fan: port 1 not found
-Mon Apr 14 16:55:12 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:12 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:13 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:13 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:13 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:55:13 2025 ex fan: port 1 not found
-Mon Apr 14 16:55:13 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:13 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:14 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:14 2025 ex fan: port 0 not found
-Mon Apr 14 16:55:14 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:55:14 2025 ex fan: port 1 not found
-Mon Apr 14 16:55:14 2025 ex fan: port ttyUSB0 error: 6, researching
-Mon Apr 14 16:55:15 2025 ex fan: port ttyUSB1 error: 6, researching
-Mon Apr 14 16:55:19 2025 saving config
-Mon Apr 14 16:55:19 2025 save config finish
-Mon Apr 14 16:55:20 2025 saving config
-Mon Apr 14 16:55:20 2025 save config finish
+Sun Apr 20 20:30:59 2025 cfc launching
+Sun Apr 20 20:30:59 2025 loading config json
+Sun Apr 20 20:30:59 2025 loading profiles, total: 1
+Sun Apr 20 20:30:59 2025 loading profile: general
+Sun Apr 20 20:30:59 2025 loading normal args
+Sun Apr 20 20:30:59 2025 loading min speed args
+Sun Apr 20 20:30:59 2025 using min speed table, with size of 4
+Sun Apr 20 20:30:59 2025 no point have power of 0W. adding 0,10
+Sun Apr 20 20:30:59 2025 loading normal args
+Sun Apr 20 20:30:59 2025 loading min speed args
+Sun Apr 20 20:30:59 2025 using min speed table, with size of 4
+Sun Apr 20 20:30:59 2025 no point have power of 0W. adding 0,10
+Sun Apr 20 20:30:59 2025 loading commands, total: 9
+Sun Apr 20 20:30:59 2025 loading other options
+Sun Apr 20 20:30:59 2025 read config finish
+Sun Apr 20 20:30:59 2025 building ui
+Sun Apr 20 20:30:59 2025 build ui finish
+Sun Apr 20 20:30:59 2025 init ex fan
+Sun Apr 20 20:30:59 2025 port1 name: ttyUSB3
+Sun Apr 20 20:30:59 2025 port2 name: ttyUSB0
+Sun Apr 20 20:30:59 2025 ex fan init finish
+Sun Apr 20 20:30:59 2025 cfc init finish, entering loop
+Sun Apr 20 20:31:07 2025 ex fan: port ttyUSB3 error: 6, researching
+Sun Apr 20 20:31:07 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:08 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:08 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:08 2025 ex fan: port ttyUSB0 error: 6, researching
+Sun Apr 20 20:31:08 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:08 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:09 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:09 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:09 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:09 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:09 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:10 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:10 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:10 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:10 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:10 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:10 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:11 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:11 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:11 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:11 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:11 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:11 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:12 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:12 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:12 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:12 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:12 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:12 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:13 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:13 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:13 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:13 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:13 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:13 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:14 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:14 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:14 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:14 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:14 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:14 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:15 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:15 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:15 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:15 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:15 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:15 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:16 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:16 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:16 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:16 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:16 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:16 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:17 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:17 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:17 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:17 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:17 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:17 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:18 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:18 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:18 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:18 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:18 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:18 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:19 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:19 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:19 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:19 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:19 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:19 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:20 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:20 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:20 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:20 2025 ex fan: port 0 not found
+Sun Apr 20 20:31:20 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:20 2025 ex fan: port 1 not found
+Sun Apr 20 20:31:21 2025 ex fan: port ttyUSB3 error: 10, researching
+Sun Apr 20 20:31:21 2025 ex fan: port ttyUSB0 error: 10, researching
+Sun Apr 20 20:31:32 2025 saving config
+Sun Apr 20 20:31:32 2025 save config finish
+Sun Apr 20 20:31:32 2025 saving config
+Sun Apr 20 20:31:32 2025 save config finish
