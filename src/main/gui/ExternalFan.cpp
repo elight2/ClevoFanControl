@@ -29,8 +29,7 @@ void ExternalFan::initPort(QSerialPort &port,QString name) {
 
     port.close();
     if (!port.open(QIODevice::ReadWrite)) {
-        cfcUtils::writeLog("ex fan: fail to open port: "+name);
-        cfcUtils::writeLog("error: "+port.errorString());
+        cfcUtils::writeLog("ex fan: fail to open port: "+name+", err: "+port.errorString());
     }
 }
 
@@ -128,16 +127,24 @@ void ExternalFan::setSpeed(int index, int num, int speed) {
             ports[index].write(data);
             ports[index].waitForBytesWritten();
         }
-    } else {
-        ports[index].close();
-        cfcUtils::writeLog("ex fan: port "+ports[index].portName()+" error: "+QString::number(ports[index].error())+", researching");
-        QString portName=searchPort(index);
-        if (portName=="NOT_FOUND") {
-            cfcUtils::writeLog("ex fan: port "+QString::number(index)+" not found");
-        } else {
-            ports[index].close();
-            ports[index].setPortName(portName);
-            ports[index].open(QIODevice::ReadWrite);
+    } else { //fix error
+        cfcUtils::writeLog("ex fan: port "+ports[index].portName()+" error: "+QString::number(ports[index].error())+", fixing");
+
+        //first close all ports
+        for (int i=0;i<portCount;i++)
+            ports[i].close();
+        
+        //then research all ports
+        for (int i=0;i<portCount;i++) {
+            QString portName=searchPort(i);
+            if (portName=="NOT_FOUND") {
+                cfcUtils::writeLog("ex fan: port "+QString::number(i)+" not found when fixing error");
+            } else {
+                ports[i].close();
+                ports[i].setPortName(portName);
+                ports[i].open(QIODevice::ReadWrite);
+                cfcUtils::writeLog("ex fan: port "+QString::number(i)+" fixed");
+            }
         }
     }
     QThread::msleep(cfcDef::MIN_CONTROL_INTERVAL);

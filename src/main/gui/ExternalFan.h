@@ -21,7 +21,8 @@ public:
 
 private:
     QString EX_FAN_CFG_FILE_DIR="./ex_fan.txt";
-    QSerialPort ports[2];
+    static const int portCount=2;
+    QSerialPort ports[portCount];
 
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
