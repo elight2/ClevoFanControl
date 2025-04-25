@@ -167,6 +167,7 @@ void ExternalFan::adjustFan(int index,float power) {
         float gAvg=std::accumulate(pwrList[1].begin(),pwrList[1].end(),0.0)/pwrList[1].size();
         float totalAvg=cAvg+gAvg;
 
+        totalAvg=60;
         int targetSpeed1=cfcUtils::calcTable(fanTables[0], fanTableLens[0], totalAvg);
         int targetSpeed2=cfcUtils::calcTable(fanTables[1], fanTableLens[1], totalAvg);
         int targetSpeed3=cfcUtils::calcTable(fanTables[2], fanTableLens[2], totalAvg);

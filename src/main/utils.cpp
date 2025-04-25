@@ -23,7 +23,7 @@ int cfcUtils::calcTable(const curvePoint table[],int count,int value) {
             break;
         } else if (table[i].x==value) {
             index1=i;
-            index2=i;
+            index2=i+1;
             break;
         } else {
             if (value<table[i+1].x) {
@@ -33,8 +33,11 @@ int cfcUtils::calcTable(const curvePoint table[],int count,int value) {
             }
         }
     }
-
-    return table[index1].y+float(table[index2].y-table[index1].y)*(value-table[index1].x)/(table[index2].x-table[index1].x);
+    
+    if (index1==index2)
+        return table[index1].y;
+    else
+        return table[index1].y+float(table[index2].y-table[index1].y)*(value-table[index1].x)/(table[index2].x-table[index1].x);
 }
 
 void cfcUtils::writeLog(QString info) {
