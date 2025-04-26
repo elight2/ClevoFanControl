@@ -167,14 +167,15 @@ void ExternalFan::adjustFan(int index,float power) {
         float gAvg=std::accumulate(pwrList[1].begin(),pwrList[1].end(),0.0)/pwrList[1].size();
         float totalAvg=cAvg+gAvg;
 
-        totalAvg=60;
         int targetSpeed1=cfcUtils::calcTable(fanTables[0], fanTableLens[0], totalAvg);
         int targetSpeed2=cfcUtils::calcTable(fanTables[1], fanTableLens[1], totalAvg);
         int targetSpeed3=cfcUtils::calcTable(fanTables[2], fanTableLens[2], totalAvg);
+        int targetSpeed4=cfcUtils::calcTable(fanTables[3], fanTableLens[3], cAvg);
         setSpeed(0, 1, std::clamp(targetSpeed1,0,100));
         setSpeed(0, 2, std::clamp(targetSpeed2,0,100));
-        setSpeed(1, 3, std::clamp(targetSpeed3,0,100));
-        qDebug()<<cAvg<<"+"<<gAvg<<"="<<totalAvg<<"#1:"<<targetSpeed1<<"#2:"<<targetSpeed2<<"#3"<<targetSpeed3;
+        setSpeed(0, 3, std::clamp(targetSpeed3,0,100));
+        setSpeed(1, 3, std::clamp(targetSpeed4,0,100));
+        qDebug()<<cAvg<<"+"<<gAvg<<"="<<totalAvg<<"#1:"<<targetSpeed1<<"#2:"<<targetSpeed2<<"#3"<<targetSpeed3<<"#4"<<targetSpeed4;
 
         lastControlTime=currentTime;
     }
