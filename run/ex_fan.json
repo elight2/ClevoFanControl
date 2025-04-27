@@ -1,0 +1,27 @@
+{
+    "enabled":true,
+    "pwrListLen":10,
+    "controlInterval":1000,
+    "fans":{
+        "0":{
+            "pwrType":0,
+            "pwrList":[0,60,100,200,230],
+            "speedList":[25,25,30,40,80]
+        },
+        "1":{
+            "pwrType":0,
+            "pwrList":[0,80,90,200,230],
+            "speedList":[30,30,35,40,50]
+        },
+        "2":{
+            "pwrType":0,
+            "pwrList":[0,80,200,230],
+            "speedList":[30,30,35,50]
+        },
+        "3":{
+            "pwrType":1,
+            "pwrList":[0,45,120,150],
+            "speedList":[20,20,45,100]
+        }
+    }
+}

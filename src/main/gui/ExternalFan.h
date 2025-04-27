@@ -11,6 +11,14 @@
 
 #include "../utils.h"
 
+struct ExFanInfo {
+    int port;
+    int num;
+    int pwrType;
+    int tableLen;
+    cfcUtils::curvePoint *table;
+};
+
 class ExternalFan : public QObject {
 Q_OBJECT
 
@@ -20,18 +28,19 @@ public:
     void adjustFan(int index,float power);
 
 private:
-    QString EX_FAN_CFG_FILE_DIR="./ex_fan.txt";
-    static const int portCount=2;
-    QSerialPort ports[portCount];
+    static const QString EX_FAN_CFG_FILE_DIR;
+    static ExFanInfo fanInfoList[4];
+    static const float portInfo[2];
+    static const QString ch341Describe;
+    static const QString exFanLogFlag;
+    QSerialPort ports[2];
 
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
     int controlInterval;
 
     int pwrListLen;
-    bool disabled=false;
-    cfcUtils::curvePoint *fanTables[4];
-    int fanTableLens[4];
+    bool enabled=false;
 
     std::vector<float> pwrList[2];
 

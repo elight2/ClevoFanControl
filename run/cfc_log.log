@@ -1,28 +1,334 @@
-Sat Apr 26 22:42:33 2025 cfc launching
-Sat Apr 26 22:42:33 2025 loading config json
-Sat Apr 26 22:42:33 2025 loading profiles, total: 1
-Sat Apr 26 22:42:33 2025 loading profile: general
-Sat Apr 26 22:42:33 2025 loading normal args
-Sat Apr 26 22:42:33 2025 loading min speed args
-Sat Apr 26 22:42:33 2025 using min speed table, with size of 4
-Sat Apr 26 22:42:33 2025 no point have power of 0W. adding 0,10
-Sat Apr 26 22:42:33 2025 loading normal args
-Sat Apr 26 22:42:33 2025 loading min speed args
-Sat Apr 26 22:42:33 2025 using min speed table, with size of 4
-Sat Apr 26 22:42:33 2025 no point have power of 0W. adding 0,10
-Sat Apr 26 22:42:33 2025 loading commands, total: 9
-Sat Apr 26 22:42:33 2025 loading other options
-Sat Apr 26 22:42:33 2025 read config finish
-Sat Apr 26 22:42:33 2025 building ui
-Sat Apr 26 22:42:33 2025 build ui finish
-Sat Apr 26 22:42:33 2025 init ex fan
-Sat Apr 26 22:42:33 2025 port1 name: ttyUSB1
-Sat Apr 26 22:42:33 2025 port2 name: ttyUSB0
-Sat Apr 26 22:42:33 2025 ex fan init finish
-Sat Apr 26 22:42:33 2025 cfc init finish, entering loop
-Sat Apr 26 22:42:37 2025 saving config
-Sat Apr 26 22:42:37 2025 save config finish
-Sat Apr 26 22:50:09 2025 saving config
-Sat Apr 26 22:50:09 2025 save config finish
-Sat Apr 26 22:50:11 2025 saving config
-Sat Apr 26 22:50:11 2025 save config finish
+Sun Apr 27 22:12:43 2025 cfc launching
+Sun Apr 27 22:12:43 2025 loading config json
+Sun Apr 27 22:12:43 2025 loading profiles, total: 1
+Sun Apr 27 22:12:43 2025 loading profile: general
+Sun Apr 27 22:12:43 2025 loading normal args
+Sun Apr 27 22:12:43 2025 loading min speed args
+Sun Apr 27 22:12:43 2025 using min speed table, with size of 4
+Sun Apr 27 22:12:43 2025 no point have power of 0W. adding 0,10
+Sun Apr 27 22:12:43 2025 loading normal args
+Sun Apr 27 22:12:43 2025 loading min speed args
+Sun Apr 27 22:12:43 2025 using min speed table, with size of 4
+Sun Apr 27 22:12:43 2025 no point have power of 0W. adding 0,10
+Sun Apr 27 22:12:43 2025 loading commands, total: 9
+Sun Apr 27 22:12:43 2025 loading other options
+Sun Apr 27 22:12:43 2025 read config finish
+Sun Apr 27 22:12:43 2025 building ui
+Sun Apr 27 22:12:43 2025 build ui finish
+Sun Apr 27 22:12:43 2025 EX_FAN: init ex fan
+Sun Apr 27 22:12:43 2025 EX_FAN: port0: ttyUSB2
+Sun Apr 27 22:12:43 2025 EX_FAN: port1: ttyUSB0
+Sun Apr 27 22:12:43 2025 EX_FAN: ex fan init finish
+Sun Apr 27 22:12:43 2025 cfc init finish, entering loop
+Sun Apr 27 22:15:33 2025 EX_FAN: port ttyUSB2 error: 6, fixing
+Sun Apr 27 22:15:33 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:33 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:33 2025 EX_FAN: port ttyUSB2 error: 6, fixing
+Sun Apr 27 22:15:33 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:33 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:33 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:15:33 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:33 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:33 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:33 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:33 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:34 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:15:34 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:34 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:34 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:15:34 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:34 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:34 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:15:34 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:34 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:34 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:34 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:34 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:35 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:15:35 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:35 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:35 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:15:35 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:35 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:35 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:15:35 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:35 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:35 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:35 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:35 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:36 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:15:36 2025 EX_FAN: port 0 fixed
+Sun Apr 27 22:15:36 2025 EX_FAN: initPort: fail to open port: ttyUSB0, err: Permission error while locking the device
+Sun Apr 27 22:15:36 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:36 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:36 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:36 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:37 2025 EX_FAN: port 0 no error but not open, reopening
+Sun Apr 27 22:15:37 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:37 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:37 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:38 2025 EX_FAN: port 0 no error but not open, reopening
+Sun Apr 27 22:15:38 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:38 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:38 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:39 2025 EX_FAN: port 0 no error but not open, reopening
+Sun Apr 27 22:15:39 2025 EX_FAN: port ttyUSB0 error: 1, fixing
+Sun Apr 27 22:15:39 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:39 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:39 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:39 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:39 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:39 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:39 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:39 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:40 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:40 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:40 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:40 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:40 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:40 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:40 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:40 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:40 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:40 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:40 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:40 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:41 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:41 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:41 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:41 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:41 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:41 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:41 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:41 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:41 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:41 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:41 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:41 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:42 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:42 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:42 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:42 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:42 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:42 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:42 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:42 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:42 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:42 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:42 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:42 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:43 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:43 2025 EX_FAN: port 0 fixed
+Sun Apr 27 22:15:43 2025 EX_FAN: initPort: fail to open port: ttyUSB0, err: Permission error while locking the device
+Sun Apr 27 22:15:43 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:43 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:43 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:43 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:44 2025 EX_FAN: port 0 no error but not open, reopening
+Sun Apr 27 22:15:44 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:44 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:44 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:45 2025 EX_FAN: port 0 no error but not open, reopening
+Sun Apr 27 22:15:45 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:45 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:45 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:46 2025 EX_FAN: port 0 no error but not open, reopening
+Sun Apr 27 22:15:46 2025 EX_FAN: port ttyUSB0 error: 1, fixing
+Sun Apr 27 22:15:46 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:46 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:46 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:46 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:46 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:46 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:46 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:46 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:47 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:47 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:47 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:47 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:47 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:47 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:47 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:47 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:47 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:47 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:47 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:47 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:48 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:48 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:48 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:48 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:48 2025 EX_FAN: port 0 fixed
+Sun Apr 27 22:15:48 2025 EX_FAN: initPort: fail to open port: ttyUSB1, err: Permission error while locking the device
+Sun Apr 27 22:15:48 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:48 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:48 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:48 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:49 2025 EX_FAN: port 0 no error but not open, reopening
+Sun Apr 27 22:15:49 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:49 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:49 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:50 2025 EX_FAN: port 0 no error but not open, reopening
+Sun Apr 27 22:15:55 2025 EX_FAN: port ttyUSB1 error: 6, fixing
+Sun Apr 27 22:15:55 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:55 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:55 2025 EX_FAN: port ttyUSB1 error: 6, fixing
+Sun Apr 27 22:15:55 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:55 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:55 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:55 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:55 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:15:55 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:15:55 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:55 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:56 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:56 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:56 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:56 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:56 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:56 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:56 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:57 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:57 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:57 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:57 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:57 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:57 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:57 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:57 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:57 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:58 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:58 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:58 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:58 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:58 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:58 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:58 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:58 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:58 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:59 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:15:59 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:15:59 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:15:59 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:00 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:00 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:16:00 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:00 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:00 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:00 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:16:00 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:00 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:01 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:01 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:01 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:01 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:01 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:01 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:01 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:01 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:01 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:01 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:16:01 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:01 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:02 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:02 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:02 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:02 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:02 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:02 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:02 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:02 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:02 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:02 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:16:02 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:02 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:03 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:03 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:03 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:03 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:03 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:03 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:03 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:03 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:03 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:03 2025 EX_FAN: port ttyUSB2 error: 10, fixing
+Sun Apr 27 22:16:03 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:03 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:04 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:04 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:04 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:16:04 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:05 2025 EX_FAN: port 0 fixed
+Sun Apr 27 22:16:05 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:16:08 2025 EX_FAN: port ttyUSB1 error: 6, fixing
+Sun Apr 27 22:16:08 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:08 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:08 2025 EX_FAN: port ttyUSB1 error: 6, fixing
+Sun Apr 27 22:16:08 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:08 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:08 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:08 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:08 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:08 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:16:08 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:09 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:09 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:09 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:09 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:09 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:09 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:09 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:09 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:10 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:10 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:10 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:16:10 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:10 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:10 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:10 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:10 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:10 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:10 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:11 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:11 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:11 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:11 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:11 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:16:11 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:11 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:11 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:11 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:12 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:12 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:12 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:12 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:12 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:12 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:12 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:12 2025 EX_FAN: port ttyUSB0 error: 10, fixing
+Sun Apr 27 22:16:12 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:12 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:13 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:13 2025 EX_FAN: port 0 not found when fixing error
+Sun Apr 27 22:16:13 2025 EX_FAN: port 1 not found when fixing error
+Sun Apr 27 22:16:13 2025 EX_FAN: port ttyUSB1 error: 10, fixing
+Sun Apr 27 22:16:13 2025 EX_FAN: port 0 fixed
+Sun Apr 27 22:16:13 2025 EX_FAN: port 1 fixed
+Sun Apr 27 22:19:07 2025 saving config
+Sun Apr 27 22:19:07 2025 save config finish
+Sun Apr 27 22:19:08 2025 saving config
+Sun Apr 27 22:19:08 2025 save config finish

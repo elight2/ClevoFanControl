@@ -163,10 +163,16 @@ int HardwareMonitor::getgTemp() {
 }
 
 double HardwareMonitor::getgPower() {
-    QStringList list;
     try {
-        list=nvsmiOutputParser({"-q","--display=POWER"}, "Power Draw");
-        return list[0].trimmed().mid(0,list[0].size()-2).toDouble();
+        double res[2];
+        const char *flags[]={"Power Draw","Instantaneous Power Draw"};
+        for (int i=0;i<2;i++) {
+            QStringList list;
+            list=nvsmiOutputParser({"-q","--display=POWER"}, flags[i]);
+            res[i]=list[0].trimmed().mid(0,list[0].size()-2).toDouble();
+        }
+        
+        return std::max(res[0],res[1]);
     } catch (const char* exc) {
         return 0;
     }
