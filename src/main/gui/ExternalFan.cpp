@@ -4,6 +4,7 @@
 #include <exception>
 #include <numeric>
 #include <qcontainerfwd.h>
+#include <qcoreapplication.h>
 #include <qdebug.h>
 #include <qfile.h>
 #include <qlist.h>
@@ -105,14 +106,6 @@ ExternalFan::ExternalFan() {
         fanInfoList[i].table=new cfcUtils::curvePoint[fanInfoList[i].tableLen];
         for (int j=0;j<fanInfoList[i].tableLen;j++)
             fanInfoList[i].table[j]={pwrList[j],speedList[j]};
-
-        // QByteArrayList table=cfgFile.readLine().trimmed().split(' ');
-        // QByteArrayList tablev=cfgFile.readLine().trimmed().split(' ');
-        // fanTableLens[i]=table.size();
-        // qDebug()<<tablev.size();
-        // fanTables[i]=new cfcUtils::curvePoint[fanTableLens[i]];
-        // for (int j=0;j<fanTableLens[i];j++)
-        //     fanTables[i][j]={table[j].toInt(),tablev[j].toInt()};
     }
 
     cfcUtils::writeLog(exFanLogFlag+"ex fan init finish");
@@ -121,10 +114,8 @@ ExternalFan::ExternalFan() {
 ExternalFan::~ExternalFan() {
     if (!enabled)
         return;
-    ports[0].close();
-    ports[1].close();
-    // for (int i=0;i<sizeof(fanTables)/sizeof(cfcUtils::curvePoint*);i++)
-    //     delete [] fanTables[i];
+    for (int i=0;i<sizeof(ports)/sizeof(QSerialPort);i++)
+        ports[i].close();
 
     for (int i=0;i<sizeof(fanInfoList)/sizeof(ExFanInfo);i++)
         delete [] fanInfoList[i].table;
@@ -170,7 +161,6 @@ void ExternalFan::setSpeed(int index, int num, int speed) {
             }
         }
     }
-    // QThread::msleep(cfcDef::MIN_CONTROL_INTERVAL);
 }
 
 void ExternalFan::adjustFan(int index,float power) {
@@ -206,17 +196,8 @@ void ExternalFan::adjustFan(int index,float power) {
             int targetSpeed=cfcUtils::calcTable(fanInfoList[i].table, fanInfoList[i].tableLen, value);
             setSpeed(fanInfoList[i].port, fanInfoList[i].num, std::clamp(targetSpeed,0,100));
             qDebug()<<"fan"<<i<<": "<<targetSpeed;
+            QThread::msleep(20);
         }
-
-        // int targetSpeed1=cfcUtils::calcTable(fanTables[0], fanTableLens[0], totalAvg);
-        // int targetSpeed2=cfcUtils::calcTable(fanTables[1], fanTableLens[1], totalAvg);
-        // int targetSpeed3=cfcUtils::calcTable(fanTables[2], fanTableLens[2], totalAvg);
-        // int targetSpeed4=cfcUtils::calcTable(fanTables[3], fanTableLens[3], cAvg);
-        // setSpeed(0, 1, std::clamp(targetSpeed1,0,100));
-        // setSpeed(0, 2, std::clamp(targetSpeed2,0,100));
-        // setSpeed(0, 3, std::clamp(targetSpeed3,0,100));
-        // setSpeed(1, 3, std::clamp(targetSpeed4,0,100));
-        // qDebug()<<cAvg<<"+"<<gAvg<<"="<<totalAvg<<"#1:"<<targetSpeed1<<"#2:"<<targetSpeed2<<"#3"<<targetSpeed3<<"#4"<<targetSpeed4;
 
         lastControlTime=currentTime;
     }
