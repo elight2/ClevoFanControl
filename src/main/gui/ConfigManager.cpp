@@ -10,28 +10,28 @@
 #include <qobject.h>
 
 void ConfigManager::readFromJson() {
-    cfcUtils::writeLog("loading config json");
+    emit CfcLogMgr::LOG_MGR->writeLog("loading config json");
 
     //create if not exist
     if(!configFile.exists()) {
-        cfcUtils::writeLog("file not exist, creating config json");
+        emit CfcLogMgr::LOG_MGR->writeLog("file not exist, creating config json");
         createConfigJson();
     }
     configJson=readJsonFile(configFile);
 
     //profiles
     this->profileCount=configJson["profiles"].size();
-    cfcUtils::writeLog("loading profiles, total: "+QString::number(this->profileCount));
+    emit CfcLogMgr::LOG_MGR->writeLog("loading profiles, total: "+QString::number(this->profileCount));
     for(auto &i:configJson["profiles"]) {
         //name
         fanProfile curProfile;
         curProfile.name=QString::fromStdString(i["name"]);
-        cfcUtils::writeLog("loading profile: "+curProfile.name);
+        emit CfcLogMgr::LOG_MGR->writeLog("loading profile: "+curProfile.name);
 
         //for each fan
         for(int j=0;j<2;j++) {
             //normal cfgs
-            cfcUtils::writeLog("loading normal args");
+            emit CfcLogMgr::LOG_MGR->writeLog("loading normal args");
             curProfile.args[j].pwrCount=i["fans"][j]["minSpeedPwrCount"];
             curProfile.args[j].operateInterval=i["fans"][j]["operateInterval"];
             curProfile.args[j].speedStep=i["fans"][j]["speedStep"];
@@ -39,22 +39,28 @@ void ConfigManager::readFromJson() {
             curProfile.args[j].slowDownTemp=i["fans"][j]["slowDownTemp"];
 
             //min speed
-            curProfile.args[j].minSpeedList.clear();
             nlohmann::json minSpeedData=i["fans"][j]["minSpeed"];
-            cfcUtils::writeLog("loading min speed args");
+            emit CfcLogMgr::LOG_MGR->writeLog("loading min speed args");
             if (minSpeedData.type()==nlohmann::json::value_t::array) { // auto mode
-                curProfile.args[j].minSpeed=minSpeedData.size();
-                cfcUtils::writeLog("using min speed table, with size of "+QString::number(curProfile.args[j].minSpeed));
-                for (auto k : minSpeedData)
-                    curProfile.args[j].minSpeedList.append((cfcUtils::curvePoint){k[0],k[1]});
+                curProfile.args[j].minSpeed=minSpeedData.size(); //get size
+                emit CfcLogMgr::LOG_MGR->writeLog("using min speed table, with size of "+QString::number(curProfile.args[j].minSpeed));
+                bool addPoint=false;
+                if (minSpeedData[0][0]!=0) { // no 0,0
+                    emit CfcLogMgr::LOG_MGR->writeLog("no point have power of 0W. adding 0,10");
+                    curProfile.args[j].minSpeed+=1; //len++
+                    addPoint=true;
+                }
+                curProfile.args[j].minSpeedList=new CfcUtils::curvePoint[curProfile.args[j].minSpeed]; //init table
+                if (addPoint)
+                    curProfile.args[j].minSpeedList[0]={0,10}; // add 0,10
 
-                cfcUtils::writeLog("no point have power of 0W. adding 0,10");
-                if (curProfile.args[j].minSpeedList[0].x!=0) // add 0,10
-                    curProfile.args[j].minSpeedList.prepend({0,10});
+                for (int k=0;k<minSpeedData.size();k++)
+                    curProfile.args[j].minSpeedList[addPoint ? k+1 : k]={minSpeedData[k][0],minSpeedData[k][1]};
             }
             else {//normal mode
-                cfcUtils::writeLog("using fixed min speed");
+                emit CfcLogMgr::LOG_MGR->writeLog("using fixed min speed");
                 curProfile.args[j].minSpeed=minSpeedData;
+                curProfile.args[j].minSpeedList=nullptr;
             }
         }
         fanProfiles.append(curProfile);
@@ -62,12 +68,12 @@ void ConfigManager::readFromJson() {
 
     //commands
     this->commandCount=configJson["commands"].size();
-    cfcUtils::writeLog("loading commands, total: "+QString::number(this->commandCount));
+    emit CfcLogMgr::LOG_MGR->writeLog("loading commands, total: "+QString::number(this->commandCount));
     commands.clear();
     for (const auto& [i,j] : configJson["commands"].items())
         commands.append({QString::fromStdString(i),QString::fromStdString(j)});
 
-    cfcUtils::writeLog("loading other options");
+    emit CfcLogMgr::LOG_MGR->writeLog("loading other options");
     //others
     this->profileInUse=configJson["profileInUse"];
     //
@@ -90,11 +96,11 @@ void ConfigManager::readFromJson() {
     this->gpuAutoDetectEnabled=configJson["gpuDetect"]["autoDetectEnabled"];
     this->gpuSysDir=((std::string)configJson["gpuDetect"]["gpuSysDir"]).c_str();
 
-    cfcUtils::writeLog("read config finish");
+    emit CfcLogMgr::LOG_MGR->writeLog("read config finish");
 }
 
 void ConfigManager::saveToJson() {
-    cfcUtils::writeLog("saving config");
+    emit CfcLogMgr::LOG_MGR->writeLog("saving config");
 
     //create json
     nlohmann::json oldConfigJson=configJson;
@@ -117,15 +123,22 @@ void ConfigManager::saveToJson() {
     
     writeJsonFile(configJson,configFile);
 
-    cfcUtils::writeLog("save config finish");
+    emit CfcLogMgr::LOG_MGR->writeLog("save config finish");
 }
 
 ConfigManager::ConfigManager() {
-    configFile.setFileName((QDir::currentPath() + QDir::separator() + cfcDef::CFG_DIR));
+    configFile.setFileName((QDir::currentPath() + QDir::separator() + CfcDef::CFG_DIR));
+}
+
+ConfigManager::~ConfigManager() {
+    for (auto i : fanProfiles) {
+        delete [] i.args[0].minSpeedList;
+        delete [] i.args[1].minSpeedList;
+    }
 }
 
 void ConfigManager::createConfigJson() {
-    QFile defaultConfigFile(QDir::currentPath() + QDir::separator() + cfcDef::DEFAULT_CFG_DIR);
+    QFile defaultConfigFile(QDir::currentPath() + QDir::separator() + CfcDef::DEFAULT_CFG_DIR);
     nlohmann::json defaultConfigJson=readJsonFile(defaultConfigFile);
 
     writeJsonFile(defaultConfigJson, configFile);

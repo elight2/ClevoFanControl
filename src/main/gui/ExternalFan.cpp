@@ -18,7 +18,7 @@
 #include "../defines.h"
 #include "nlohmann/json.hpp"
 
-const QString ExternalFan::EX_FAN_CFG_FILE_DIR="./ex_fan.json";
+const QString ExternalFan::EX_FAN_CFG_FILE_DIR="./data/ex_fan.json";
 const float ExternalFan::portInfo[2]={50.0,50.1};
 const QString ExternalFan::exFanLogFlag="EX_FAN: ";
 const int ExternalFan::minControlInterval=100;
@@ -51,7 +51,7 @@ void ExternalFan::initPort(QSerialPort &port,QString name) {
 
     port.close();
     if (!port.open(QIODevice::ReadWrite)) {
-        cfcUtils::writeLog(exFanLogFlag+"initPort: fail to open port: "+name+", err: "+port.errorString());
+        emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"initPort: fail to open port: "+name+", err: "+port.errorString());
     }
 }
 
@@ -106,14 +106,14 @@ void ExternalFan::setSpeed(int index, int num, int speed) {
     //write
     if (ports[index].error()==QSerialPort::NoError) { // normal
         if (!ports[index].isOpen()) { // open
-            cfcUtils::writeLog(exFanLogFlag+"port "+QString::number(index)+" no error but not open, reopening");
+            emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"port "+QString::number(index)+" no error but not open, reopening");
             ports[index].open(QIODevice::ReadWrite);
         } else { // write
             ports[index].write(data);
             ports[index].waitForBytesWritten();
         }
     } else { //fix error
-        cfcUtils::writeLog(exFanLogFlag+"port "+ports[index].portName()+" error: "+QString::number(ports[index].error())+", fixing");
+        emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"port "+ports[index].portName()+" error: "+QString::number(ports[index].error())+", fixing");
 
         //first close all ports
         for (int i=0;i<portCount;i++)
@@ -123,20 +123,22 @@ void ExternalFan::setSpeed(int index, int num, int speed) {
         for (int i=0;i<portCount;i++) {
             QString portName=searchPort(i);
             if (portName=="NOT_FOUND") {
-                cfcUtils::writeLog(exFanLogFlag+"port "+QString::number(i)+" not found when fixing error");
+                emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"port "+QString::number(i)+" not found when fixing error");
             } else {
                 ports[i].close();
                 ports[i].setPortName(portName);
                 ports[i].open(QIODevice::ReadWrite);
-                cfcUtils::writeLog(exFanLogFlag+"port "+QString::number(i)+" fixed");
+                emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"port "+QString::number(i)+" fixed");
             }
         }
     }
 }
 
-void ExternalFan::recordData(int index,float power) {
+void ExternalFan::recordData(int index,float power,bool useMaxSpeed) {
     if (!enabled)
         return;
+
+    this->maxSpeed=useMaxSpeed;
 
     //record
     pwrList[index-1].push_back(power);
@@ -146,15 +148,19 @@ void ExternalFan::recordData(int index,float power) {
 
 void ExternalFan::run() {
     //init
-    cfcUtils::writeLog(exFanLogFlag+"init ex fan");
+    emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"init ex fan");
 
     //read cfg
     QFile cfgFile(EX_FAN_CFG_FILE_DIR);
     cfgFile.open(QIODevice::ReadOnly);
-    nlohmann::json cfgJson=nlohmann::json::parse(cfgFile.readAll().toStdString());
-    cfgFile.close();
+    nlohmann::json cfgJson;
+    if (cfgFile.isOpen()) {
+        cfgJson=nlohmann::json::parse(cfgFile.readAll().toStdString());
+        cfgFile.close();
+        enabled=cfgJson["enabled"];
+    } else
+        enabled=false;
 
-    enabled=cfgJson["enabled"];
     if (!enabled)
         return;
 
@@ -162,7 +168,7 @@ void ExternalFan::run() {
     ports=new QSerialPort[portCount];
     for (int i=0;i<portCount;i++) {
         QString name=searchPort(i);
-        cfcUtils::writeLog(exFanLogFlag+"port"+QString::number(i)+": "+name);
+        emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"port"+QString::number(i)+": "+name);
         initPort(ports[i],name);
     }
 
@@ -174,12 +180,12 @@ void ExternalFan::run() {
         nlohmann::json::array_t pwrList=cfgJson["fans"][std::to_string(i)]["pwrList"];
         nlohmann::json::array_t speedList=cfgJson["fans"][std::to_string(i)]["speedList"];
         fanInfoList[i].tableLen=pwrList.size();
-        fanInfoList[i].table=new cfcUtils::curvePoint[fanInfoList[i].tableLen];
+        fanInfoList[i].table=new CfcUtils::curvePoint[fanInfoList[i].tableLen];
         for (int j=0;j<fanInfoList[i].tableLen;j++)
             fanInfoList[i].table[j]={pwrList[j],speedList[j]};
     }
 
-    cfcUtils::writeLog(exFanLogFlag+"ex fan init finish");
+    emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"ex fan init finish");
 
     while (!isInterruptionRequested()) {
         currentTime=QDateTime::currentMSecsSinceEpoch();
@@ -191,20 +197,25 @@ void ExternalFan::run() {
 
             for (int i=0;i<sizeof(fanInfoList)/sizeof(ExFanInfo);i++) {
                 int value=0;
-                switch (fanInfoList[i].pwrType) {
-                    case 0:
-                        value=cAvg+gAvg;
-                        break;
-                    case 1:
-                        value=cAvg;
-                        break;
-                    case 2:
-                        value=gAvg;
-                        break;
+                int targetSpeed=0;
+                if (maxSpeed)
+                    targetSpeed=100;
+                else {
+                    switch (fanInfoList[i].pwrType) {
+                        case 0:
+                            value=cAvg+gAvg;
+                            break;
+                        case 1:
+                            value=cAvg;
+                            break;
+                        case 2:
+                            value=gAvg;
+                            break;
+                    }
+                    value=std::clamp(value,0,value);
+                    targetSpeed=CfcUtils::calcTable(fanInfoList[i].table, fanInfoList[i].tableLen, value);
+                    targetSpeed=std::clamp(targetSpeed,0,100);
                 }
-                value=std::clamp(value,0,value);
-                int targetSpeed=cfcUtils::calcTable(fanInfoList[i].table, fanInfoList[i].tableLen, value);
-                targetSpeed=std::clamp(targetSpeed,0,100);
                 setSpeed(fanInfoList[i].port, fanInfoList[i].num, targetSpeed);
                 qDebug()<<"fan"<<i<<": "<<targetSpeed;
                 QThread::msleep(30);

@@ -14,13 +14,16 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     TrayIcon->show();
 
     //ex fan
+    #ifdef CFC_USE_EX_FAN
     exFan=new ExternalFan();
     exFan->start();
     QObject::connect(exFan,&ExternalFan::adjustFanSig,exFan,&ExternalFan::recordData);
+#endif
     
     cfgMgrToTray();
 
     //start controllers
+
     cpuFan=new FanController(config,this,1,monitor,exFan);
     gpuFan=new FanController(config,this,2,monitor,exFan);
     cpuFan->start();
@@ -44,10 +47,12 @@ ClevoFanControl::~ClevoFanControl() {
     delete gpuFan;
 
     //stop ex fan
+#ifdef CFC_USE_EX_FAN
     exFan->requestInterruption();
     exFan->wait();
     exFan->quit();
     delete exFan;
+#endif
 
     //delete profiles and commands
     for(QAction *i : profileActions)
@@ -62,7 +67,7 @@ ClevoFanControl::~ClevoFanControl() {
 }
 
 void ClevoFanControl::buildUi() {
-    cfcUtils::writeLog("building ui");
+    emit emit CfcLogMgr::LOG_MGR->writeLog("building ui");
 
     //tray main ui build
     TrayIcon = new QSystemTrayIcon(QIcon("ClevoFanControl.ico"), this);
@@ -123,7 +128,7 @@ void ClevoFanControl::buildUi() {
     TrayIcon->setContextMenu(trayMainMenu);
     TrayIcon->setToolTip("Clevo Fan Control");
 
-    cfcUtils::writeLog("build ui finish");
+    emit emit CfcLogMgr::LOG_MGR->writeLog("build ui finish");
 }
 
 void ClevoFanControl::initTrayEntry(QAction *&action,QString text, bool checkable) {

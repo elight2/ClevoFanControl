@@ -300,39 +300,25 @@ int FanController::getMinSpeed() {
     int result=0;
     fanArg *profileArgs=&(config->fanProfiles[config->profileInUse].args[index-1]);
 
-    if (profileArgs->minSpeedList.size()==0)
+    if (profileArgs->minSpeedList==nullptr)
         result=profileArgs->minSpeed;
     else {
         //avg
         float avgPower=std::accumulate(hwMonitor->lastPower.begin(),hwMonitor->lastPower.end(),0.0)/hwMonitor->lastPower.size();
 
-        bool found=false;
-        for (int i=0;i<profileArgs->minSpeedList.size();i++) {
-            if (avgPower<profileArgs->minSpeedList[i].x) {
-                cfcUtils::curvePoint a=profileArgs->minSpeedList[i-1];
-                cfcUtils::curvePoint b=profileArgs->minSpeedList[i];
-                result=a.y+(b.y-a.y)*((avgPower-a.x)/(b.x-a.x));
-                found=true;
-                break;
-            }
-        }
-
-        if (!found)
-            result=profileArgs->minSpeedList.last().y;
-
-        // qDebug()<<"Fan "<<index<<" pwr "<<avgPower<<" minSpeed "<<result;
+        result=CfcUtils::calcTable(profileArgs->minSpeedList, profileArgs->minSpeed, avgPower);
     }
 
     // gpu
     if (hwMonitor->shouldMonitorGpu)
-        result=std::clamp(result,cfcDef::GPU_MIN_FAN_SPEED,100);
+        result=std::clamp(result,CfcDef::GPU_MIN_FAN_SPEED,100);
     return result;
 }
 
 void FanController::run() {
     qDebug()<<"FanController start fan: "<<index;
     this->hwMonitor->start();
-    this->accessor.setFanSpeed(cfcDef::DEFAULT_SPEED, this->index);
+    this->accessor.setFanSpeed(CfcDef::DEFAULT_SPEED, this->index);
 
     // loop
     while(!isInterruptionRequested()) {
@@ -379,12 +365,12 @@ void FanController::run() {
             emit requireUpdateMonitor1(index,targetSpeed, rpm);
 
 #ifdef CFC_USE_EX_FAN
-            emit exFan->adjustFanSig(this->index,this->hwMonitor->power);
+            emit exFan->adjustFanSig(this->index,this->hwMonitor->power,config->maxSpeed);
 #endif
             
             lastControlTime=currentTime;
         }
-        QThread::msleep(cfcDef::MIN_CONTROL_INTERVAL);
+        QThread::msleep(CfcDef::MIN_CONTROL_INTERVAL);
     }
     accessor.setFanSpeed(-1,index); //finalize auto
     this->hwMonitor->stop();

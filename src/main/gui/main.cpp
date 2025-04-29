@@ -3,6 +3,7 @@
 #include <QtCore/qdebug.h>
 #include <QtWidgets/qstylefactory.h>
 #include <qcontainerfwd.h>
+#include <qdir.h>
 #include <qlogging.h>
 #include <qexception.h>
 #include <exception>
@@ -15,9 +16,11 @@
 
 int main(int argc, char *argv[])
 {
-    cfcUtils::writeLog("cfc launching");
-
     try {
+        QDir().mkpath(CfcDef::DATA_DIR);
+        CfcLogMgr::LOG_MGR=new CfcLogMgr;
+        emit CfcLogMgr::LOG_MGR->writeLog("cfc launching");
+
         //suid
         #ifdef __linux__
         QCoreApplication::setSetuidAllowed(true);
@@ -27,16 +30,18 @@ int main(int argc, char *argv[])
         ClevoFanControl *cfc=new ClevoFanControl();
         int ret = 0;
 
-        cfcUtils::writeLog("cfc init finish, entering loop");
+        emit CfcLogMgr::LOG_MGR->writeLog("cfc init finish, entering loop");
         ret = app.exec();
 
         delete cfc;
+
+        emit CfcLogMgr::LOG_MGR->writeLog("cfc exiting");
+        delete CfcLogMgr::LOG_MGR;
+
         return ret;
     } catch (QException &exc) {
-        cfcUtils::writeLog(QString("QException: ")+exc.what());
+        emit CfcLogMgr::LOG_MGR->writeLog(QString("QException: ")+exc.what());
     } catch (std::exception &exc) {
-        cfcUtils::writeLog(QString("std::exception: ")+exc.what());
+        emit CfcLogMgr::LOG_MGR->writeLog(QString("std::exception: ")+exc.what());
     }
-
-    cfcUtils::writeLog("cfc exiting");
 }

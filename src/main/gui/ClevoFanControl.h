@@ -55,9 +55,7 @@ private:
     FanController *cpuFan=nullptr;
     FanController *gpuFan=nullptr;
 
-#ifdef CFC_USE_EX_FAN
     ExternalFan *exFan=nullptr;
-#endif
 
     void buildUi();
     void initTrayEntry(QAction *&action,QString text, bool checkable);

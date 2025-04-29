@@ -1,0 +1,93 @@
+{
+    "commands": {
+        "GPU-1200": "nvidia-smi --lock-gpu-clocks=0,1200",
+        "GPU-rgc": "nvidia-smi --reset-gpu-clocks"
+    },
+    "gpuDetect": {
+        "autoDetectEnabled": false,
+        "gpuSysDir": "/sys/bus/pci/devices/0000:01:00.0/power/runtime_status",
+        "monitorGpu": false
+    },
+    "maxSpeed": false,
+    "monitorIntervals": [
+        800,
+        800
+    ],
+    "profileInUse": 0,
+    "profiles": [
+        {
+            "fans": [
+                {
+                    "minSpeed": [
+                        [
+                            0,
+                            20
+                        ],
+                        [
+                            30,
+                            20
+                        ],
+                        [
+                            35,
+                            35
+                        ],
+                        [
+                            45,
+                            45
+                        ],
+                        [
+                            80,
+                            45
+                        ]
+                    ],
+                    "minSpeedPwrCount": 10,
+                    "operateInterval": 500,
+                    "slowDownTemp": 78,
+                    "speedStep": 1,
+                    "speedUpTemp": 81
+                },
+                {
+                    "minSpeed": [
+                        [
+                            0,
+                            20
+                        ],
+                        [
+                            30,
+                            20
+                        ],
+                        [
+                            35,
+                            35
+                        ],
+                        [
+                            45,
+                            45
+                        ],
+                        [
+                            80,
+                            45
+                        ]
+                    ],
+                    "minSpeedPwrCount": 10,
+                    "operateInterval": 500,
+                    "slowDownTemp": 73,
+                    "speedStep": 1,
+                    "speedUpTemp": 75
+                }
+            ],
+            "name": "general"
+        }
+    ],
+    "speedLimit": [
+        false,
+        80,
+        80
+    ],
+    "staticSpeed": [
+        false,
+        80,
+        80
+    ],
+    "useClevoAuto": false
+}

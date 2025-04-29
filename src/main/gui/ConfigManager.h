@@ -12,7 +12,7 @@ struct fanArg {
     int operateInterval;
     int speedStep;
     int minSpeed; // for normal mode, speed value, for auto mode, list size
-    QList<cfcUtils::curvePoint> minSpeedList;
+    CfcUtils::curvePoint *minSpeedList;
     int pwrCount;
     int speedUpTemp;
     int slowDownTemp;
@@ -47,6 +47,7 @@ public:
     QString gpuSysDir;
 
     ConfigManager();
+    ~ConfigManager();
     void readFromJson();
     void saveToJson();
     void createConfigJson();

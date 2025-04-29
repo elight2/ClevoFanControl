@@ -17,7 +17,7 @@ struct ExFanInfo {
     int num;
     int pwrType;
     int tableLen;
-    cfcUtils::curvePoint *table;
+    CfcUtils::curvePoint *table;
 };
 
 class ExternalFan : public QThread {
@@ -27,7 +27,7 @@ public:
     void run();
     ExternalFan();
     ~ExternalFan();
-    void recordData(int index,float power);
+    void recordData(int index,float power,bool useMaxSpeed);
 
 private:
     static const QString EX_FAN_CFG_FILE_DIR;
@@ -45,6 +45,7 @@ private:
 
     int pwrListLen;
     bool enabled=false;
+    bool maxSpeed=false;
 
     std::vector<float> pwrList[2];
 
@@ -54,7 +55,7 @@ private:
     QString searchPort(int index);
 
 signals:
-    void adjustFanSig(int index,float power);
+    void adjustFanSig(int index,float power,bool useMaxSpeed);
 };
 
 #endif

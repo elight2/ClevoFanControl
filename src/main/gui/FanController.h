@@ -92,7 +92,7 @@ private:
     ClevoEcAccessor accessor;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
-    int curSpeed=cfcDef::DEFAULT_SPEED;
+    int curSpeed=CfcDef::DEFAULT_SPEED;
     int curMinSafeSpeed=0;
     int rpm=0;
     double power=0;

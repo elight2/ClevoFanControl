@@ -1,14 +1,15 @@
 #include "utils.h"
 #include "defines.h"
+#include <qimage.h>
 #include <qlogging.h>
 #include <qdebug.h>
 #include <qdatetime.h>
 #include <qobject.h>
 #include <stdexcept>
 
-bool cfcUtils::logFirstTime=true;
+CfcLogMgr *CfcLogMgr::LOG_MGR=nullptr;
 
-int cfcUtils::calcTable(const curvePoint table[],int count,int value) {
+int CfcUtils::calcTable(const curvePoint table[],int count,int value) {
     if (value<0)
         return table[0].y;
 
@@ -40,17 +41,18 @@ int cfcUtils::calcTable(const curvePoint table[],int count,int value) {
         return table[index1].y+float(table[index2].y-table[index1].y)*(value-table[index1].x)/(table[index2].x-table[index1].x);
 }
 
-void cfcUtils::writeLog(QString info) {
-    QFile logFile(cfcDef::LOG_DIR);
-    if(!logFile.exists() || logFirstTime) {
-        logFile.open(QIODeviceBase::WriteOnly);
-        logFile.close();
-        logFirstTime=false;
-    }
+CfcLogMgr::CfcLogMgr() {
+    logFile.setFileName(CfcDef::LOG_DIR);
+    logFile.open(QIODevice::WriteOnly|QIODevice::Unbuffered);
+    QObject::connect(this,&CfcLogMgr::writeLog,this,&CfcLogMgr::writeLogFunc);
+}
 
-    logFile.open(QIODeviceBase::Append);
-    logFile.write(QString("%1 %2\n").arg(QDateTime::currentDateTime().toString(),info).toUtf8());
+CfcLogMgr::~CfcLogMgr() {
     logFile.close();
+}
+
+void CfcLogMgr::writeLogFunc(QString info) {
+    logFile.write(QString("%1 %2\n").arg(QDateTime::currentDateTime().toString(),info).toUtf8());
 
     qDebug()<<"LOG:"<<info;
 }
