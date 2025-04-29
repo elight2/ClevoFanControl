@@ -6,22 +6,22 @@
         "0":{
             "pwrType":0,
             "pwrList":[0,90,120,260],
-            "speedList":[100,100,100,100]
+            "speedList":[25,25,35,45]
         },
         "1":{
             "pwrType":0,
             "pwrList":[0,90,120,260],
-            "speedList":[20,20,35,50]
+            "speedList":[20,20,30,45]
         },
         "2":{
             "pwrType":0,
             "pwrList":[0,90,120,260],
-            "speedList":[20,20,35,50]
+            "speedList":[20,20,30,45]
         },
         "3":{
             "pwrType":1,
             "pwrList":[0,45,120,150],
-            "speedList":[10,10,50,100]
+            "speedList":[10,10,45,100]
         }
     }
 }

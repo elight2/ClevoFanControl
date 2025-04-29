@@ -8,6 +8,7 @@
 #include <qtmetamacros.h>
 #include <vector>
 #include <qdatetime.h>
+#include <qthread.h>
 
 #include "../utils.h"
 
@@ -19,13 +20,14 @@ struct ExFanInfo {
     cfcUtils::curvePoint *table;
 };
 
-class ExternalFan : public QObject {
+class ExternalFan : public QThread {
 Q_OBJECT
 
 public:
+    void run();
     ExternalFan();
     ~ExternalFan();
-    void adjustFan(int index,float power);
+    void recordData(int index,float power);
 
 private:
     static const QString EX_FAN_CFG_FILE_DIR;
@@ -33,7 +35,9 @@ private:
     static const float portInfo[2];
     static const QString ch341Describe;
     static const QString exFanLogFlag;
-    QSerialPort ports[2];
+    static const int minControlInterval;
+    static const int portCount;
+    QSerialPort *ports;
 
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;

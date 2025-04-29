@@ -38,8 +38,8 @@ public:
     HardwareMonitor(int index, ConfigManager *cfg, QObject *parent);
     void stop();
 
-    std::atomic_int temperature;
-    std::atomic<double> power;
+    std::atomic_int temperature=0;
+    std::atomic<double> power=0;
     static std::atomic_bool shouldMonitorGpu;
     QList<float> lastPower;
 
@@ -90,8 +90,6 @@ private:
     HardwareMonitor *hwMonitor;
     CFCmonitor *appMonitor;
     ClevoEcAccessor accessor;
-    std::atomic_bool shouldRun=true;
-    std::atomic_bool running=false;
     qint64 lastControlTime = 0;
     qint64 currentTime = 0;
     int curSpeed=cfcDef::DEFAULT_SPEED;

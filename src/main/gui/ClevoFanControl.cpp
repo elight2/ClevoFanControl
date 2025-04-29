@@ -15,7 +15,8 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
 
     //ex fan
     exFan=new ExternalFan();
-    QObject::connect(exFan,&ExternalFan::adjustFanSig,exFan,&ExternalFan::adjustFan);
+    exFan->start();
+    QObject::connect(exFan,&ExternalFan::adjustFanSig,exFan,&ExternalFan::recordData);
     
     cfgMgrToTray();
 
@@ -33,11 +34,19 @@ ClevoFanControl::~ClevoFanControl() {
     qInfo()<<"cfc deconstructing";
 
     //stop controller
-    cpuFan->stop();
-    gpuFan->stop();
+    cpuFan->requestInterruption();
+    gpuFan->requestInterruption();
+    cpuFan->wait();
+    gpuFan->wait();
+    cpuFan->quit();
+    gpuFan->quit();
     delete cpuFan;
     delete gpuFan;
 
+    //stop ex fan
+    exFan->requestInterruption();
+    exFan->wait();
+    exFan->quit();
     delete exFan;
 
     //delete profiles and commands

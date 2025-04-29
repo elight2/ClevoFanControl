@@ -50,7 +50,7 @@ void CpuPowerMonitor::rdmsr(int pos, char *dest) {
 
 CpuPowerMonitor::CpuPowerMonitor(int index) {
     this->cpuIndex=index;
-    this->lastQueryTime=std::chrono::system_clock::now().time_since_epoch().count();
+    this->lastQueryTime=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     std::string msrDir="/dev/cpu/"+std::to_string(cpuIndex)+"/msr";
     strcpy(cpuMsrDir, msrDir.c_str());
     this->lastEnergy=getCurEnergy();
@@ -296,14 +296,6 @@ FanController::~FanController() {
     qDebug()<<"FanController general deconstruct";
 }
 
-void FanController::stop() {
-    this->shouldRun=false;
-    while(running) {
-        QThread::msleep(100);
-        QCoreApplication::processEvents();
-    }
-}
-
 int FanController::getMinSpeed() {
     int result=0;
     fanArg *profileArgs=&(config->fanProfiles[config->profileInUse].args[index-1]);
@@ -339,12 +331,11 @@ int FanController::getMinSpeed() {
 
 void FanController::run() {
     qDebug()<<"FanController start fan: "<<index;
-    running=true;
     this->hwMonitor->start();
     this->accessor.setFanSpeed(cfcDef::DEFAULT_SPEED, this->index);
 
     // loop
-    while(shouldRun) {
+    while(!isInterruptionRequested()) {
         currentTime=QDateTime::currentMSecsSinceEpoch();
         fanArg *curProfileArgs=&(config->fanProfiles[config->profileInUse].args[index-1]);
         if(currentTime>lastControlTime+curProfileArgs->operateInterval) {
@@ -397,7 +388,6 @@ void FanController::run() {
     }
     accessor.setFanSpeed(-1,index); //finalize auto
     this->hwMonitor->stop();
-    running=false;
     qDebug()<<"FanController run finish "<<index;
 }
 
