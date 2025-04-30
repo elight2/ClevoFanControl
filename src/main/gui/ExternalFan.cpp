@@ -13,6 +13,7 @@
 #include <qthread.h>
 #include <qserialport.h>
 #include <qserialportinfo.h>
+#include <qtmetamacros.h>
 #include <stdexcept>
 #include <string>
 #include "../defines.h"
@@ -109,8 +110,14 @@ void ExternalFan::setSpeed(int index, int num, int speed) {
             emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"port "+QString::number(index)+" no error but not open, reopening");
             ports[index].open(QIODevice::ReadWrite);
         } else { // write
+            ports[index].clear();
             ports[index].write(data);
             ports[index].waitForBytesWritten();
+            ports[index].waitForReadyRead();
+            QString res=ports[index].readAll();
+            ports[index].clear();
+            if (res=="FAIL\n")
+                emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"warn: port "+ports[index].portName()+" num "+QString::number(num)+" failed to apply speed");
         }
     } else { //fix error
         emit CfcLogMgr::LOG_MGR->writeLog(exFanLogFlag+"port "+ports[index].portName()+" error: "+QString::number(ports[index].error())+", fixing");
@@ -218,7 +225,7 @@ void ExternalFan::run() {
                 }
                 setSpeed(fanInfoList[i].port, fanInfoList[i].num, targetSpeed);
                 qDebug()<<"fan"<<i<<": "<<targetSpeed;
-                QThread::msleep(30);
+                QThread::msleep(80);
             }
 
             lastControlTime=currentTime;
