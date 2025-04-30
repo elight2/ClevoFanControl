@@ -309,9 +309,6 @@ int FanController::getMinSpeed() {
         result=CfcUtils::calcTable(profileArgs->minSpeedList, profileArgs->minSpeed, avgPower);
     }
 
-    // gpu
-    if (hwMonitor->shouldMonitorGpu)
-        result=std::clamp(result,CfcDef::GPU_MIN_FAN_SPEED,100);
     return result;
 }
 
