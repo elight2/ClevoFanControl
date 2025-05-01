@@ -84,20 +84,13 @@ HardwareMonitor::HardwareMonitor(int index, ConfigManager *cfg, QObject *parent)
         this->lastPower.append(0.0);
 }
 
-void HardwareMonitor::stop() {
-    this->shouldRun=false;
-    while(this->running)
-        QThread::msleep(100);
-}
-
 void HardwareMonitor::run() {
     qDebug()<<"HardwareMonitor start fan: "<<index;
-    this->running=true;
 
     if(index==1)
         this->cmonitor=new CpuPowerMonitor(0);
 
-    while(this->shouldRun) {
+    while(!isInterruptionRequested()) {
         //get values
         if(index==1) {
             this->temperature=getcTemp();
@@ -123,7 +116,6 @@ void HardwareMonitor::run() {
     if(index==1)
         delete this->cmonitor;
 
-    this->running=false;
     qDebug()<<"HardwareMonitor finish fan: "<<index;
 }
 
@@ -370,7 +362,9 @@ void FanController::run() {
         QThread::msleep(CfcDef::MIN_CONTROL_INTERVAL);
     }
     accessor.setFanSpeed(-1,index); //finalize auto
-    this->hwMonitor->stop();
+    this->hwMonitor->requestInterruption();
+    this->hwMonitor->wait();
+    this->hwMonitor->quit();
     qDebug()<<"FanController run finish "<<index;
 }
 

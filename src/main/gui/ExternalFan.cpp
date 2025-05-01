@@ -226,11 +226,10 @@ void ExternalFan::run() {
                 }
                 setSpeed(fanInfoList[i].port, fanInfoList[i].num, targetSpeed);
                 qDebug()<<"fan"<<i<<": "<<targetSpeed;
-                QThread::msleep(80);
+                QThread::msleep(200);
             }
 
             lastControlTime=currentTime;
         }
-        QThread::msleep(ExternalFan::minControlInterval);
     }
 }

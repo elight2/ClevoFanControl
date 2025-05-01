@@ -36,7 +36,6 @@ Q_OBJECT
 
 public:
     HardwareMonitor(int index, ConfigManager *cfg, QObject *parent);
-    void stop();
 
     std::atomic_int temperature=0;
     std::atomic<double> power=0;
@@ -61,8 +60,6 @@ private:
     int index;
     ConfigManager *cfg;
     CpuPowerMonitor *cmonitor;
-    std::atomic_bool shouldRun=true;
-    std::atomic_bool running=true;
     qint64 gpuCheckPauseTime=0;
     bool gpuCheckPaused=false;
 

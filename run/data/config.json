@@ -1,17 +1,24 @@
 {
     "commands": {
+        "CPU-26": "cpupower frequency-set --max 2600000",
+        "CPU-44": "cpupower frequency-set --max 4400000",
+        "CPU-conservative": "cpupower frequency-set -g conservative",
+        "CPU-ondemand": "cpupower frequency-set -g ondemand",
+        "CPU-performance": "cpupower frequency-set -g performance",
+        "CPU-powersave": "cpupower frequency-set -g powersave",
         "GPU-1200": "nvidia-smi --lock-gpu-clocks=0,1200",
+        "GPU-800": "nvidia-smi --lock-gpu-clocks=0,800",
         "GPU-rgc": "nvidia-smi --reset-gpu-clocks"
     },
     "gpuDetect": {
-        "autoDetectEnabled": false,
+        "autoDetectEnabled": true,
         "gpuSysDir": "/sys/bus/pci/devices/0000:01:00.0/power/runtime_status",
-        "monitorGpu": false
+        "monitorGpu": true
     },
     "maxSpeed": false,
     "monitorIntervals": [
-        800,
-        800
+        500,
+        500
     ],
     "profileInUse": 0,
     "profiles": [
@@ -21,55 +28,47 @@
                     "minSpeed": [
                         [
                             0,
-                            20
+                            15
                         ],
                         [
-                            30,
-                            20
-                        ],
-                        [
-                            35,
-                            35
-                        ],
-                        [
-                            45,
-                            45
+                            40,
+                            15
                         ],
                         [
                             80,
-                            45
+                            40
+                        ],
+                        [
+                            100,
+                            43
                         ]
                     ],
-                    "minSpeedPwrCount": 10,
+                    "minSpeedPwrCount": 15,
                     "operateInterval": 500,
-                    "slowDownTemp": 78,
+                    "slowDownTemp": 81,
                     "speedStep": 1,
-                    "speedUpTemp": 81
+                    "speedUpTemp": 83
                 },
                 {
                     "minSpeed": [
                         [
                             0,
-                            20
+                            14
                         ],
                         [
-                            30,
-                            20
-                        ],
-                        [
-                            35,
-                            35
-                        ],
-                        [
-                            45,
-                            45
+                            15,
+                            14
                         ],
                         [
                             80,
-                            45
+                            29
+                        ],
+                        [
+                            105,
+                            35
                         ]
                     ],
-                    "minSpeedPwrCount": 10,
+                    "minSpeedPwrCount": 15,
                     "operateInterval": 500,
                     "slowDownTemp": 73,
                     "speedStep": 1,
@@ -80,14 +79,14 @@
         }
     ],
     "speedLimit": [
-        false,
+        true,
         80,
-        80
+        90
     ],
     "staticSpeed": [
         false,
-        80,
-        80
+        10,
+        14
     ],
     "useClevoAuto": false
 }
