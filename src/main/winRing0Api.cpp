@@ -3,6 +3,7 @@
 std::atomic<HMODULE> winRing0Api::dll=NULL;
 std::atomic_bool winRing0Api::apiInit=false;
 
+_GetDllStatus GetDllStatus;
 _InitializeOls InitializeOls;
 _DeinitializeOls DeinitializeOls;
 _ReadIoPortByte ReadIoPortByte;
@@ -16,6 +17,7 @@ BOOL winRing0Api::initApi() {
     WriteIoPortByte =		(_WriteIoPortByte)		GetProcAddress (dll, "WriteIoPortByte");
     InitializeOls =			(_InitializeOls)		GetProcAddress (dll, "InitializeOls");
 	DeinitializeOls =		(_DeinitializeOls)		GetProcAddress (dll, "DeinitializeOls");
+	GetDllStatus =	    	(_GetDllStatus)		    GetProcAddress (dll, "GetDllStatus");
 
     return InitializeOls();
 }
@@ -35,4 +37,8 @@ BOOL winRing0Api::deinitApi() {
 
 		return result;
     }
+}
+
+DWORD winRing0Api::getDllStatus() {
+	return GetDllStatus();
 }

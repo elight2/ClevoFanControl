@@ -34,7 +34,7 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
 }
 
 ClevoFanControl::~ClevoFanControl() {
-    qInfo()<<"cfc deconstructing";
+    CfcLogMgr::LOG_MGR->writeLog("cfc deconstructing");
 
     //stop controller
     cpuFan->requestInterruption();
@@ -45,6 +45,7 @@ ClevoFanControl::~ClevoFanControl() {
     gpuFan->quit();
     delete cpuFan;
     delete gpuFan;
+    CfcLogMgr::LOG_MGR->writeLog("fan controllers stopped");
 
     //stop ex fan
 #ifdef CFC_USE_EX_FAN
@@ -52,6 +53,7 @@ ClevoFanControl::~ClevoFanControl() {
     exFan->wait();
     exFan->quit();
     delete exFan;
+    CfcLogMgr::LOG_MGR->writeLog("ex fan controllers stopped");
 #endif
 
     //delete profiles and commands
@@ -62,7 +64,7 @@ ClevoFanControl::~ClevoFanControl() {
 
     config->saveToJson();
 
-    qInfo()<<"cfc deconstruction finish";
+    CfcLogMgr::LOG_MGR->writeLog("cfc deconstruction finish");
     return;
 }
 

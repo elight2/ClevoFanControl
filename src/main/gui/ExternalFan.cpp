@@ -219,7 +219,8 @@ void ExternalFan::run() {
                             value=gAvg;
                             break;
                     }
-                    value=std::clamp(value,0,value);
+                    if (value<0)
+                        value=0;
                     targetSpeed=CfcUtils::calcTable(fanInfoList[i].table, fanInfoList[i].tableLen, value);
                     targetSpeed=std::clamp(targetSpeed,0,100);
                 }

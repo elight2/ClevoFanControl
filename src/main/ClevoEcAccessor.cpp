@@ -2,6 +2,7 @@
 #include <atomic>
 #include <iostream>
 #include <iterator>
+#include <string>
 
 #ifdef __linux__
 #include <sys/io.h>
@@ -50,7 +51,8 @@ ClevoEcAccessor::ClevoEcAccessor() {
         //init IO
 #ifdef _WIN32
         BOOL WinRing0result=winRing0Api::initApi();
-        stdLog("InitializeOls result: "+WinRing0result);
+        stdLog("InitializeOls(): "+std::to_string(WinRing0result));
+        stdLog("GetDllStatus(): "+std::to_string(winRing0Api::getDllStatus()));
 #elif __linux__
         ioperm(0x62, 1, 1);
         ioperm(0x66, 1, 1);
