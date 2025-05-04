@@ -2,6 +2,8 @@
 
 #include "../utils.h"
 #include "ExternalFan.h"
+#include <qcoreapplication.h>
+#include <qlogging.h>
 #include <qobject.h>
 
 ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
@@ -33,16 +35,18 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     return;
 }
 
-ClevoFanControl::~ClevoFanControl() {
-    CfcLogMgr::LOG_MGR->writeLog("cfc deconstructing");
-
+void ClevoFanControl::deinit() {
     //stop controller
     cpuFan->requestInterruption();
-    gpuFan->requestInterruption();
-    cpuFan->wait();
-    gpuFan->wait();
+    while (cpuFan->isRunning())
+        QCoreApplication::processEvents();
     cpuFan->quit();
+    qDebug()<<"cpuFan quit";
+    gpuFan->requestInterruption();
+    while (gpuFan->isRunning())
+        QCoreApplication::processEvents();
     gpuFan->quit();
+    qDebug()<<"gpuFan quit";
     delete cpuFan;
     delete gpuFan;
     CfcLogMgr::LOG_MGR->writeLog("fan controllers stopped");
@@ -56,6 +60,12 @@ ClevoFanControl::~ClevoFanControl() {
     CfcLogMgr::LOG_MGR->writeLog("ex fan controllers stopped");
 #endif
 
+    QCoreApplication::quit();
+}
+
+ClevoFanControl::~ClevoFanControl() {
+    CfcLogMgr::LOG_MGR->writeLog("cfc deconstructing");
+
     //delete profiles and commands
     for(QAction *i : profileActions)
         delete i;
@@ -63,13 +73,14 @@ ClevoFanControl::~ClevoFanControl() {
         delete i;
 
     config->saveToJson();
+    delete config;
 
     CfcLogMgr::LOG_MGR->writeLog("cfc deconstruction finish");
     return;
 }
 
 void ClevoFanControl::buildUi() {
-    emit emit CfcLogMgr::LOG_MGR->writeLog("building ui");
+    emit CfcLogMgr::LOG_MGR->writeLog("building ui");
 
     //tray main ui build
     TrayIcon = new QSystemTrayIcon(QIcon("ClevoFanControl.ico"), this);
@@ -121,7 +132,7 @@ void ClevoFanControl::buildUi() {
     configWindow = new CFCconfig(nullptr, config);
 
     //other connects
-    QObject::connect(trayExitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+    QObject::connect(trayExitAction, &QAction::triggered, qApp, [this]()->void{deinit();});
     QObject::connect(trayMonitorAction, &QAction::triggered, this, [this]() { monitor->show(); });
     QObject::connect(trayConfigAction, &QAction::triggered, this, [this]() { configWindow->show(); });
     QObject::connect(configWindow, &CFCconfig::cfgWindowUpdate, this, &ClevoFanControl::cfgMgrToTray);
@@ -130,7 +141,7 @@ void ClevoFanControl::buildUi() {
     TrayIcon->setContextMenu(trayMainMenu);
     TrayIcon->setToolTip("Clevo Fan Control");
 
-    emit emit CfcLogMgr::LOG_MGR->writeLog("build ui finish");
+    emit CfcLogMgr::LOG_MGR->writeLog("build ui finish");
 }
 
 void ClevoFanControl::initTrayEntry(QAction *&action,QString text, bool checkable) {

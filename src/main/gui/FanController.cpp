@@ -105,10 +105,8 @@ void HardwareMonitor::run() {
                 this->power=0;
             }
         }
-
         this->lastPower.append(this->power > 0 ? this->power.load() : 0);
         this->lastPower.removeFirst();
-
         emit requireUpdateMonitor2(this->index, this->temperature, this->power);
         QThread::msleep(cfg->monitorIntervals[this->index-1]);
     }
@@ -161,7 +159,10 @@ double HardwareMonitor::getgPower() {
         for (int i=0;i<2;i++) {
             QStringList list;
             list=nvsmiOutputParser({"-q","--display=POWER"}, flags[i]);
-            res[i]=list[0].trimmed().mid(0,list[0].size()-2).toDouble();
+            if (list.size()==0)
+                res[i]=0;
+            else
+                res[i]=list[0].trimmed().mid(0,list[0].size()-2).toDouble();
         }
         
         return std::max(res[0],res[1]);
@@ -365,6 +366,7 @@ void FanController::run() {
     this->hwMonitor->requestInterruption();
     this->hwMonitor->wait();
     this->hwMonitor->quit();
+    qDebug()<<"hwMonitor quit "<<index;
     qDebug()<<"FanController run finish "<<index;
 }
 

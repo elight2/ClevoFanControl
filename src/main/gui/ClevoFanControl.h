@@ -28,6 +28,7 @@ Q_OBJECT
 public:
     ClevoFanControl(QWidget *parent = nullptr);
     ~ClevoFanControl();
+    void deinit();
 
 private:
     QDir CFCpath = QDir::current();

@@ -5,23 +5,23 @@
     "fans":{
         "0":{
             "pwrType":0,
-            "pwrList":[0,90,120,260],
-            "speedList":[25,25,30,40]
+            "pwrList":[0,90,260],
+            "speedList":[25,25,40]
         },
         "1":{
             "pwrType":0,
-            "pwrList":[0,90,120,260],
-            "speedList":[20,20,30,45]
+            "pwrList":[0,60,90,260],
+            "speedList":[20,20,25,45]
         },
         "2":{
             "pwrType":0,
-            "pwrList":[0,90,120,260],
-            "speedList":[20,20,30,45]
+            "pwrList":[0,60,90,260],
+            "speedList":[20,20,25,45]
         },
         "3":{
             "pwrType":1,
-            "pwrList":[0,45,80,120,150],
-            "speedList":[10,10,30,43,100]
+            "pwrList":[0,45,80,120],
+            "speedList":[10,10,30,40]
         }
     }
 }
