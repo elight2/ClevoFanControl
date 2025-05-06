@@ -1,29 +1,22 @@
-Sun May 4 10:28:48 2025 cfc launching
-Sun May 4 10:28:48 2025 loading config json
-Sun May 4 10:28:48 2025 loading profiles, total: 1
-Sun May 4 10:28:48 2025 loading profile: general
-Sun May 4 10:28:48 2025 loading normal args
-Sun May 4 10:28:48 2025 loading min speed args
-Sun May 4 10:28:48 2025 using min speed table, with size of 3
-Sun May 4 10:28:48 2025 loading normal args
-Sun May 4 10:28:48 2025 loading min speed args
-Sun May 4 10:28:48 2025 using min speed table, with size of 4
-Sun May 4 10:28:48 2025 loading commands, total: 9
-Sun May 4 10:28:48 2025 loading other options
-Sun May 4 10:28:48 2025 read config finish
-Sun May 4 10:28:48 2025 building ui
-Sun May 4 10:28:48 2025 build ui finish
-Sun May 4 10:28:48 2025 cfc init finish, entering loop
-Sun May 4 10:28:48 2025 EX_FAN: init ex fan
-Sun May 4 10:28:48 2025 EX_FAN: port0: ttyUSB1
-Sun May 4 10:28:48 2025 EX_FAN: port1: ttyUSB0
-Sun May 4 10:28:48 2025 EX_FAN: ex fan init finish
-Sun May 4 10:29:54 2025 saving config
-Sun May 4 10:29:54 2025 save config finish
-Sun May 4 10:29:55 2025 fan controllers stopped
-Sun May 4 10:29:55 2025 ex fan controllers stopped
-Sun May 4 10:29:55 2025 cfc deconstructing
-Sun May 4 10:29:55 2025 saving config
-Sun May 4 10:29:55 2025 save config finish
-Sun May 4 10:29:55 2025 cfc deconstruction finish
-Sun May 4 10:29:55 2025 cfc exiting
+Tue May 6 23:45:35 2025 cfc launching
+Tue May 6 23:45:35 2025 loading config json
+Tue May 6 23:45:35 2025 loading profiles, total: 1
+Tue May 6 23:45:35 2025 loading profile: general
+Tue May 6 23:45:35 2025 loading normal args
+Tue May 6 23:45:35 2025 loading min speed args
+Tue May 6 23:45:35 2025 using min speed table, with size of 3
+Tue May 6 23:45:35 2025 loading normal args
+Tue May 6 23:45:35 2025 loading min speed args
+Tue May 6 23:45:35 2025 using min speed table, with size of 5
+Tue May 6 23:45:35 2025 loading commands, total: 9
+Tue May 6 23:45:35 2025 loading other options
+Tue May 6 23:45:35 2025 read config finish
+Tue May 6 23:45:35 2025 building ui
+Tue May 6 23:45:35 2025 build ui finish
+Tue May 6 23:45:35 2025 cfc init finish, entering loop
+Tue May 6 23:45:35 2025 EX_FAN: init ex fan
+Tue May 6 23:45:36 2025 EX_FAN: port0: ttyUSB1
+Tue May 6 23:45:36 2025 EX_FAN: port1: ttyUSB0
+Tue May 6 23:45:36 2025 EX_FAN: ex fan init finish
+Tue May 6 23:45:37 2025 saving config
+Tue May 6 23:45:37 2025 save config finish
