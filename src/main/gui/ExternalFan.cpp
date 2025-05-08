@@ -231,5 +231,6 @@ void ExternalFan::run() {
 
             lastControlTime=currentTime;
         }
+        QThread::msleep(10);
     }
 }
