@@ -5,11 +5,14 @@
 #include <QtCore/qprocess.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qdatetime.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qtextstream.h>
 #include <algorithm>
 #include <atomic>
 #include <numeric>
 #include <qcontainerfwd.h>
 #include <qcoreapplication.h>
+#include <qimage.h>
 #include <qlogging.h>
 #include <qthread.h>
 #include <iostream>
@@ -56,7 +59,7 @@ CpuPowerMonitor::CpuPowerMonitor(int index) {
     this->lastEnergy=getCurEnergy();
 }
 
-double CpuPowerMonitor::getCurEnergy() {
+float CpuPowerMonitor::getCurEnergy() {
     char buff[8];
     rdmsr(MSR_RAPL_POWER_UNIT, buff);
     char times=0;
@@ -64,14 +67,14 @@ double CpuPowerMonitor::getCurEnergy() {
     rdmsr(MSR_PKG_ENERGY_STATUS, buff);
     uint32_t oriEnergy;
     memcpy(&oriEnergy,buff,4);
-    double realEnergy=(double)oriEnergy*1000/std::pow(2,times); // in mwatt
+    float realEnergy=(float)oriEnergy*1000/std::pow(2,times); // in mwatt
     return realEnergy;
 }
 
-double CpuPowerMonitor::getPower() {
+float CpuPowerMonitor::getPower() {
     long curTime=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    double curEnergy=getCurEnergy();
-    double pwr=(curEnergy-lastEnergy)/(curTime-lastQueryTime);
+    float curEnergy=getCurEnergy();
+    float pwr=(curEnergy-lastEnergy)/(curTime-lastQueryTime);
     lastQueryTime=curTime;
     lastEnergy=curEnergy;
     return pwr;
@@ -82,6 +85,36 @@ HardwareMonitor::HardwareMonitor(int index, ConfigManager *cfg, QObject *parent)
     this->cfg=cfg;
     for (int i=0;i<cfg->fanProfiles[cfg->profileInUse].args[index-1].pwrCount;i++)
         this->lastPower.append(0.0);
+
+    //record cpu temp file
+#ifdef __linux__
+    if (this->index==1) {
+        bool found=false;
+        const QString thermalRoot="/sys/class/thermal";
+        QDir thermalRootDir(thermalRoot);
+        QStringList zoneList=thermalRootDir.entryList({"thermal_zone*"},QDir::Dirs);
+        for (auto &i : zoneList) {
+            QFile curZoneType(thermalRoot+"/"+i+"/type");
+            if (curZoneType.exists()) {
+                if (curZoneType.open(QIODevice::ReadOnly|QIODevice::Text)) {
+                    QTextStream stream(&curZoneType);
+                    QString curType=stream.readAll().trimmed();
+                    if (curType=="x86_pkg_temp") {
+                        found=true;
+                        this->cpuTempFile.setFileName(thermalRoot+"/"+i+"/temp");
+                    }
+                    curZoneType.close();
+                }
+                
+            }
+        }
+
+        if (!found)
+            throw "x86_pkg_temp not found";
+        else
+            this->cpuTempFile.open(QIODevice::ReadOnly|QIODevice::Text);
+    }
+#endif
 }
 
 void HardwareMonitor::run() {
@@ -126,19 +159,15 @@ int HardwareMonitor::getcTemp() {
     Rdmsr(IA32_PACKAGE_THERM_STATUS_MSR,&eax,&edx);
     temperature=100-((eax & 0x007F0000) >> 16);
 #elif __linux__
-    QProcess bash;
-    bash.start("bash",{"-c","paste <(cat /sys/class/thermal/thermal_zone*/type) <(cat /sys/class/thermal/thermal_zone*/temp) |grep x86_pkg_temp"});
-    bash.waitForFinished();
-    QString output=bash.readAllStandardOutput();
-    QString tempStr=output.mid(13, output.size() - 13);
-    temperature=tempStr.toInt();
-    temperature/=1000;
+    QTextStream stream(&cpuTempFile);
+    temperature=stream.readAll().trimmed().toInt()/1000;
+    cpuTempFile.seek(0);
 #endif
     //qDebug()<<"get cpu temp finish: "<<temperature;
     return temperature;
 }
 
-double HardwareMonitor::getcPower() {
+float HardwareMonitor::getcPower() {
     return this->cmonitor->getPower();
 }
 
@@ -152,9 +181,9 @@ int HardwareMonitor::getgTemp() {
     }
 }
 
-double HardwareMonitor::getgPower() {
+float HardwareMonitor::getgPower() {
     try {
-        double res[2];
+        float res[2];
         const char *flags[]={"Power Draw","Instantaneous Power Draw"};
         for (int i=0;i<2;i++) {
             QStringList list;
@@ -162,7 +191,7 @@ double HardwareMonitor::getgPower() {
             if (list.size()==0)
                 res[i]=0;
             else
-                res[i]=list[0].trimmed().mid(0,list[0].size()-2).toDouble();
+                res[i]=list[0].trimmed().mid(0,list[0].size()-2).toFloat();
         }
         
         return std::max(res[0],res[1]);
@@ -192,29 +221,6 @@ QStringList HardwareMonitor::nvsmiOutputParser(QStringList args, QString flag) {
     }
     return result;
 }
-
-// bool GpuFanController::checkDevFile() {
-//     QProcess lsof;
-//     lsof.start("lsof",{config->gpuDevDir});
-//     lsof.waitForFinished();
-//     QString output=lsof.readAllStandardOutput();
-
-//     if(output=="") //empty list
-//         return false;
-
-//     //found proc
-//     QStringList outputList=output.split('\n');
-//     for(int i=1;i<outputList.size();i++) {
-//         int spaceIndex=outputList[i].indexOf(' ');
-//         QString procName=outputList[i].mid(0,spaceIndex);
-
-//         //check exclude proc
-//         if(!(config->gpuLsofExcludeProc.contains(procName)))
-//             return true;
-//     }
-
-//     return false;
-// }
 
 bool HardwareMonitor::checkSysFile() {
     QFile sysFile(cfg->gpuSysDir);
@@ -271,6 +277,11 @@ bool HardwareMonitor::checkShouldMonitorGpu() {
 #elif _WIN32
     return false;
 #endif
+}
+
+HardwareMonitor::~HardwareMonitor() {
+    if (this->index==1)
+        this->cpuTempFile.close();
 }
 
 FanController::FanController(ConfigManager *config, QObject *parent, int index, CFCmonitor *appMonitor, ExternalFan *exFan) : QThread(parent) {

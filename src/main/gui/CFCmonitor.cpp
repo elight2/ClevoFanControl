@@ -20,7 +20,7 @@ void CFCmonitor::updateValue1(int index, int speed, int rpm) {
     return;
 }
 
-void CFCmonitor::updateValue2(int index, int temperature, double power) {
+void CFCmonitor::updateValue2(int index, int temperature, float power) {
     //qDebug()<<"CFCmonitor::updateValue ";
     if(index==1) {
         ui.label_2->setText(QString::number(temperature));

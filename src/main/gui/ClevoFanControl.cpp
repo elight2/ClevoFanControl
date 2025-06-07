@@ -16,7 +16,7 @@ ClevoFanControl::ClevoFanControl(QWidget *parent) :QWidget(parent) {
     TrayIcon->show();
 
     //ex fan
-    #ifdef CFC_USE_EX_FAN
+#ifdef CFC_USE_EX_FAN
     exFan=new ExternalFan();
     exFan->start();
     QObject::connect(exFan,&ExternalFan::adjustFanSig,exFan,&ExternalFan::recordData);

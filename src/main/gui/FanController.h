@@ -17,13 +17,13 @@
 class CpuPowerMonitor {
 public:
     CpuPowerMonitor(int index);
-    double getPower();
+    float getPower();
 
 private:
-    double getCurEnergy();
+    float getCurEnergy();
     void rdmsr(int pos, char *dest);
 
-    double lastEnergy;
+    float lastEnergy;
     long lastQueryTime;
     int cpuIndex;
     char cpuMsrDir[1024];
@@ -36,18 +36,19 @@ Q_OBJECT
 
 public:
     HardwareMonitor(int index, ConfigManager *cfg, QObject *parent);
+    ~HardwareMonitor();
 
     std::atomic_int temperature=0;
-    std::atomic<double> power=0;
+    std::atomic<float> power=0;
     static std::atomic_bool shouldMonitorGpu;
     QList<float> lastPower;
 
 private:
     void run();
     int getcTemp();
-    double getcPower();
+    float getcPower();
     int getgTemp();
-    double getgPower();
+    float getgPower();
 
     QStringList nvsmiOutputParser(QStringList args, QString flag);
     bool checkShouldMonitorGpu();
@@ -62,9 +63,10 @@ private:
     CpuPowerMonitor *cmonitor;
     qint64 gpuCheckPauseTime=0;
     bool gpuCheckPaused=false;
+    QFile cpuTempFile;
 
 signals:
-    void requireUpdateMonitor2(int index, int temperature, double power);
+    void requireUpdateMonitor2(int index, int temperature, float power);
 };
 
 class FanController : public QThread {
@@ -92,7 +94,7 @@ private:
     int curSpeed=CfcDef::DEFAULT_SPEED;
     int curMinSafeSpeed=0;
     int rpm=0;
-    double power=0;
+    float power=0;
 
 signals:
     void requireUpdateMonitor1(int index, int speed, int rpm);
