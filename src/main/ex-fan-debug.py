@@ -17,7 +17,7 @@ def initPort(info:SysFS) -> serial.Serial:
 def searchPort(index:int):
     ports=list(serial.tools.list_ports.comports())
     for i in ports:
-        if i.description==ch341Describe[os.name]:
+        if i.description.find(ch341Describe[os.name])!=-1:
             with initPort(i) as port:
                 port.write(b"read")
                 if port.readline().decode("ascii").strip()[1:5]==portInfo[index]:
