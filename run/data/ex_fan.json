@@ -1,27 +1,27 @@
 {
-    "enabled":false,
+    "enabled":true,
     "pwrListLen":15,
     "controlInterval":1000,
     "fans":{
         "0":{
             "pwrType":0,
-            "pwrList":[0,90,200],
-            "speedList":[25,25,45]
+            "pwrList":[0,90,120],
+            "speedList":[20,30,38]
         },
         "1":{
             "pwrType":0,
-            "pwrList":[0,90,200],
-            "speedList":[25,25,50]
+            "pwrList":[0,90,120],
+            "speedList":[20,25,27]
         },
         "2":{
             "pwrType":0,
-            "pwrList":[0,90,200],
-            "speedList":[25,25,40]
+            "pwrList":[0,90,120],
+            "speedList":[20,30,38]
         },
         "3":{
             "pwrType":1,
             "pwrList":[0,45,80,120],
-            "speedList":[10,10,30,43]
+            "speedList":[10,15,35,45]
         }
     }
 }

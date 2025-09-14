@@ -1,17 +1,22 @@
-Sat Jun 7 14:07:23 2025 cfc launching
-Sat Jun 7 14:07:23 2025 loading config json
-Sat Jun 7 14:07:23 2025 loading profiles, total: 1
-Sat Jun 7 14:07:23 2025 loading profile: general
-Sat Jun 7 14:07:23 2025 loading normal args
-Sat Jun 7 14:07:23 2025 loading min speed args
-Sat Jun 7 14:07:23 2025 using min speed table, with size of 3
-Sat Jun 7 14:07:23 2025 loading normal args
-Sat Jun 7 14:07:23 2025 loading min speed args
-Sat Jun 7 14:07:23 2025 using min speed table, with size of 5
-Sat Jun 7 14:07:23 2025 loading commands, total: 9
-Sat Jun 7 14:07:23 2025 loading other options
-Sat Jun 7 14:07:23 2025 read config finish
-Sat Jun 7 14:07:23 2025 building ui
-Sat Jun 7 14:07:23 2025 build ui finish
-Sat Jun 7 14:07:23 2025 cfc init finish, entering loop
-Sat Jun 7 14:07:23 2025 EX_FAN: init ex fan
+Thu Aug 21 23:41:54 2025 cfc launching
+Thu Aug 21 23:41:54 2025 loading config json
+Thu Aug 21 23:41:54 2025 loading profiles, total: 1
+Thu Aug 21 23:41:54 2025 loading profile: general
+Thu Aug 21 23:41:54 2025 loading normal args
+Thu Aug 21 23:41:54 2025 loading min speed args
+Thu Aug 21 23:41:54 2025 using min speed table, with size of 3
+Thu Aug 21 23:41:54 2025 loading normal args
+Thu Aug 21 23:41:54 2025 loading min speed args
+Thu Aug 21 23:41:54 2025 using min speed table, with size of 5
+Thu Aug 21 23:41:54 2025 loading commands, total: 9
+Thu Aug 21 23:41:54 2025 loading other options
+Thu Aug 21 23:41:54 2025 read config finish
+Thu Aug 21 23:41:54 2025 building ui
+Thu Aug 21 23:41:54 2025 build ui finish
+Thu Aug 21 23:41:54 2025 cfc init finish, entering loop
+Thu Aug 21 23:41:54 2025 EX_FAN: init ex fan
+Thu Aug 21 23:41:55 2025 EX_FAN: port0: ttyUSB1
+Thu Aug 21 23:41:55 2025 EX_FAN: port1: ttyUSB0
+Thu Aug 21 23:41:55 2025 EX_FAN: ex fan init finish
+Thu Aug 21 23:41:57 2025 saving config
+Thu Aug 21 23:41:57 2025 save config finish
