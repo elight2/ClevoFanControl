@@ -1,22 +1,44 @@
-Thu Aug 21 23:41:54 2025 cfc launching
-Thu Aug 21 23:41:54 2025 loading config json
-Thu Aug 21 23:41:54 2025 loading profiles, total: 1
-Thu Aug 21 23:41:54 2025 loading profile: general
-Thu Aug 21 23:41:54 2025 loading normal args
-Thu Aug 21 23:41:54 2025 loading min speed args
-Thu Aug 21 23:41:54 2025 using min speed table, with size of 3
-Thu Aug 21 23:41:54 2025 loading normal args
-Thu Aug 21 23:41:54 2025 loading min speed args
-Thu Aug 21 23:41:54 2025 using min speed table, with size of 5
-Thu Aug 21 23:41:54 2025 loading commands, total: 9
-Thu Aug 21 23:41:54 2025 loading other options
-Thu Aug 21 23:41:54 2025 read config finish
-Thu Aug 21 23:41:54 2025 building ui
-Thu Aug 21 23:41:54 2025 build ui finish
-Thu Aug 21 23:41:54 2025 cfc init finish, entering loop
-Thu Aug 21 23:41:54 2025 EX_FAN: init ex fan
-Thu Aug 21 23:41:55 2025 EX_FAN: port0: ttyUSB1
-Thu Aug 21 23:41:55 2025 EX_FAN: port1: ttyUSB0
-Thu Aug 21 23:41:55 2025 EX_FAN: ex fan init finish
-Thu Aug 21 23:41:57 2025 saving config
-Thu Aug 21 23:41:57 2025 save config finish
+Thu Sep 18 14:27:28 2025 cfc launching
+Thu Sep 18 14:27:28 2025 loading config json
+Thu Sep 18 14:27:28 2025 loading profiles, total: 1
+Thu Sep 18 14:27:28 2025 loading profile: general
+Thu Sep 18 14:27:28 2025 loading normal args
+Thu Sep 18 14:27:28 2025 loading min speed args
+Thu Sep 18 14:27:28 2025 using min speed table, with size of 3
+Thu Sep 18 14:27:28 2025 loading normal args
+Thu Sep 18 14:27:28 2025 loading min speed args
+Thu Sep 18 14:27:28 2025 using min speed table, with size of 5
+Thu Sep 18 14:27:28 2025 loading commands, total: 9
+Thu Sep 18 14:27:28 2025 loading other options
+Thu Sep 18 14:27:28 2025 read config finish
+Thu Sep 18 14:27:28 2025 building ui
+Thu Sep 18 14:27:28 2025 build ui finish
+Thu Sep 18 14:27:28 2025 cfc init finish, entering loop
+Thu Sep 18 14:27:28 2025 EX_FAN: init ex fan
+Thu Sep 18 14:27:28 2025 EX_FAN: port0: ttyUSB0
+Thu Sep 18 14:27:28 2025 EX_FAN: initPort: fail to open port: ttyUSB0, err: Permission error while locking the device
+Thu Sep 18 14:27:28 2025 EX_FAN: port1: NOT_FOUND
+Thu Sep 18 14:27:28 2025 EX_FAN: initPort: fail to open port: NOT_FOUND, err: No such file or directory
+Thu Sep 18 14:27:28 2025 EX_FAN: ex fan init finish
+Thu Sep 18 14:27:29 2025 EX_FAN: port NOT_FOUND error: 1, fixing
+Thu Sep 18 14:27:29 2025 EX_FAN: port 0 fixed
+Thu Sep 18 14:27:29 2025 EX_FAN: initPort: fail to open port: ttyUSB0, err: Permission error while locking the device
+Thu Sep 18 14:27:29 2025 EX_FAN: port 1 not found when fixing error
+Thu Sep 18 14:27:30 2025 EX_FAN: port NOT_FOUND error: 10, fixing
+Thu Sep 18 14:27:30 2025 EX_FAN: port 0 fixed
+Thu Sep 18 14:27:30 2025 EX_FAN: initPort: fail to open port: ttyUSB0, err: Permission error while locking the device
+Thu Sep 18 14:27:30 2025 EX_FAN: port 1 not found when fixing error
+Thu Sep 18 14:27:31 2025 EX_FAN: port NOT_FOUND error: 10, fixing
+Thu Sep 18 14:27:31 2025 EX_FAN: port 0 fixed
+Thu Sep 18 14:27:31 2025 EX_FAN: initPort: fail to open port: ttyUSB0, err: Permission error while locking the device
+Thu Sep 18 14:27:31 2025 EX_FAN: port 1 not found when fixing error
+Thu Sep 18 14:27:31 2025 saving config
+Thu Sep 18 14:27:31 2025 save config finish
+Thu Sep 18 14:27:32 2025 EX_FAN: port NOT_FOUND error: 10, fixing
+Thu Sep 18 14:27:32 2025 EX_FAN: port 0 fixed
+Thu Sep 18 14:27:32 2025 EX_FAN: initPort: fail to open port: ttyUSB0, err: Permission error while locking the device
+Thu Sep 18 14:27:32 2025 EX_FAN: port 1 not found when fixing error
+Thu Sep 18 14:27:33 2025 EX_FAN: port NOT_FOUND error: 10, fixing
+Thu Sep 18 14:27:33 2025 EX_FAN: port 0 fixed
+Thu Sep 18 14:27:33 2025 EX_FAN: initPort: fail to open port: ttyUSB0, err: Permission error while locking the device
+Thu Sep 18 14:27:33 2025 EX_FAN: port 1 not found when fixing error

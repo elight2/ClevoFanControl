@@ -206,10 +206,11 @@ QStringList HardwareMonitor::nvsmiOutputParser(QStringList args, QString flag) {
     nvsmi.start("nvidia-smi",args);
     nvsmi.waitForFinished();
     QString output=nvsmi.readAllStandardOutput();
+    if (output=="")
+        throw "empty-output";
 
-    if(output.contains("NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver.")) {
+    if(output.contains("NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver."))
         throw "driver-error";
-    }
 
     QStringList list=output.split('\n');
     for(auto curStr : list) {
