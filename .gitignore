@@ -1,7 +1,4 @@
 /build
-/run/config.json
-/run/ex_fan.txt
 /.git
 /.cache
 /.vscode
-/run/cfc_log.log
