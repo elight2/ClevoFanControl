@@ -1,13 +1,15 @@
 [general]
-log_level="normal"
-hw_detect_interval=1.0
+log_level="normal" # normal debug
+hw_detect_interval=1.0 # interval between which power and temp are metered
 
+# make GPU auto suspending possible, normally nvidia-smi prevents GPU from suspending
 [gpu_detect]
-gpu_sleep_detect_enabled=true
+gpu_sleep_detect_enabled=true # global switch
 gpu_sleep_delay=30
 gpu_proc_exclude=["Xorg"]
 gpu_sleep_temp=60
 
+# CPU fan config
 [cpu]
 min_speed_list=[[1,20],[20,25],[40,30],[50,40]]
 power_sample_count=5
@@ -16,6 +18,7 @@ target_temp_offset=2
 ctrl_step=3
 ctrl_interval=1.0
 
+# GPU fan config in GPU+CPU mode
 [gpu]
 min_speed_list=[[1,20],[40,25],[70,40]]
 power_sample_count=5
@@ -24,6 +27,7 @@ target_temp_offset=2
 ctrl_step=2
 ctrl_interval=1.0
 
+# GPU fan config in CPU only mode
 [gpu_cpu_only]
 min_speed_list=[[40,20],[60,30],[65,35],[70,40]]
 power_sample_count=5

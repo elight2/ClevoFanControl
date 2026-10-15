@@ -7,28 +7,8 @@
 ## 调速机制
 
 ### 参数
-以下参数都能在配置文件`config.toml`修改：
 
-**下面的参数有3份，分别对应CPU风扇参数，GPU风扇参数，GPU风扇参数（单CPU模式），他们分别存放在`[cpu] [gpu] [gpu_cpu_only]`3个表，后面有解释**
-
-* `min_speed_list`: 2维数组
-* `power_sample_count`: 整数
-* `target_temp`: 整数
-* `target_temp_offset`: 整数
-* `ctrl_step`: 整数
-* `ctrl_interval`: 浮点数（秒）
-
-下面的参数在`[general]`表，是全局设置
-
-* `log_level`: 字符串，输出日志等级（normal, debug）
-* `hw_detect_interval`: 浮点数（秒）
-
-下面的参数在`[gpu_detect]`表，是全局设置
-
-* `gpu_sleep_detect_enabled`: 布尔
-* `gpu_sleep_delay`: 整数
-* `gpu_proc_exclude`: 数组
-* `gpu_sleep_temp`: 整数
+参考：[config.toml](./src/config.toml)
 
 ### 自动调速原理
 
