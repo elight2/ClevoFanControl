@@ -2,9 +2,8 @@
 """CLI test tool for the clevoec .so.
 
 usage:
-  testec.py s <fan 1|2> <duty 0-255>   set fan speed
-  testec.py s <fan 1|2> a              set fan to auto
-  testec.py g <fan 1|2>                read fan rpm
+  testec.py s <fan 1|2> <-1|0-255>   set fan speed, -1 = auto
+  testec.py g <fan 1|2>              read fan rpm
 """
 import ctypes
 import os
@@ -13,19 +12,23 @@ import sys
 LIB_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "build", "libclevoec.so"
 )
-AUTO = -1
 
 lib = ctypes.CDLL(LIB_PATH)
-lib.init.restype = ctypes.c_int
-lib.init.argtypes = []
+lib.ec_init.restype = ctypes.c_int
+lib.ec_init.argtypes = []
 lib.set_fan_speed.restype = ctypes.c_int
 lib.set_fan_speed.argtypes = [ctypes.c_int, ctypes.c_int]
 lib.get_rpm.restype = ctypes.c_int
 lib.get_rpm.argtypes = [ctypes.c_int]
 
+# so returns -1 for bad duty and -2 for bad index; ec_init returns -errno
+ERR = {-1: "bad duty: must be -1 or 0-255", -2: "bad index: must be 1 or 2"}
 
-def check(rc):
+
+def check(rc, libcall=False):
     if rc < 0:
+        if libcall and rc in ERR:
+            sys.exit(ERR[rc])
         sys.exit(f"{os.strerror(-rc)} (errno {-rc})")
     return rc
 
@@ -37,22 +40,16 @@ def fan(arg):
 
 
 def cmd_set(index, arg):
-    if arg == "a":
-        duty, shown = AUTO, "auto"
-    else:
-        try:
-            duty = int(arg)
-        except ValueError:
-            sys.exit(f"bad duty {arg}: must be 0-255 or a")
-        if not 0 <= duty <= 255:
-            sys.exit(f"bad duty {arg}: must be 0-255 or a")
-        shown = f"duty {duty}"
-    check(lib.set_fan_speed(duty, index))
-    print(f"fan {index} {shown}")
+    try:
+        duty = int(arg)
+    except ValueError:
+        sys.exit(f"bad duty {arg}: must be -1 or 0-255")
+    check(lib.set_fan_speed(duty, index), libcall=True)
+    print(f"fan {index} {'auto' if duty == -1 else f'duty {duty}'}")
 
 
 def cmd_get(index):
-    print(f"fan {index} rpm {lib.get_rpm(index)}")
+    print(f"fan {index} rpm {check(lib.get_rpm(index), libcall=True)}")
 
 
 def main(argv):
@@ -65,5 +62,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    check(lib.init())
+    check(lib.ec_init())
     main(sys.argv)

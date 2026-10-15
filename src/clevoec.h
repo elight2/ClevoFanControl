@@ -4,7 +4,7 @@
 extern "C" {
 #endif // __cplusplus
 
-int init();
+int ec_init(void);
 int set_fan_speed(int duty, int index);
 int get_rpm(int index);
 
@@ -12,5 +12,3 @@ int get_rpm(int index);
 }
 #endif // __cplusplus
 #endif // !CLEVO_EC_H
-
-
