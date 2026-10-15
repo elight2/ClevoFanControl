@@ -1,0 +1,244 @@
+#include "control.hpp"
+
+#include "log.hpp"
+
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <ctime>
+#include <cstdlib>
+#include <fstream>
+#include <numeric>
+
+namespace cfc {
+namespace {
+
+// Monotonic nanoseconds. The energy counter advances with the same clock, so
+// the two differences stay consistent; system_clock could step under NTP.
+uint64_t monotonic_ns() {
+    timespec ts{};
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return static_cast<uint64_t>(ts.tv_sec) * 1000000000ULL +
+           static_cast<uint64_t>(ts.tv_nsec);
+}
+
+using namespace std::chrono_literals;
+
+// Startup speed. clevoec.h can only read RPM, so the software must pick a
+// value; 20% matches the old CfcDef::DEFAULT_SPEED.
+constexpr int kInitialSpeed = 20;
+
+// Step lookup from min_speed_list: the average power selects a row, and its
+// speed becomes the floor. Below the first row the first speed applies, above
+// the last row the last speed applies.
+int lookup_min_speed(const std::vector<std::pair<int, int>>& list, double avg_power) {
+    int speed = list.front().second;
+    for (const auto& [power, s] : list) {
+        if (avg_power >= power)
+            speed = s;
+        else
+            break;
+    }
+    return speed;
+}
+
+double average(const std::vector<double>& v) {
+    if (v.empty())
+        return 0.0;
+    return std::accumulate(v.begin(), v.end(), 0.0) / static_cast<double>(v.size());
+}
+
+void push_window(std::vector<double>& v, double value, std::size_t cap) {
+    v.push_back(value);
+    if (v.size() > cap)
+        v.erase(v.begin());
+}
+
+bool gpu_is_active(const std::string& status_path) {
+    std::ifstream f(status_path);
+    std::string status;
+    if (!f || !std::getline(f, status))
+        return false;
+    return status == "active";
+}
+
+} // namespace
+
+Control::Control(const Config& cfg, Ec& ec) : cfg_(cfg), ec_(ec) {
+    snap_.fans[0].params = &cfg_.cpu;
+    snap_.fans[1].params = &cfg_.gpu_cpu_only;
+}
+
+bool Control::probe_sensors() {
+    rapl_ = RaplEnergy::open("/sys/class/powercap/intel-rapl:0");
+    if (!rapl_) {
+        error("cannot open /sys/class/powercap/intel-rapl:0 (need root)");
+        return false;
+    }
+
+    cpu_temp_ = CpuTemp::open();
+    if (!cpu_temp_) {
+        error("no coretemp/k10temp hwmon device with temp1_input found");
+        return false;
+    }
+
+    dgpu_status_ = find_nvidia_runtime_status();
+    if (dgpu_status_)
+        logf("dGPU detected: {}", *dgpu_status_);
+    else
+        log("no NVIDIA dGPU found; GPU fan stays in CPU-only mode");
+
+    return true;
+}
+
+void Control::sampler_loop(std::stop_token stop) {
+    const auto window = static_cast<std::size_t>(cfg_.cpu.power_sample_count);
+
+    // First read establishes the baseline. The first sample taken inside the
+    // loop only refreshes that baseline; it must not enter the averaging window.
+    auto last_energy = rapl_->read();
+    uint64_t last_ns = monotonic_ns();
+    bool baseline_pending = true;
+
+    while (!stop.stop_requested()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(cfg_.hw_detect_interval_ms));
+        if (stop.stop_requested())
+            break;
+
+        const uint64_t now_ns = monotonic_ns();
+
+        if (baseline_pending) {
+            // Baseline only: no power sample, no window entry, no publish.
+            if (auto energy = rapl_->read())
+                last_energy = energy;
+            last_ns = now_ns;
+            baseline_pending = false;
+            continue;
+        }
+
+        double cpu_power = 0.0;
+        if (auto energy = rapl_->read()) {
+            if (last_energy) {
+                double delta_uj = static_cast<double>(*energy - *last_energy);
+                double delta_ms = static_cast<double>(now_ns - last_ns) / 1e6;
+                if (delta_ms > 0.0)
+                    cpu_power = delta_uj / delta_ms / 1000.0; // uJ/ms = mW, then W
+            }
+            last_energy = energy;
+        }
+        last_ns = now_ns;
+
+        int cpu_temp_now = last_cpu_temp_;
+        if (auto t = cpu_temp_->read()) {
+            last_cpu_temp_ = *t; // a failed read keeps the previous value
+            cpu_temp_now = *t;
+        }
+        push_window(cpu_hist_, cpu_power, window);
+
+        // Querying the GPU wakes it, so only do that while it reports "active".
+        bool used_real_gpu = false;
+        if (dgpu_status_ && gpu_is_active(*dgpu_status_)) {
+            if (auto r = nvidia_readings()) {
+                last_gpu_temp_ = r->first;
+                last_gpu_power_ = r->second;
+                have_gpu_ = true;
+            }
+            // A failed query keeps the previous reading; with no reading at all
+            // (first query already failed) the CPU-only table takes over.
+            used_real_gpu = have_gpu_;
+        }
+
+        if (used_real_gpu)
+            push_window(gpu_hist_, last_gpu_power_, window);
+        else
+            gpu_hist_.clear(); // stale history must not leak into the next active phase
+
+        // Report the first decision, and every later transition between the two
+        // modes. Running nvidia-smi wakes the dGPU, so these are worth seeing.
+        if (!logged_gpu_mode_ || used_real_gpu != prev_gpu_active_) {
+            log(used_real_gpu ? "GPU fan mode: GPU+CPU (dGPU active)"
+                              : "GPU fan mode: CPU-only (dGPU suspended)");
+            logged_gpu_mode_ = true;
+            prev_gpu_active_ = used_real_gpu;
+        }
+
+        Snapshot next;
+        next.fans[0].temp = cpu_temp_now;
+        next.fans[0].avg_power = average(cpu_hist_);
+        next.fans[0].params = &cfg_.cpu;
+
+        if (used_real_gpu) {
+            next.fans[1].temp = last_gpu_temp_;
+            next.fans[1].avg_power = average(gpu_hist_);
+            next.fans[1].params = &cfg_.gpu;
+        } else {
+            next.fans[1].temp = cpu_temp_now;
+            next.fans[1].avg_power = average(cpu_hist_);
+            next.fans[1].params = &cfg_.gpu_cpu_only;
+        }
+
+        {
+            std::lock_guard lock(mu_);
+            snap_ = next;
+        }
+    }
+}
+
+void Control::fan_loop(std::stop_token stop, int fan) {
+    const int index = fan - 1;
+    int cur_speed = kInitialSpeed;
+
+    if (ec_.set_speed(fan, cur_speed) != 0)
+        return;
+
+    while (!stop.stop_requested()) {
+        FanInput in;
+        int interval_ms = 0;
+        {
+            std::unique_lock lock(mu_);
+            // Params pointers refer to cfg_, which lives for the whole process,
+            // so they stay valid after the lock is released.
+            in = snap_.fans[index];
+            interval_ms = in.params->interval_ms;
+        }
+
+        const FanParams& p = *in.params;
+        const int min_speed = lookup_min_speed(p.min_speed_list, in.avg_power);
+
+        if (cur_speed < min_speed) {
+            // Rule 1: never sit below the current allowed floor. One step per
+            // cycle, and this cycle does nothing else.
+            const int next = std::min(cur_speed + p.step, min_speed);
+            debugf("fan {}: {} -> {} min-driven (temp {}, pwr {:.1f}, min {})",
+                   fan, cur_speed, next, in.temp, in.avg_power, min_speed);
+            cur_speed = next;
+            ec_.set_speed(fan, cur_speed);
+        } else {
+            // Rule 2: move toward the target temperature band.
+            int target = cur_speed;
+            if (in.temp > p.target_temp + p.temp_offset)
+                target = cur_speed + p.step;
+            else if (in.temp < p.target_temp - p.temp_offset)
+                target = cur_speed - p.step;
+            target = std::clamp(target, min_speed, 100);
+
+            if (target != cur_speed) {
+                // Only report an actual change; a steady state stays silent.
+                const int delta = target - cur_speed;
+                debugf("fan {}: {} -> {} {}{} temp-driven (temp {}, pwr {:.1f}, min {})",
+                       fan, cur_speed, target, delta > 0 ? "+" : "-",
+                       std::abs(delta), in.temp, in.avg_power, min_speed);
+                cur_speed = target;
+                ec_.set_speed(fan, cur_speed);
+            }
+        }
+
+        // The stop_token overload wakes immediately on shutdown; the predicate
+        // stays false so the wait always ends by timeout otherwise.
+        std::unique_lock lock(wait_mu_);
+        wait_cv_.wait_for(lock, stop, std::chrono::milliseconds(interval_ms),
+                          [] { return false; });
+    }
+}
+
+} // namespace cfc
