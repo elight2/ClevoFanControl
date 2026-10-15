@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace cfc {
 
@@ -43,5 +44,17 @@ std::optional<std::string> find_nvidia_runtime_status();
 
 // nvidia-smi query result: (temperature C, power W). Nullopt on any failure.
 std::optional<std::pair<int, double>> nvidia_readings();
+
+// GPU clients as reported by `nvidia-smi -q -d PIDS`. This is the driver's own
+// accounting, not the set of open /dev/nvidia* handles: a display server keeps
+// those open even while the GPU is permitted to suspend.
+struct GpuProcList {
+    std::vector<std::string> names;
+    bool unidentified = false; // holders exist but the driver cannot name them
+    bool in_use = false;       // some client survives the exclusion list
+};
+
+// Nullopt when the query failed or its output had no Processes section.
+std::optional<GpuProcList> nvidia_processes(const std::vector<std::string>& exclude);
 
 } // namespace cfc

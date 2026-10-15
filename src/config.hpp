@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>
@@ -17,6 +18,14 @@ struct FanParams {
     std::vector<std::pair<int, int>> min_speed_list; // (power W, speed %), power ascending
 };
 
+// dGPU sleep detection, from the [gpu_detect] table.
+struct GpuDetect {
+    bool enabled = false;                  // gpu_sleep_detect_enabled
+    int64_t delay_ms = 30000;              // gpu_sleep_delay, seconds in the file
+    int sleep_temp = 60;                   // gpu_sleep_temp, C
+    std::vector<std::string> proc_exclude; // gpu_proc_exclude, substring match
+};
+
 struct Config {
     FanParams cpu;
     FanParams gpu;          // used while the dGPU is active
@@ -24,6 +33,8 @@ struct Config {
 
     bool debug_log = false;   // [general].log_level == "debug"
     int hw_detect_interval_ms = 1000; // [general].hw_detect_interval, in ms
+
+    GpuDetect gpu_detect;
 };
 
 // Validates every field and rejects the whole file on the first problem.

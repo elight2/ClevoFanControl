@@ -54,11 +54,13 @@ void push_window(std::vector<double>& v, double value, std::size_t cap) {
         v.erase(v.begin());
 }
 
-bool gpu_is_active(const std::string& status_path) {
+// Reads power/runtime_status. A failed read is not "suspended": it is unknown,
+// and reporting it as suspended would flip the fan mode on a transient error.
+std::optional<bool> read_gpu_active(const std::string& status_path) {
     std::ifstream f(status_path);
     std::string status;
     if (!f || !std::getline(f, status))
-        return false;
+        return std::nullopt;
     return status == "active";
 }
 
@@ -135,22 +137,75 @@ void Control::sampler_loop(std::stop_token stop) {
         }
         push_window(cpu_hist_, cpu_power, window);
 
-        // Querying the GPU wakes it, so only do that while it reports "active".
+        // Mode is derived from power/runtime_status, a free sysfs read that does
+        // not wake the GPU. It stays the authority: a failed read is unknown, not
+        // "suspended", and is treated as GPU+CPU so a transient error cannot flip
+        // the fan mode.
         bool used_real_gpu = false;
-        if (dgpu_status_ && gpu_is_active(*dgpu_status_)) {
-            if (auto r = nvidia_readings()) {
-                last_gpu_temp_ = r->first;
-                last_gpu_power_ = r->second;
-                have_gpu_ = true;
+        bool fresh_reading = false;
+
+        if (dgpu_status_) {
+            const bool active = read_gpu_active(*dgpu_status_).value_or(true);
+            const bool pausing = pause_until_ns_.has_value();
+
+            if (!active) {
+                // Suspended: any pause is over, and a fresh active phase must be
+                // able to judge its own conditions from scratch.
+                pause_until_ns_.reset();
             }
-            // A failed query keeps the previous reading; with no reading at all
-            // (first query already failed) the CPU-only table takes over.
-            used_real_gpu = have_gpu_;
+
+            if (active && !pausing) {
+                // nvidia-smi wakes the GPU, so it runs only when the sysfs state
+                // says the GPU is already awake and no pause is in effect.
+                if (auto r = nvidia_readings()) {
+                    last_gpu_temp_ = r->first;
+                    last_gpu_power_ = r->second;
+                    have_gpu_ = true;
+                    fresh_reading = true;
+                } else {
+                    debug("nvidia-smi query failed; keeping last reading");
+                }
+                // A failed query keeps the previous reading; with no reading at
+                // all (first query already failed) the CPU-only table takes over.
+                used_real_gpu = have_gpu_;
+
+                // A hot GPU cannot be about to suspend, so the second nvidia-smi
+                // call is not worth the extra wake-up.
+                if (used_real_gpu && cfg_.gpu_detect.enabled &&
+                    last_gpu_temp_ < cfg_.gpu_detect.sleep_temp) {
+                    debug("querying GPU process list");
+                    auto procs = nvidia_processes(cfg_.gpu_detect.proc_exclude);
+                    if (!procs) {
+                        // Unknown client set: keep polling so the fans see fresh
+                        // data rather than a frozen reading.
+                        debug("nvidia-smi -q -d PIDS failed; keeping GPU polling");
+                    } else if (procs->unidentified) {
+                        // Holders the driver cannot name: treat as in use.
+                        debug("nvidia-smi reports unidentified GPU processes");
+                    } else if (!procs->in_use) {
+                        pause_until_ns_ =
+                            now_ns + static_cast<uint64_t>(cfg_.gpu_detect.delay_ms) * 1000000ULL;
+                        logf("GPU has no client processes: pausing nvidia-smi for {} s",
+                             cfg_.gpu_detect.delay_ms / 1000);
+                    }
+                }
+            } else if (active) {
+                // Pause in effect: no nvidia-smi at all, so the driver gets an
+                // uninterrupted idle window. Keep serving the last reading.
+                used_real_gpu = have_gpu_;
+                if (now_ns >= *pause_until_ns_) {
+                    pause_until_ns_.reset();
+                    logf("GPU still active after {} s: resuming detection",
+                         cfg_.gpu_detect.delay_ms / 1000);
+                }
+            }
         }
 
-        if (used_real_gpu)
+        // While paused the averaging window is frozen: the value is not a new
+        // measurement, and pushing it would slowly rewrite the history.
+        if (used_real_gpu && fresh_reading)
             push_window(gpu_hist_, last_gpu_power_, window);
-        else
+        else if (!used_real_gpu)
             gpu_hist_.clear(); // stale history must not leak into the next active phase
 
         // Report the first decision, and every later transition between the two

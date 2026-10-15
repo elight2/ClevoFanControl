@@ -2,6 +2,12 @@
 log_level="normal"
 hw_detect_interval=1.0
 
+[gpu_detect]
+gpu_sleep_detect_enabled=true
+gpu_sleep_delay=30
+gpu_proc_exclude=["Xorg"]
+gpu_sleep_temp=60
+
 [cpu]
 min_speed_list=[[1,20],[20,25],[40,30],[50,40]]
 power_sample_count=5

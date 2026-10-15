@@ -128,6 +128,101 @@ std::optional<std::string> run_capture(const char* cmd, int timeout_ms) {
     return out;
 }
 
+// A client counts as a reason to keep querying unless its reported name matches
+// one of the exclusion substrings. nvidia-smi may report either a bare name
+// (glmark2) or a full path (/usr/lib/Xorg), so substring is the only rule that
+// covers both.
+bool any_client_in_use(const std::vector<std::string>& names,
+                       const std::vector<std::string>& exclude) {
+    for (const std::string& name : names) {
+        bool excluded = false;
+        for (const std::string& pat : exclude) {
+            if (!pat.empty() && name.find(pat) != std::string::npos) {
+                excluded = true;
+                break;
+            }
+        }
+        if (!excluded)
+            return true;
+    }
+    return false;
+}
+
+// One block per GPU:
+//     Processes                                          : None
+//     Processes
+//         Process ID                        : 19899
+//             Type                          : G
+//             Name                          : glmark2
+//             Used GPU Memory               : 166 MiB
+// Nullopt when no Processes section was present at all: that output is not the
+// shape we expect and must never be read as "zero clients".
+std::optional<GpuProcList> parse_pids(std::string_view out,
+                                      const std::vector<std::string>& exclude) {
+    GpuProcList list;
+    bool seen_section = false;
+    bool in_section = false;
+
+    std::size_t pos = 0;
+    while (pos <= out.size()) {
+        std::size_t nl = out.find('\n', pos);
+        std::string_view line =
+            out.substr(pos, nl == std::string_view::npos ? std::string_view::npos : nl - pos);
+        pos = (nl == std::string_view::npos) ? out.size() + 1 : nl + 1;
+
+        std::string_view sv = line;
+        while (!sv.empty() && (sv.front() == ' ' || sv.front() == '\t'))
+            sv.remove_prefix(1);
+
+        if (sv.starts_with("Unidentified processes found")) {
+            list.unidentified = true;
+            seen_section = true;
+            continue;
+        }
+        if (sv.starts_with("Processes")) {
+            // The label is "Processes" alone or "Processes <pad> : None". A
+            // longer word that merely starts the same way is not the section.
+            std::string_view rest = sv.substr(9);
+            while (!rest.empty() && (rest.front() == ' ' || rest.front() == '\t'))
+                rest.remove_prefix(1);
+            if (rest.empty() || rest.front() == ':') {
+                seen_section = true;
+                in_section = true; // "Processes : None" simply adds no name
+                continue;
+            }
+        }
+        if (!in_section || !sv.starts_with("Name"))
+            continue;
+
+        // Only the "Name <padding> : value" field counts; a process whose name
+        // itself starts with "Name" sits after the colon, not at column 0.
+        auto colon = sv.find(':');
+        if (colon == std::string_view::npos)
+            continue;
+        bool only_pad = true;
+        for (char c : sv.substr(4, colon - 4)) {
+            if (c != ' ' && c != '\t') {
+                only_pad = false;
+                break;
+            }
+        }
+        if (!only_pad)
+            continue;
+
+        std::string_view val = sv.substr(colon + 1);
+        while (!val.empty() && (val.front() == ' ' || val.front() == '\t' || val.front() == '\r'))
+            val.remove_prefix(1);
+        while (!val.empty() && (val.back() == ' ' || val.back() == '\t' || val.back() == '\r'))
+            val.remove_suffix(1);
+        list.names.emplace_back(val);
+    }
+
+    if (!seen_section)
+        return std::nullopt;
+    list.in_use = any_client_in_use(list.names, exclude);
+    return list;
+}
+
 } // namespace
 
 std::optional<RaplEnergy> RaplEnergy::open(const std::string& dir) {
@@ -245,6 +340,13 @@ std::optional<std::pair<int, double>> nvidia_readings() {
         return std::nullopt;
 
     return std::pair{temp, power};
+}
+
+std::optional<GpuProcList> nvidia_processes(const std::vector<std::string>& exclude) {
+    auto out = run_capture("nvidia-smi -q -d PIDS", kNvidiaSmiTimeoutMs);
+    if (!out)
+        return std::nullopt;
+    return parse_pids(*out, exclude);
 }
 
 } // namespace cfc

@@ -41,8 +41,6 @@ public:
     // Runs the speed law for one fan until stopped. fan is 1 or 2.
     void fan_loop(std::stop_token stop, int fan);
 
-    Snapshot get() const;
-
 private:
     const Config& cfg_;
     Ec& ec_;
@@ -73,6 +71,11 @@ private:
     int last_cpu_temp_ = 0;
 
     bool logged_gpu_mode_ = false; // first mode report is emitted once
-    bool prev_gpu_active_ = false;};
+    bool prev_gpu_active_ = false;
+
+    // Monotonic ns until which nvidia-smi is skipped, so the driver can suspend
+    // the dGPU. nullopt = not pausing. The sampler thread is the only writer.
+    std::optional<uint64_t> pause_until_ns_;
+};
 
 } // namespace cfc

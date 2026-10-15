@@ -160,6 +160,64 @@ std::optional<Config> load_config(const std::string& path) {
         ok = false;
     }
 
+    auto* detect = root["gpu_detect"].as_table();
+    if (!detect) {
+        log("missing table [gpu_detect]");
+        ok = false;
+        return std::nullopt;
+    }
+
+    // toml++ converts integers to bool (0/1 and, surprisingly, 2), so inspect
+    // the node type instead of trusting value<bool>().
+    auto enabled_node = (*detect)["gpu_sleep_detect_enabled"];
+    if (auto ev = enabled_node.value<bool>(); ev && enabled_node.is_boolean()) {
+        cfg.gpu_detect.enabled = *ev;
+    } else {
+        log("[gpu_detect] missing or non-boolean key 'gpu_sleep_detect_enabled'");
+        ok = false;
+    }
+
+    if (auto dv = (*detect)["gpu_sleep_delay"].value<int64_t>()) {
+        if (*dv < 1) {
+            log("[gpu_detect] 'gpu_sleep_delay' must be >= 1 s");
+            ok = false;
+        } else {
+            cfg.gpu_detect.delay_ms = *dv * 1000;
+        }
+    } else {
+        log("[gpu_detect] missing or non-integer key 'gpu_sleep_delay'");
+        ok = false;
+    }
+
+    if (auto tv = (*detect)["gpu_sleep_temp"].value<int64_t>()) {
+        if (*tv < 0) {
+            log("[gpu_detect] 'gpu_sleep_temp' must be >= 0 C");
+            ok = false;
+        } else {
+            cfg.gpu_detect.sleep_temp = static_cast<int>(*tv);
+        }
+    } else {
+        log("[gpu_detect] missing or non-integer key 'gpu_sleep_temp'");
+        ok = false;
+    }
+
+    auto* exclude = (*detect)["gpu_proc_exclude"].as_array();
+    if (!exclude) {
+        log("[gpu_detect] missing or non-array key 'gpu_proc_exclude'");
+        ok = false;
+    } else {
+        cfg.gpu_detect.proc_exclude.reserve(exclude->size());
+        for (const auto& node : *exclude) {
+            auto s = node.value<std::string>();
+            if (!s) {
+                log("[gpu_detect] 'gpu_proc_exclude' entries must be strings");
+                ok = false;
+                break;
+            }
+            cfg.gpu_detect.proc_exclude.push_back(*s);
+        }
+    }
+
     if (!ok)
         return std::nullopt;
     return cfg;
