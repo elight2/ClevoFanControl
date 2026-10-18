@@ -9,8 +9,19 @@ import ctypes
 import os
 import sys
 
-LIB_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "build", "libclevoec.so"
+LIB_DIR = os.path.dirname(os.path.abspath(__file__))
+# Look next to the script first (an installed/staged copy, e.g. dist/), then in
+# the build tree, so the same script works from src/ and from the staging dir.
+LIB_PATH = next(
+    (
+        p
+        for p in (
+            os.path.join(LIB_DIR, "libclevoec.so"),
+            os.path.join(LIB_DIR, "..", "build", "libclevoec.so"),
+        )
+        if os.path.exists(p)
+    ),
+    os.path.join(LIB_DIR, "..", "build", "libclevoec.so"),
 )
 
 # Fan index -> tachometer address, same values as EC_RPM1/EC_RPM2 in libclevoec.h.

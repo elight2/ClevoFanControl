@@ -38,3 +38,21 @@ target_compile_options(cfc PRIVATE -Wall -Wextra)
 
 # No config.toml is installed next to the binary: src/config.cpp embeds the
 # default through #embed and writes it on first run, when the file is missing.
+
+# Staging directory for manual testing: every artifact flat in one place, so a
+# test run needs no path juggling. `cmake --install build` fills it after a
+# build. The default prefix lives inside the source tree (and is git-ignored);
+# a real system install still needs an explicit --prefix such as /usr/local.
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE PATH
+        "Install prefix" FORCE)
+endif()
+
+install(TARGETS cfc
+    RUNTIME DESTINATION .)
+# src/testec.py looks for the library next to itself, so it must be installed
+# flat rather than into a lib/ subdirectory.
+install(TARGETS clevoec
+    LIBRARY DESTINATION .)
+install(PROGRAMS src/testec.py
+    DESTINATION .)
