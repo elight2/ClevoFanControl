@@ -4,14 +4,42 @@
 
 #include <toml++/toml.hpp>
 
+#include <cerrno>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
 
 namespace cfc {
 namespace {
 
 constexpr int kMinIntervalMs = 100; // below this the EC is driven too fast
 constexpr double kMinIntervalSec = kMinIntervalMs / 1000.0;
+
+// Default configuration, embedded at build time from src/config.toml so no
+// template file has to be shipped next to the binary. #embed resolves the path
+// relative to this source file, and the compiler records config.toml as a
+// dependency, so editing the template triggers a rebuild. Note: #embed is only
+// standard from C++26; GCC accepts it in C++23 as an extension, which is why
+// this needs GCC >= 15 or Clang >= 19.
+// Note: sizeof(kDefaultConfig) is the file size; #embed does not append a
+// terminator, so it is written as raw bytes rather than as a C string.
+constexpr unsigned char kDefaultConfig[] = {
+#embed "config.toml"
+};
+
+// Creates path and writes the embedded default into it.
+// Returns false on a failed open or a short write; errno carries the reason for
+// the open case, which is the one a caller can act on (a read-only directory).
+bool write_default_config(const std::string& path) {
+    std::ofstream out(path, std::ios::binary | std::ios::trunc);
+    if (!out)
+        return false;
+    out.write(reinterpret_cast<const char*>(kDefaultConfig),
+              static_cast<std::streamsize>(sizeof(kDefaultConfig)));
+    return static_cast<bool>(out);
+}
 
 // The sampler wakes the dGPU by running nvidia-smi, so its period has a higher
 // floor than the fan control period.
@@ -106,6 +134,19 @@ std::optional<FanParams> parse_fan(const toml::table& t, std::string_view name) 
 } // namespace
 
 std::optional<Config> load_config(const std::string& path) {
+    // First run: no config on disk yet, so materialize the embedded default.
+    // Only a missing file triggers this. A file that exists but fails to parse
+    // is reported as an error instead of being overwritten, so a config the user
+    // broke is never silently replaced by the defaults.
+    std::error_code ec;
+    if (!std::filesystem::exists(path, ec) && !ec) {
+        if (!write_default_config(path)) {
+            logf("no config at {} and cannot create it: {}", path, std::strerror(errno));
+            return std::nullopt;
+        }
+        logf("no config at {}, wrote the built-in default", path);
+    }
+
     toml::table root;
     try {
         root = toml::parse_file(path);

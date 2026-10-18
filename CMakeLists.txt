@@ -36,9 +36,5 @@ target_include_directories(cfc PRIVATE src)
 target_link_libraries(cfc PRIVATE tomlplusplus::tomlplusplus)
 target_compile_options(cfc PRIVATE -Wall -Wextra)
 
-# Runtime config is read next to the executable, so put the template there.
-add_custom_command(TARGET cfc POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/config.toml
-            $<TARGET_FILE_DIR:cfc>/config.toml
-    COMMENT "Copying config.toml next to the cfc binary")
+# No config.toml is installed next to the binary: src/config.cpp embeds the
+# default through #embed and writes it on first run, when the file is missing.
