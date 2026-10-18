@@ -79,14 +79,12 @@ Control::Control(const Config& cfg, Ec& ec) : cfg_(cfg), ec_(ec) {
 
 bool Control::probe_sensors() {
     // The RAPL domain path is hardcoded to the first package domain.
-    // AMD note (checked against the kernel tree, not tested on hardware): the
-    // intel_rapl_msr driver registers its control type under the name
-    // "intel-rapl" on AMD and Hygon too (drivers/powercap/intel_rapl_msr.c), so
-    // this path is not Intel-only and usually resolves on AMD as well. What does
-    // differ is which CPUs the driver binds to: intel_rapl_common.c matches AMD
-    // families 0x17, 0x19 and 0x1A and Hygon 0x18, so a CPU outside that list
-    // exposes no domain here and the open below fails. Supporting such a CPU
-    // means enumerating the available powercap domains instead of naming one.
+    // AMD support is deliberately not claimed. The intel_rapl_msr driver does
+    // register its control type as "intel-rapl" on AMD and Hygon as well, and
+    // intel_rapl_common.c binds it to AMD families 0x17, 0x19, 0x1A and Hygon
+    // 0x18, so this open can succeed there. That is not enough: CpuTemp only
+    // accepts coretemp (see sensors.cpp), so an AMD machine still stops at the
+    // temperature probe below. Neither path was tested on AMD hardware.
     rapl_ = RaplEnergy::open("/sys/class/powercap/intel-rapl:0");
     if (!rapl_) {
         error("cannot open /sys/class/powercap/intel-rapl:0 (need root, or no RAPL "
@@ -96,7 +94,8 @@ bool Control::probe_sensors() {
 
     cpu_temp_ = CpuTemp::open();
     if (!cpu_temp_) {
-        error("no coretemp/k10temp hwmon device with temp1_input found");
+        error("no coretemp hwmon device with temp1_input found; "
+              "this build only supports Intel CPUs");
         return false;
     }
 

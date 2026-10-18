@@ -28,7 +28,8 @@ private:
     bool have_last_ = false;
 };
 
-// CPU package temperature, in degrees Celsius.
+// CPU package temperature, in degrees Celsius. Intel coretemp only; AMD support
+// is deliberately not claimed, see the implementation.
 class CpuTemp {
 public:
     static std::optional<CpuTemp> open();
