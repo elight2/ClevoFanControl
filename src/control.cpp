@@ -72,6 +72,10 @@ Control::Control(const Config& cfg, Ec& ec) : cfg_(cfg), ec_(ec) {
 }
 
 bool Control::probe_sensors() {
+    // Intel-only: the RAPL domain path is hardcoded. On AMD the equivalent
+    // domains are amd-rapl:0 under the same sysfs class, so a k10temp system
+    // reaches this line, fails, and refuses to run. Supporting AMD means
+    // enumerating the available powercap domains instead of naming one.
     rapl_ = RaplEnergy::open("/sys/class/powercap/intel-rapl:0");
     if (!rapl_) {
         error("cannot open /sys/class/powercap/intel-rapl:0 (need root)");
@@ -94,6 +98,10 @@ bool Control::probe_sensors() {
 }
 
 void Control::sampler_loop(std::stop_token stop) {
+    // KNOWN DEFECT (confirmed by the project owner, fix pending): one window size
+    // is taken from the CPU table and applied to both averaging windows, so
+    // [gpu].power_sample_count and [gpu_cpu_only].power_sample_count have no
+    // effect. Both windows must be sized from their own FanParams instead.
     const auto window = static_cast<std::size_t>(cfg_.cpu.power_sample_count);
 
     // First read establishes the baseline. The first sample taken inside the
@@ -103,6 +111,9 @@ void Control::sampler_loop(std::stop_token stop) {
     bool baseline_pending = true;
 
     while (!stop.stop_requested()) {
+        // Plain sleep_for, not a condition_variable wait: shutdown can therefore
+        // be delayed by up to one hw_detect_interval. Acceptable for a periodic
+        // sampler, but do not assume the loop reacts to stop immediately.
         std::this_thread::sleep_for(std::chrono::milliseconds(cfg_.hw_detect_interval_ms));
         if (stop.stop_requested())
             break;
@@ -245,6 +256,11 @@ void Control::fan_loop(std::stop_token stop, int fan) {
 
     if (ec_.set_speed(fan, cur_speed) != 0)
         return;
+
+    // Note: set_speed() cannot fail in practice (libclevoec returns no status for
+    // a write), so this early return only triggers on an argument error. A fan
+    // thread that dies here leaves its fan in whatever the EC had, while the
+    // process keeps running: the main loop only watches for signals.
 
     while (!stop.stop_requested()) {
         FanInput in;

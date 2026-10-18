@@ -119,6 +119,12 @@ std::optional<std::string> run_capture(const char* cmd, int timeout_ms) {
         ::kill(pid, SIGKILL);
 
     int status = 0;
+    // KNOWN DEFECT (found during the code review, fix pending): this wait has no
+    // deadline. The read loop above also ends on EOF, so a child that closes its
+    // stdout without exiting (e.g. a wrapper that redirects and keeps running)
+    // never trips timed_out and blocks this thread here forever. Measured: a
+    // 3 s child with stdout closed and a 500 ms budget blocked for the full 3 s.
+    // For the sampler that means nvidia-smi hangs stop all fan adjustment.
     while (::waitpid(pid, &status, 0) < 0 && errno == EINTR) {
     }
     ::close(fds[0]);
@@ -260,6 +266,9 @@ std::optional<uint64_t> RaplEnergy::read() {
 std::optional<CpuTemp> CpuTemp::open() {
     // Prefer hwmon: coretemp on Intel, k10temp on AMD. Both expose the package
     // temperature as temp1_input.
+    // Note: accepting k10temp here is not enough to run on AMD. probe_sensors()
+    // still opens the Intel RAPL domain by name and fails first; see the comment
+    // there.
     std::error_code ec;
     for (const auto& entry : fs::directory_iterator("/sys/class/hwmon", ec)) {
         auto name = read_line(entry.path().string() + "/name");
@@ -286,6 +295,13 @@ std::optional<int> CpuTemp::read() const {
 }
 
 std::optional<std::string> find_nvidia_runtime_status() {
+    // Only the CPU-only/GPU+CPU mode switch depends on this path.
+    // UNCERTAIN, needs a decision on multi-GPU machines: this returns the first
+    // NVIDIA display controller in directory-iteration order (PCI address order)
+    // while nvidia-smi defaults to its own GPU 0. With more than one NVIDIA GPU
+    // the two may name different cards, so the mode flag could follow one card
+    // while the temperature and power readings come from another. Unverified:
+    // only a single-dGPU machine was available.
     std::error_code ec;
     for (const auto& entry : fs::directory_iterator("/sys/bus/pci/devices", ec)) {
         auto vendor = read_line(entry.path().string() + "/vendor");
@@ -338,6 +354,9 @@ std::optional<std::pair<int, double>> nvidia_readings() {
     double power = std::strtod(power_s.c_str(), &end);
     if (end == power_s.c_str())
         return std::nullopt;
+    // A successful parse is all that is checked: a negative or absurd value from
+    // the driver is passed through. Harmless today, because the value only feeds
+    // the average, but the averaging is not filtered either.
 
     return std::pair{temp, power};
 }

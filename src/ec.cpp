@@ -69,6 +69,10 @@ int Ec::set_auto(int fan) {
 }
 
 int Ec::rpm(int fan) {
+    // Note: get_rpm() computes 2156250 / raw, while every reference document in
+    // .cache/ec and the previous implementation use 2156220 / raw. The 0.0014%
+    // difference is below what a tachometer resolves, so it is not touched here,
+    // but the constant has no documented source in libclevoec.c.
     const unsigned char addr = rpm_addr(fan);
     if (addr == 0) {
         logf("refusing RPM read for unknown fan {}", fan);

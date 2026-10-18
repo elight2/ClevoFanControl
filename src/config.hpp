@@ -14,7 +14,12 @@ struct FanParams {
     int temp_offset = 0;        // C, half-width of the dead band
     int step = 0;               // percent per adjustment
     int interval_ms = 0;        // control period, already converted from seconds
-    int power_sample_count = 0; // samples averaged for the min speed lookup
+    // Samples averaged for the min speed lookup.
+    // KNOWN DEFECT (confirmed by the project owner, fix pending): the sampler
+    // builds both averaging windows from cfg_.cpu.power_sample_count only, so
+    // the values read from [gpu] and [gpu_cpu_only] are parsed and validated but
+    // never used. The old Qt implementation kept one window per fan.
+    int power_sample_count = 0;
     std::vector<std::pair<int, int>> min_speed_list; // (power W, speed %), power ascending
 };
 

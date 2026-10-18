@@ -89,6 +89,9 @@ int main() {
     threads.clear(); // jthread destructors join
 
     // Hand both fans back to the EC's own control, matching the old shutdown path.
+    // Note: this runs only on the clean exit below. SIGKILL, a crash, or a panic
+    // leaves the fans in fixed duty mode until the EC is reset, because nothing
+    // else restores auto mode.
     ec.set_auto(1);
     ec.set_auto(2);
     cfc::log("stopped: both fans restored to EC auto");

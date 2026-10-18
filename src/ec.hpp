@@ -14,6 +14,10 @@ public:
     // fan is 1 (CPU) or 2 (GPU); percent is 0-100.
     int set_speed(int fan, int percent);
     int set_auto(int fan);
+
+    // Reads the tachometer. Currently no caller: the control law is open loop,
+    // it never checks that the fan actually reached the requested duty. Kept
+    // because testec.py and any future closed-loop check need the same mapping.
     int rpm(int fan);
 
 private:

@@ -63,6 +63,9 @@ std::optional<FanParams> parse_fan(const toml::table& t, std::string_view name) 
             return fail("'min_speed_list' entries must be integers");
         p.min_speed_list.emplace_back(static_cast<int>(*power), static_cast<int>(*speed));
     }
+    // Note: 'power' has a lower bound but no upper bound, so a value above
+    // INT_MAX is narrowed to int here. Unrealistic for watts; left as-is rather
+    // than adding a limit nobody asked for.
 
     // power must be strictly ascending, otherwise the step lookup is ambiguous
     for (std::size_t i = 1; i < p.min_speed_list.size(); i++) {
@@ -86,6 +89,11 @@ std::optional<FanParams> parse_fan(const toml::table& t, std::string_view name) 
         return fail("'ctrl_step' must be >= 1");
     if (!std::isfinite(*interval) || *interval < kMinIntervalSec)
         return fail(std::format("'ctrl_interval' must be >= {} s", kMinIntervalSec));
+
+    // No upper bound is enforced: llround(seconds * 1000) above INT_MAX wraps on
+    // the cast to int, which is undefined behaviour and would turn into a
+    // nonsense (possibly negative) period. Unreachable with a config file a human
+    // wrote; recorded rather than fixed because the limit is a policy choice.
 
     p.target_temp = static_cast<int>(*target);
     p.temp_offset = static_cast<int>(*offset);
@@ -153,6 +161,8 @@ std::optional<Config> load_config(const std::string& path) {
             logf("[general] 'hw_detect_interval' must be >= {} s", kMinDetectIntervalSec);
             ok = false;
         } else {
+            // Same missing upper bound as 'ctrl_interval': the cast to int can
+            // overflow for an absurd interval.
             cfg.hw_detect_interval_ms = static_cast<int>(std::llround(*iv * 1000.0));
         }
     } else {
