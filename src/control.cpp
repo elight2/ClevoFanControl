@@ -302,7 +302,13 @@ void Control::sampler_loop(std::stop_token stop) {
 
 void Control::fan_loop(std::stop_token stop, int fan) {
     const int index = fan - 1;
-    int cur_speed = kInitialSpeed;
+    // Startup speed is already capped by the table in force at start, so the fan
+    // does not exceed max_speed even before the first control step.
+    int cur_speed = 0;
+    {
+        std::lock_guard lock(mu_);
+        cur_speed = std::min(kInitialSpeed, snap_.fans[index].params->max_speed);
+    }
 
     if (ec_.set_speed(fan, cur_speed) != 0)
         return;
@@ -324,14 +330,19 @@ void Control::fan_loop(std::stop_token stop, int fan) {
         }
 
         const FanParams& p = *in.params;
-        const int min_speed = lookup_min_speed(p.min_speed_list, in.avg_power);
+        // max_speed is a hard ceiling per fan table. A floor above it is possible
+        // in a hand-written config (min_speed_list is not cross-checked against
+        // max_speed); the ceiling wins, so the floor is lowered to it here rather
+        // than leaving clamp() with low > high, which is undefined behaviour.
+        const int max_speed = p.max_speed;
+        const int min_speed = std::min(lookup_min_speed(p.min_speed_list, in.avg_power), max_speed);
 
         if (cur_speed < min_speed) {
             // Rule 1: never sit below the current allowed floor. One step per
             // cycle, and this cycle does nothing else.
             const int next = std::min(cur_speed + p.step, min_speed);
-            debugf("fan {}: {} -> {} min-driven (temp {}, pwr {:.1f}, min {})",
-                   fan, cur_speed, next, in.temp, in.avg_power, min_speed);
+            debugf("fan {}: {} -> {} min-driven (temp {}, pwr {:.1f}, min {}, max {})",
+                   fan, cur_speed, next, in.temp, in.avg_power, min_speed, max_speed);
             cur_speed = next;
             ec_.set_speed(fan, cur_speed);
         } else {
@@ -341,14 +352,16 @@ void Control::fan_loop(std::stop_token stop, int fan) {
                 target = cur_speed + p.step;
             else if (in.temp < p.target_temp - p.temp_offset)
                 target = cur_speed - p.step;
-            target = std::clamp(target, min_speed, 100);
+            // Also pulls cur_speed back down when a mode switch installed a table
+            // with a lower max_speed than the speed already in force.
+            target = std::clamp(target, min_speed, max_speed);
 
             if (target != cur_speed) {
                 // Only report an actual change; a steady state stays silent.
                 const int delta = target - cur_speed;
-                debugf("fan {}: {} -> {} {}{} temp-driven (temp {}, pwr {:.1f}, min {})",
+                debugf("fan {}: {} -> {} {}{} temp-driven (temp {}, pwr {:.1f}, min {}, max {})",
                        fan, cur_speed, target, delta > 0 ? "+" : "-",
-                       std::abs(delta), in.temp, in.avg_power, min_speed);
+                       std::abs(delta), in.temp, in.avg_power, min_speed, max_speed);
                 cur_speed = target;
                 ec_.set_speed(fan, cur_speed);
             }

@@ -66,7 +66,8 @@ std::optional<FanParams> parse_fan(const toml::table& t, std::string_view name) 
     auto offset = get_int("target_temp_offset");
     auto step = get_int("ctrl_step");
     auto count = get_int("power_sample_count");
-    if (!target || !offset || !step || !count)
+    auto max_speed = get_int("max_speed");
+    if (!target || !offset || !step || !count || !max_speed)
         return std::nullopt;
 
     auto interval = t["ctrl_interval"].value<double>();
@@ -115,6 +116,11 @@ std::optional<FanParams> parse_fan(const toml::table& t, std::string_view name) 
         return fail("'target_temp_offset' must be >= 0");
     if (*step < 1)
         return fail("'ctrl_step' must be >= 1");
+    // A max_speed below a min_speed_list floor is accepted: the ceiling wins,
+    // see fan_loop(). Rejecting the whole file for it would be stricter than the
+    // README promises, which only says the speed never goes above max_speed.
+    if (*max_speed < 0 || *max_speed > 100)
+        return fail("'max_speed' must be within 0-100");
     if (!std::isfinite(*interval) || *interval < kMinIntervalSec)
         return fail(std::format("'ctrl_interval' must be >= {} s", kMinIntervalSec));
 
@@ -126,6 +132,7 @@ std::optional<FanParams> parse_fan(const toml::table& t, std::string_view name) 
     p.target_temp = static_cast<int>(*target);
     p.temp_offset = static_cast<int>(*offset);
     p.step = static_cast<int>(*step);
+    p.max_speed = static_cast<int>(*max_speed);
     p.power_sample_count = static_cast<int>(*count);
     p.interval_ms = static_cast<int>(std::llround(*interval * 1000.0));
     return p;

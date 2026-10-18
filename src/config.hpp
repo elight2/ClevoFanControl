@@ -13,6 +13,7 @@ struct FanParams {
     int target_temp = 0;        // C
     int temp_offset = 0;        // C, half-width of the dead band
     int step = 0;               // percent per adjustment
+    int max_speed = 100;        // percent, hard ceiling the speed law never exceeds
     int interval_ms = 0;        // control period, already converted from seconds
     // Samples averaged for the min speed lookup. Each table's own value is used:
     // [cpu] for fan 1, [gpu] for fan 2 while the dGPU is active and
