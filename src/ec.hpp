@@ -17,7 +17,7 @@ public:
 
     // Reads the tachometer. Currently no caller: the control law is open loop,
     // it never checks that the fan actually reached the requested duty. Kept
-    // because testec.py and any future closed-loop check need the same mapping.
+    // because testfan.py and any future closed-loop check need the same mapping.
     int rpm(int fan);
 
 private:

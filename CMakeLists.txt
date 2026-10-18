@@ -17,7 +17,7 @@ find_package(tomlplusplus REQUIRED)
 # optimisation (-O0 with the Ninja generator's default flags). Changing that is a
 # policy choice for the packager, not done here.
 
-# Shared library, kept so src/testec.py can exercise the EC layer directly.
+# Shared library, kept so src/testfan.py can exercise the EC layer directly.
 add_library(clevoec SHARED src/libclevoec.c)
 target_include_directories(clevoec PRIVATE src)
 target_compile_options(clevoec PRIVATE -Wall -Wextra)
@@ -50,11 +50,11 @@ endif()
 
 install(TARGETS cfc
     RUNTIME DESTINATION .)
-# src/testec.py looks for the library next to itself, so it must be installed
+# src/testfan.py looks for the library next to itself, so it must be installed
 # flat rather than into a lib/ subdirectory.
 install(TARGETS clevoec
     LIBRARY DESTINATION .)
-install(PROGRAMS src/testec.py
+install(PROGRAMS src/testfan.py
     DESTINATION .)
 # The default config is copied so the staged directory is self-contained. Note:
 # this overwrites out/config.toml on every install, so edits made while testing
