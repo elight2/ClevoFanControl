@@ -6,7 +6,7 @@
 
 ## 调速机制
 
-### 参数
+### 配置文件
 
 参考：[config.toml](./src/config.toml)
 
@@ -34,5 +34,6 @@
 ## EC芯片及其协议
 **本部分仅在蓝天n960kp型号验证**
 * 芯片型号：it5570e-128
-TODO
+* 所有参考资料放在[ec-reference.zip](./ec-reference.zip)
+* 通信协议细节以及封装好的函数库在[libclevoec.c](./src/libclevoec.c)
 
