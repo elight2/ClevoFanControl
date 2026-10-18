@@ -29,9 +29,9 @@
 // get io perm
 int init_perm() {
     int ret = 0;
-    if (ret = ioperm(EC_SC_PORT, 1, 1))
+    if ((ret = ioperm(EC_SC_PORT, 1, 1)))
         return ret;
-    if (ret = ioperm(EC_DATA_PORT, 1, 1))
+    if ((ret = ioperm(EC_DATA_PORT, 1, 1)))
         return ret;
     return ret;
 }

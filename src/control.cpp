@@ -24,8 +24,8 @@ uint64_t monotonic_ns() {
 
 using namespace std::chrono_literals;
 
-// Startup speed. clevoec.h can only read RPM, so the software must pick a
-// value; 20% matches the old CfcDef::DEFAULT_SPEED.
+// Startup speed. libclevoec has no way to ask the EC for its current duty, so the
+// software must pick a value; 20% matches the old CfcDef::DEFAULT_SPEED.
 constexpr int kInitialSpeed = 20;
 
 // Step lookup from min_speed_list: the average power selects a row, and its

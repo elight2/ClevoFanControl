@@ -10,7 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(tomlplusplus REQUIRED)
 
 # Shared library, kept so src/testec.py can exercise the EC layer directly.
-add_library(clevoec SHARED src/clevoec.c)
+add_library(clevoec SHARED src/libclevoec.c)
 target_include_directories(clevoec PRIVATE src)
 target_compile_options(clevoec PRIVATE -Wall -Wextra)
 
@@ -21,7 +21,7 @@ set(CFC_SOURCES
     src/control.cpp
     src/ec.cpp
     src/sensors.cpp
-    src/clevoec.c)
+    src/libclevoec.c)
 
 add_executable(cfc ${CFC_SOURCES})
 target_include_directories(cfc PRIVATE src)

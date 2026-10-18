@@ -4,7 +4,7 @@
 
 namespace cfc {
 
-// Serializes every EC transaction. clevoec.c carries no lock of its own, and
+// Serializes every EC transaction. libclevoec.c carries no lock of its own, and
 // both fan threads plus the shutdown path reach it concurrently, so the whole
 // read/write sequence must be held, not just one byte.
 class Ec {

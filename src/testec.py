@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI test tool for the clevoec .so.
+"""CLI test tool for the clevoec .so (libclevoec).
 
 usage:
   testec.py s <fan 1|2> <-1|0-255>   set fan speed, -1 = auto
@@ -13,24 +13,20 @@ LIB_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "build", "libclevoec.so"
 )
 
-lib = ctypes.CDLL(LIB_PATH)
-lib.ec_init.restype = ctypes.c_int
-lib.ec_init.argtypes = []
-lib.set_fan_speed.restype = ctypes.c_int
-lib.set_fan_speed.argtypes = [ctypes.c_int, ctypes.c_int]
-lib.get_rpm.restype = ctypes.c_int
-lib.get_rpm.argtypes = [ctypes.c_int]
+# Fan index -> tachometer address, same values as EC_RPM1/EC_RPM2 in libclevoec.h.
+RPM_ADDR = {1: 0xD0, 2: 0xD2}
 
-# so returns -1 for bad duty and -2 for bad index; ec_init returns -errno
-ERR = {-1: "bad duty: must be -1 or 0-255", -2: "bad index: must be 1 or 2"}
-
-
-def check(rc, libcall=False):
-    if rc < 0:
-        if libcall and rc in ERR:
-            sys.exit(ERR[rc])
-        sys.exit(f"{os.strerror(-rc)} (errno {-rc})")
-    return rc
+lib = ctypes.CDLL(LIB_PATH, use_errno=True)
+# init_perm: 0 on success, -1 on failure with errno set
+lib.init_perm.restype = ctypes.c_int
+lib.init_perm.argtypes = []
+# fix_fan_duty/release_fan_duty return void: a failed write cannot be reported
+lib.fix_fan_duty.restype = None
+lib.fix_fan_duty.argtypes = [ctypes.c_ubyte, ctypes.c_ubyte]
+lib.release_fan_duty.restype = None
+lib.release_fan_duty.argtypes = [ctypes.c_ubyte]
+lib.get_rpm.restype = ctypes.c_ushort
+lib.get_rpm.argtypes = [ctypes.c_ubyte]
 
 
 def fan(arg):
@@ -44,12 +40,18 @@ def cmd_set(index, arg):
         duty = int(arg)
     except ValueError:
         sys.exit(f"bad duty {arg}: must be -1 or 0-255")
-    check(lib.set_fan_speed(duty, index), libcall=True)
-    print(f"fan {index} {'auto' if duty == -1 else f'duty {duty}'}")
+    if duty != -1 and not 0 <= duty <= 255:
+        sys.exit(f"bad duty {duty}: must be -1 or 0-255")
+    if duty == -1:
+        lib.release_fan_duty(index)
+        print(f"fan {index} auto")
+    else:
+        lib.fix_fan_duty(index, duty)
+        print(f"fan {index} duty {duty}")
 
 
 def cmd_get(index):
-    print(f"fan {index} rpm {check(lib.get_rpm(index), libcall=True)}")
+    print(f"fan {index} rpm {lib.get_rpm(RPM_ADDR[index])}")
 
 
 def main(argv):
@@ -62,5 +64,8 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    check(lib.ec_init())
+    if lib.init_perm() != 0:
+        # init_perm returns -1 and leaves the reason in errno
+        err = ctypes.get_errno()
+        sys.exit(f"init_perm failed: {os.strerror(err)} (errno {err})")
     main(sys.argv)
