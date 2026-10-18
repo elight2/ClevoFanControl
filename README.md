@@ -18,6 +18,7 @@
 每过`ctrl_interval`执行一次调速操作：
 1. 检查当前风扇速度是否低于**当前的**最低允许速度，如果低于则将速度提升`ctrl_step`，并跳过本次循环
 2. 如果核心温度低于`target_temp - target_temp_offset`，则将速度降低`ctrl_step`，如果高于`target_temp + target_temp_offset`，则提升`ctrl_step`，如果处于区间内则不操作
+3. 任何情况下风扇速度不允许超过`max_speed`（如果提升最小`ctrl_step`后超过了则限制在`max_speed`以下）
 
 #### 软件控制线程
 每过`hw_detect_interval`执行一次操作：

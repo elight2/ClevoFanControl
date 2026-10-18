@@ -1,13 +1,18 @@
+# global options
 [general]
 log_level="normal" # normal debug
-hw_detect_interval=1.0 # interval between which power and temp are metered
+hw_detect_interval=1.0 # interval between which power and temp are metered, GPU detect also follows this
 
 # make GPU auto suspending possible, normally nvidia-smi prevents GPU from suspending
+# for details, see README
 [gpu_detect]
 gpu_sleep_detect_enabled=true # global switch
-gpu_sleep_delay=30
-gpu_proc_exclude=["Xorg"]
-gpu_sleep_temp=60
+gpu_sleep_delay=30 # stop monitoring GPU for this period to get it auto suspended
+gpu_proc_exclude=["Xorg"] # procs that do NOT prevent GPU from being suspended must be added here for this feature to work correctly
+gpu_sleep_temp=60 # try to get GPU auto suspended under this temp
+
+# following are fan configs
+# for details see README
 
 # CPU fan config
 [cpu]
@@ -17,6 +22,7 @@ target_temp=70
 target_temp_offset=2
 ctrl_step=3
 ctrl_interval=1.0
+max_speed=100
 
 # GPU fan config in GPU+CPU mode
 [gpu]
@@ -26,6 +32,7 @@ target_temp=70
 target_temp_offset=2
 ctrl_step=2
 ctrl_interval=1.0
+max_speed=100
 
 # GPU fan config in CPU only mode
 [gpu_cpu_only]
@@ -35,3 +42,5 @@ target_temp=100
 target_temp_offset=2
 ctrl_step=5
 ctrl_interval=2.0
+max_speed=100
+
