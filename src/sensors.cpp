@@ -8,11 +8,13 @@
 #include <chrono>
 #include <csignal>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <poll.h>
 #include <string_view>
+#include <thread>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -49,16 +51,19 @@ std::optional<uint64_t> read_u64(const std::string& path) {
 
 // Runs a command and returns its stdout, killing it if it outlives timeout_ms.
 // A hung nvidia-smi must not stall the sampler, which would freeze fan control.
-std::optional<std::string> run_capture(const char* cmd, int timeout_ms) {
+// The timeout covers the whole call, including reaping the child: the read loop
+// can end on EOF while the child is still alive, so the wait below needs its
+// own deadline as well.
+QueryStatus run_capture(const char* cmd, int timeout_ms, std::string& out) {
     int fds[2];
     if (::pipe(fds) != 0)
-        return std::nullopt;
+        return QueryStatus::Failed;
 
     ::pid_t pid = ::fork();
     if (pid < 0) {
         ::close(fds[0]);
         ::close(fds[1]);
-        return std::nullopt;
+        return QueryStatus::Failed;
     }
 
     if (pid == 0) {
@@ -77,10 +82,10 @@ std::optional<std::string> run_capture(const char* cmd, int timeout_ms) {
 
     // parent: read with a deadline so a stuck child cannot block us
     ::close(fds[1]);
-    std::string out;
+    out.clear();
     char buf[256];
 
-    auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
     bool timed_out = false;
 
     for (;;) {
@@ -118,20 +123,47 @@ std::optional<std::string> run_capture(const char* cmd, int timeout_ms) {
     if (timed_out)
         ::kill(pid, SIGKILL);
 
+    // Reap within the same deadline. The read loop can end on EOF while the child
+    // is still alive, so a plain waitpid(pid, ..., 0) here would block for as long
+    // as the child runs and defeat the timeout entirely. The deadline is the one
+    // set at entry, so a child that closes stdout early but exits within the
+    // budget is still reaped and its status used.
+    //
+    // A child killed above is normally collected at once. If it sits in an
+    // uninterruptible wait inside the driver it never returns at all; after the
+    // short grace period below it is left unreaped on purpose, which is the only
+    // way to keep the sampler, and therefore fan control, alive.
     int status = 0;
-    // KNOWN DEFECT (found during the code review, fix pending): this wait has no
-    // deadline. The read loop above also ends on EOF, so a child that closes its
-    // stdout without exiting (e.g. a wrapper that redirects and keeps running)
-    // never trips timed_out and blocks this thread here forever. Measured: a
-    // 3 s child with stdout closed and a 500 ms budget blocked for the full 3 s.
-    // For the sampler that means nvidia-smi hangs stop all fan adjustment.
-    while (::waitpid(pid, &status, 0) < 0 && errno == EINTR) {
+    bool reaped = false;
+    const auto reap_deadline = deadline + std::chrono::milliseconds(200);
+    for (;;) {
+        ::pid_t r = ::waitpid(pid, &status, WNOHANG);
+        if (r == pid) {
+            reaped = true;
+            break;
+        }
+        if (r < 0) {
+            if (errno == EINTR)
+                continue;
+            break; // ECHILD: nothing left to reap
+        }
+        if (std::chrono::steady_clock::now() >= reap_deadline) {
+            if (!timed_out) {
+                timed_out = true;
+                ::kill(pid, SIGKILL);
+            }
+            debug("run_capture: child not collected after SIGKILL, leaving it unreaped");
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     ::close(fds[0]);
 
-    if (timed_out || !WIFEXITED(status) || WEXITSTATUS(status) != 0 || out.empty())
-        return std::nullopt;
-    return out;
+    if (timed_out || !reaped)
+        return QueryStatus::Timeout;
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0 || out.empty())
+        return QueryStatus::Failed;
+    return QueryStatus::Ok;
 }
 
 // A client counts as a reason to keep querying unless its reported name matches
@@ -330,46 +362,52 @@ std::optional<std::string> find_nvidia_runtime_status() {
     return std::nullopt;
 }
 
-std::optional<std::pair<int, double>> nvidia_readings() {
+std::pair<QueryStatus, std::optional<std::pair<int, double>>> nvidia_readings() {
     // One call, two values, machine readable. No waking the GPU twice.
-    auto out = run_capture("nvidia-smi --query-gpu=temperature.gpu,power.draw "
-                           "--format=csv,noheader,nounits",
-                           kNvidiaSmiTimeoutMs);
-    if (!out)
-        return std::nullopt;
+    std::string out;
+    const auto st = run_capture("nvidia-smi --query-gpu=temperature.gpu,power.draw "
+                                "--format=csv,noheader,nounits",
+                                kNvidiaSmiTimeoutMs, out);
+    if (st != QueryStatus::Ok)
+        return {st, std::nullopt};
 
     // expected: "45, 12.34"
-    auto comma = out->find(',');
+    auto comma = out.find(',');
     if (comma == std::string::npos)
-        return std::nullopt;
+        return {QueryStatus::Failed, std::nullopt};
 
-    std::string temp_s = out->substr(0, comma);
-    std::string power_s = out->substr(comma + 1);
+    std::string temp_s = out.substr(0, comma);
+    std::string power_s = out.substr(comma + 1);
 
     int temp = 0;
     {
         auto [p, e] = std::from_chars(temp_s.data(), temp_s.data() + temp_s.size(), temp);
         if (e != std::errc{})
-            return std::nullopt;
+            return {QueryStatus::Failed, std::nullopt};
     }
 
     // power may read "[N/A]"; strtod leaves endptr at the start in that case
     char* end = nullptr;
     double power = std::strtod(power_s.c_str(), &end);
     if (end == power_s.c_str())
-        return std::nullopt;
+        return {QueryStatus::Failed, std::nullopt};
     // A successful parse is all that is checked: a negative or absurd value from
     // the driver is passed through. Harmless today, because the value only feeds
     // the average, but the averaging is not filtered either.
 
-    return std::pair{temp, power};
+    return {QueryStatus::Ok, std::pair{temp, power}};
 }
 
-std::optional<GpuProcList> nvidia_processes(const std::vector<std::string>& exclude) {
-    auto out = run_capture("nvidia-smi -q -d PIDS", kNvidiaSmiTimeoutMs);
-    if (!out)
-        return std::nullopt;
-    return parse_pids(*out, exclude);
+std::pair<QueryStatus, std::optional<GpuProcList>>
+nvidia_processes(const std::vector<std::string>& exclude) {
+    std::string out;
+    const auto st = run_capture("nvidia-smi -q -d PIDS", kNvidiaSmiTimeoutMs, out);
+    if (st != QueryStatus::Ok)
+        return {st, std::nullopt};
+    auto parsed = parse_pids(out, exclude);
+    if (!parsed)
+        return {QueryStatus::Failed, std::nullopt};
+    return {QueryStatus::Ok, std::move(parsed)};
 }
 
 } // namespace cfc

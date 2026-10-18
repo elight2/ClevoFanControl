@@ -73,6 +73,10 @@ private:
     bool logged_gpu_mode_ = false; // first mode report is emitted once
     bool prev_gpu_active_ = false;
 
+    // Previous cycle's nvidia-smi timeout state, so the normal-level report is
+    // emitted on change only. Sampler thread only.
+    bool prev_timeout_ = false;
+
     // Monotonic ns until which nvidia-smi is skipped, so the driver can suspend
     // the dGPU. nullopt = not pausing. The sampler thread is the only writer.
     std::optional<uint64_t> pause_until_ns_;

@@ -169,6 +169,10 @@ void Control::sampler_loop(std::stop_token stop) {
         // the fan mode.
         bool used_real_gpu = false;
         bool fresh_reading = false;
+        // Set when either nvidia-smi call timed out this cycle. Reported once per
+        // state change, not once per cycle, so a driver that stays stuck for
+        // minutes does not fill the journal.
+        bool timeout_now = false;
 
         if (dgpu_status_) {
             const bool active = read_gpu_active(*dgpu_status_).value_or(true);
@@ -183,11 +187,20 @@ void Control::sampler_loop(std::stop_token stop) {
             if (active && !pausing) {
                 // nvidia-smi wakes the GPU, so it runs only when the sysfs state
                 // says the GPU is already awake and no pause is in effect.
-                if (auto r = nvidia_readings()) {
+                const auto [st, r] = nvidia_readings();
+                if (st == QueryStatus::Ok && r) {
                     last_gpu_temp_ = r->first;
                     last_gpu_power_ = r->second;
                     have_gpu_ = true;
                     fresh_reading = true;
+                } else if (st == QueryStatus::Timeout) {
+                    // A timeout is a late reading, not a broken one: keep using the
+                    // last good values as this cycle's reading. They enter the
+                    // averaging window like any other sample, so the control law
+                    // keeps steering on the most recent real measurement.
+                    timeout_now = true;
+                    if (have_gpu_)
+                        fresh_reading = true;
                 } else {
                     debug("nvidia-smi query failed; keeping last reading");
                 }
@@ -200,8 +213,13 @@ void Control::sampler_loop(std::stop_token stop) {
                 if (used_real_gpu && cfg_.gpu_detect.enabled &&
                     last_gpu_temp_ < cfg_.gpu_detect.sleep_temp) {
                     debug("querying GPU process list");
-                    auto procs = nvidia_processes(cfg_.gpu_detect.proc_exclude);
-                    if (!procs) {
+                    const auto [pst, procs] = nvidia_processes(cfg_.gpu_detect.proc_exclude);
+                    if (pst == QueryStatus::Timeout) {
+                        // No answer about the client set: do not pause on a guess.
+                        // The query is retried on the next cycle, so a single slow
+                        // nvidia-smi costs a cycle, not the sleep feature.
+                        timeout_now = true;
+                    } else if (!procs) {
                         // Unknown client set: keep polling so the fans see fresh
                         // data rather than a frozen reading.
                         debug("nvidia-smi -q -d PIDS failed; keeping GPU polling");
@@ -241,6 +259,21 @@ void Control::sampler_loop(std::stop_token stop) {
                               : "GPU fan mode: CPU-only (dGPU suspended)");
             logged_gpu_mode_ = true;
             prev_gpu_active_ = used_real_gpu;
+        }
+
+        // One normal-level line per state change, in both directions. Emitting on
+        // every cycle would flood the journal while the driver stays hung. The
+        // two timeouts share the message because the user-visible effect is the
+        // same: this cycle ran without fresh GPU data.
+        if (timeout_now != prev_timeout_) {
+            if (timeout_now)
+                errorf("nvidia-smi exceeded the {} s timeout; GPU data for this cycle "
+                       "falls back to the last good reading and GPU sleep detection is "
+                       "skipped, retrying next cycle",
+                       kNvidiaSmiTimeoutMs / 1000);
+            else
+                log("nvidia-smi responding again");
+            prev_timeout_ = timeout_now;
         }
 
         Snapshot next;

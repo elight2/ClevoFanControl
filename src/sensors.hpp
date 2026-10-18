@@ -12,6 +12,12 @@ namespace cfc {
 // the sampler forever, and the fans would stop being adjusted.
 constexpr int kNvidiaSmiTimeoutMs = 5000;
 
+// How an nvidia-smi query ended. Callers must tell a timeout apart from any
+// other failure: a timeout means the reading is merely late and the previous
+// one stays usable, while a plain failure is a separate case with its own
+// handling.
+enum class QueryStatus { Ok, Timeout, Failed };
+
 // CPU package energy counter, in micro-joules. Wraps at max_energy_range_uj.
 class RaplEnergy {
 public:
@@ -43,8 +49,9 @@ private:
 // Path to the NVIDIA GPU's power/runtime_status, or nullopt if none found.
 std::optional<std::string> find_nvidia_runtime_status();
 
-// nvidia-smi query result: (temperature C, power W). Nullopt on any failure.
-std::optional<std::pair<int, double>> nvidia_readings();
+// nvidia-smi query result: (temperature C, power W). status tells a timeout
+// apart from other failures; the value is only meaningful when status is Ok.
+std::pair<QueryStatus, std::optional<std::pair<int, double>>> nvidia_readings();
 
 // GPU clients as reported by `nvidia-smi -q -d PIDS`. This is the driver's own
 // accounting, not the set of open /dev/nvidia* handles: a display server keeps
@@ -55,7 +62,8 @@ struct GpuProcList {
     bool in_use = false;       // some client survives the exclusion list
 };
 
-// Nullopt when the query failed or its output had no Processes section.
-std::optional<GpuProcList> nvidia_processes(const std::vector<std::string>& exclude);
+// status is Failed when the query failed or its output had no Processes section.
+std::pair<QueryStatus, std::optional<GpuProcList>>
+nvidia_processes(const std::vector<std::string>& exclude);
 
 } // namespace cfc
