@@ -44,7 +44,7 @@ target_compile_options(cfc PRIVATE -Wall -Wextra)
 # build. The default prefix lives inside the source tree (and is git-ignored);
 # a real system install still needs an explicit --prefix such as /usr/local.
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE PATH
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/out" CACHE PATH
         "Install prefix" FORCE)
 endif()
 
@@ -55,4 +55,10 @@ install(TARGETS cfc
 install(TARGETS clevoec
     LIBRARY DESTINATION .)
 install(PROGRAMS src/testec.py
+    DESTINATION .)
+# The default config is copied so the staged directory is self-contained. Note:
+# this overwrites out/config.toml on every install, so edits made while testing
+# (max_speed, temps, ...) are lost on the next install. Copy the file elsewhere,
+# or pass --prefix to a directory holding the config you want to keep.
+install(FILES src/config.toml
     DESTINATION .)

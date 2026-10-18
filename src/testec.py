@@ -10,7 +10,7 @@ import os
 import sys
 
 LIB_DIR = os.path.dirname(os.path.abspath(__file__))
-# Look next to the script first (an installed/staged copy, e.g. dist/), then in
+# Look next to the script first (an installed/staged copy, e.g. out/), then in
 # the build tree, so the same script works from src/ and from the staging dir.
 LIB_PATH = next(
     (
