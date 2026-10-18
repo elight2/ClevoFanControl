@@ -78,13 +78,19 @@ Control::Control(const Config& cfg, Ec& ec) : cfg_(cfg), ec_(ec) {
 }
 
 bool Control::probe_sensors() {
-    // Intel-only: the RAPL domain path is hardcoded. On AMD the equivalent
-    // domains are amd-rapl:0 under the same sysfs class, so a k10temp system
-    // reaches this line, fails, and refuses to run. Supporting AMD means
-    // enumerating the available powercap domains instead of naming one.
+    // The RAPL domain path is hardcoded to the first package domain.
+    // AMD note (checked against the kernel tree, not tested on hardware): the
+    // intel_rapl_msr driver registers its control type under the name
+    // "intel-rapl" on AMD and Hygon too (drivers/powercap/intel_rapl_msr.c), so
+    // this path is not Intel-only and usually resolves on AMD as well. What does
+    // differ is which CPUs the driver binds to: intel_rapl_common.c matches AMD
+    // families 0x17, 0x19 and 0x1A and Hygon 0x18, so a CPU outside that list
+    // exposes no domain here and the open below fails. Supporting such a CPU
+    // means enumerating the available powercap domains instead of naming one.
     rapl_ = RaplEnergy::open("/sys/class/powercap/intel-rapl:0");
     if (!rapl_) {
-        error("cannot open /sys/class/powercap/intel-rapl:0 (need root)");
+        error("cannot open /sys/class/powercap/intel-rapl:0 (need root, or no RAPL "
+              "package domain on this CPU)");
         return false;
     }
 

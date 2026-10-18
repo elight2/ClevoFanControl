@@ -264,11 +264,14 @@ std::optional<uint64_t> RaplEnergy::read() {
 }
 
 std::optional<CpuTemp> CpuTemp::open() {
-    // Prefer hwmon: coretemp on Intel, k10temp on AMD. Both expose the package
-    // temperature as temp1_input.
-    // Note: accepting k10temp here is not enough to run on AMD. probe_sensors()
-    // still opens the Intel RAPL domain by name and fails first; see the comment
-    // there.
+    // Prefer hwmon: coretemp on Intel, k10temp on AMD.
+    // On coretemp, temp1_input is the package temperature.
+    // UNCERTAIN, not verified on hardware: on k10temp, temp1_input is Tctl, not
+    // Tdie. Tctl carries a model-dependent offset, so the same target_temp in
+    // config.toml may select a different real junction temperature on AMD than
+    // on Intel. temp2_input is Tdie on boards that expose it, but not all do.
+    // Left as temp1_input because no AMD machine was available to measure the
+    // effect on the control law; revisit together with AMD support.
     std::error_code ec;
     for (const auto& entry : fs::directory_iterator("/sys/class/hwmon", ec)) {
         auto name = read_line(entry.path().string() + "/name");
