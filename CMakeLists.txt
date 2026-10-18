@@ -62,3 +62,7 @@ install(PROGRAMS src/testec.py
 # or pass --prefix to a directory holding the config you want to keep.
 install(FILES src/config.toml
     DESTINATION .)
+# The user-facing description, copied for the same reason: the staged
+# directory is self-contained, including the notes on the control law.
+install(FILES README.md
+    DESTINATION .)
