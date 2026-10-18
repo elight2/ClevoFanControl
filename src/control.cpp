@@ -42,10 +42,16 @@ int lookup_min_speed(const std::vector<std::pair<int, int>>& list, double avg_po
     return speed;
 }
 
-double average(const std::vector<double>& v) {
-    if (v.empty())
+// Average of the newest n samples. The history may be kept longer than one fan
+// needs, because a single source can feed two fans with different window sizes:
+// the CPU power history serves fan 1 through [cpu] and fan 2 through
+// [gpu_cpu_only] while the dGPU is suspended.
+double average_tail(const std::vector<double>& v, std::size_t n) {
+    if (v.empty() || n == 0)
         return 0.0;
-    return std::accumulate(v.begin(), v.end(), 0.0) / static_cast<double>(v.size());
+    const std::size_t take = std::min(n, v.size());
+    const auto first = v.end() - static_cast<std::ptrdiff_t>(take);
+    return std::accumulate(first, v.end(), 0.0) / static_cast<double>(take);
 }
 
 void push_window(std::vector<double>& v, double value, std::size_t cap) {
@@ -98,11 +104,15 @@ bool Control::probe_sensors() {
 }
 
 void Control::sampler_loop(std::stop_token stop) {
-    // KNOWN DEFECT (confirmed by the project owner, fix pending): one window size
-    // is taken from the CPU table and applied to both averaging windows, so
-    // [gpu].power_sample_count and [gpu_cpu_only].power_sample_count have no
-    // effect. Both windows must be sized from their own FanParams instead.
-    const auto window = static_cast<std::size_t>(cfg_.cpu.power_sample_count);
+    // Window sizes come from the table each fan actually uses: fan 1 reads
+    // [cpu], fan 2 reads [gpu] while the dGPU is active and [gpu_cpu_only] while
+    // it is suspended. In CPU-only mode fan 2 is driven by the CPU power, so the
+    // CPU history must be kept long enough for both [cpu] and [gpu_cpu_only];
+    // each fan then averages the newest count its own table asks for.
+    const auto cpu_window = static_cast<std::size_t>(cfg_.cpu.power_sample_count);
+    const auto cpu_only_window = static_cast<std::size_t>(cfg_.gpu_cpu_only.power_sample_count);
+    const auto cpu_hist_cap = std::max(cpu_window, cpu_only_window);
+    const auto gpu_window = static_cast<std::size_t>(cfg_.gpu.power_sample_count);
 
     // First read establishes the baseline. The first sample taken inside the
     // loop only refreshes that baseline; it must not enter the averaging window.
@@ -146,7 +156,7 @@ void Control::sampler_loop(std::stop_token stop) {
             last_cpu_temp_ = *t; // a failed read keeps the previous value
             cpu_temp_now = *t;
         }
-        push_window(cpu_hist_, cpu_power, window);
+        push_window(cpu_hist_, cpu_power, cpu_hist_cap);
 
         // Mode is derived from power/runtime_status, a free sysfs read that does
         // not wake the GPU. It stays the authority: a failed read is unknown, not
@@ -215,7 +225,7 @@ void Control::sampler_loop(std::stop_token stop) {
         // While paused the averaging window is frozen: the value is not a new
         // measurement, and pushing it would slowly rewrite the history.
         if (used_real_gpu && fresh_reading)
-            push_window(gpu_hist_, last_gpu_power_, window);
+            push_window(gpu_hist_, last_gpu_power_, gpu_window);
         else if (!used_real_gpu)
             gpu_hist_.clear(); // stale history must not leak into the next active phase
 
@@ -230,16 +240,18 @@ void Control::sampler_loop(std::stop_token stop) {
 
         Snapshot next;
         next.fans[0].temp = cpu_temp_now;
-        next.fans[0].avg_power = average(cpu_hist_);
+        next.fans[0].avg_power = average_tail(cpu_hist_, cpu_window);
         next.fans[0].params = &cfg_.cpu;
 
         if (used_real_gpu) {
             next.fans[1].temp = last_gpu_temp_;
-            next.fans[1].avg_power = average(gpu_hist_);
+            next.fans[1].avg_power = average_tail(gpu_hist_, gpu_window);
             next.fans[1].params = &cfg_.gpu;
         } else {
+            // CPU-only mode: fan 2 borrows the CPU temperature and power but is
+            // tuned by [gpu_cpu_only], including that table's sample count.
             next.fans[1].temp = cpu_temp_now;
-            next.fans[1].avg_power = average(cpu_hist_);
+            next.fans[1].avg_power = average_tail(cpu_hist_, cpu_only_window);
             next.fans[1].params = &cfg_.gpu_cpu_only;
         }
 
