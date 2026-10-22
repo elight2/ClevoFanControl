@@ -8,7 +8,7 @@ hw_detect_interval=1.0 # interval between which power and temp are metered, GPU 
 [gpu_detect]
 gpu_sleep_detect_enabled=true # global switch
 gpu_sleep_delay=30 # stop monitoring GPU for this period to get it auto suspended
-gpu_proc_exclude=["Xorg","kwin_wayland"] # procs that do NOT prevent GPU from being suspended must be added here for this feature to work correctly
+gpu_proc_exclude=["Xorg","kwin_wayland","Xwayland"] # procs that do NOT prevent GPU from being suspended must be added here for this feature to work correctly
 gpu_sleep_temp=60 # try to get GPU auto suspended under this temp
 
 # following are fan configs
