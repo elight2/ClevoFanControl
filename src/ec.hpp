@@ -1,0 +1,27 @@
+#pragma once
+
+#include <mutex>
+
+namespace cfc {
+
+// Serializes every EC transaction. libclevoec.c carries no lock of its own, and
+// both fan threads plus the shutdown path reach it concurrently, so the whole
+// read/write sequence must be held, not just one byte.
+class Ec {
+public:
+    bool init();
+
+    // fan is 1 (CPU) or 2 (GPU); percent is 0-100.
+    int set_speed(int fan, int percent);
+    int set_auto(int fan);
+
+    // Reads the tachometer. Currently no caller: the control law is open loop,
+    // it never checks that the fan actually reached the requested duty. Kept
+    // because testfan.py and any future closed-loop check need the same mapping.
+    int rpm(int fan);
+
+private:
+    std::mutex mu_;
+};
+
+} // namespace cfc
